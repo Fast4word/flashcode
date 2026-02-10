@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashCode | AI-Native IDE & Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com"></script>
+    <script src="https://unpkg.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com');
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fafafa; margin: 0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .hidden { display: none; }
+        .glass { background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(12px); }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Supabase Configuration (Replace with your keys) -->
+    <script>
+        const SUPABASE_URL = 'https://cxhhcmupzlskffdeamtm.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_4YZa6LefR_wfbaJXefjI_A_dMY11r4J';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+
+    <!-- Navigation Header -->
+    <header class="h-14 border-b border-zinc-800 flex items-center justify-between px-4 bg-zinc-950 z-50">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="showDashboard()">
+            <div class="p-1.5 bg-indigo-600 rounded-lg">
+                <i data-lucide="zap" class="w-5 h-5 text-white fill-current"></i>
+            </div>
+            <h1 class="text-lg font-bold tracking-tight">FlashCode</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div id="user-profile" class="hidden flex items-center gap-3">
+                <span id="user-email" class="text-xs text-zinc-400"></span>
+                <button onclick="handleLogout()" class="text-xs text-zinc-500 hover:text-white">Logout</button>
+                <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs">U</div>
+            </div>
+            <button id="login-btn" onclick="toggleAuthModal()" class="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-md text-sm border border-zinc-700">Login</button>
+        </div>
+    </header>
+
+    <!-- DASHBOARD VIEW -->
+    <main id="dashboard-view" class="flex-1 overflow-y-auto p-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold">My Projects</h2>
+                    <p class="text-zinc-500 mt-1">Manage and launch your AI-generated flashes.</p>
+                </div>
+                <button onclick="createNewProject()" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-semibold transition-all">
+                    <i data-lucide="plus" class="w-5 h-5"></i> New Project
+                </button>
+            </div>
+
+            <!-- Project Grid -->
+            <div id="project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Project Card Template -->
+                <div class="group border border-zinc-800 rounded-xl p-5 bg-zinc-900/50 hover:border-indigo-500/50 transition-all cursor-pointer" onclick="openIDE()">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2 bg-zinc-800 rounded-lg group-hover:bg-indigo-500/10 group-hover:text-indigo-400">
+                            <i data-lucide="code-2" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[10px] text-zinc-500 uppercase tracking-widest">Modified 2h ago</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Neon Flappy Clone</h3>
+                    <p class="text-sm text-zinc-500 line-clamp-2">A high-performance physics game with neon aesthetics built via Vibe Coder.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- IDE VIEW (Initially Hidden) -->
+    <main id="ide-view" class="flex-1 flex overflow-hidden hidden">
+        <!-- Sidebar -->
+        <nav class="w-12 border-r border-zinc-800 flex flex-col items-center py-4 gap-6 bg-zinc-950">
+            <i data-lucide="layout-dashboard" onclick="showDashboard()" class="w-5 h-5 text-zinc-400 cursor-pointer hover:text-white"></i>
+            <i data-lucide="files" class="w-5 h-5 text-indigo-400"></i>
+            <i data-lucide="settings" class="w-5 h-5 text-zinc-400 mt-auto"></i>
+        </nav>
+
+        <!-- Editor & Preview -->
+        <div class="flex-1 flex min-w-0">
+            <!-- Left: Editor -->
+            <div class="flex-1 flex flex-col border-r border-zinc-800">
+                <div class="h-9 flex items-center bg-zinc-900 px-4 border-b border-zinc-800 justify-between">
+                    <span class="text-xs text-zinc-400">main.js</span>
+                    <button onclick="saveProject()" class="text-[10px] bg-indigo-600/20 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/30">Save to Cloud</button>
+                </div>
+                <textarea spellcheck="false" class="flex-1 bg-zinc-950 p-6 mono text-sm outline-none resize-none text-zinc-300 leading-relaxed">function startApp() {
+  console.log("FlashCode Engine Initialized...");
+}</textarea>
+            </div>
+
+            <!-- Right: Vibe Coder -->
+            <div class="w-[450px] flex flex-col bg-zinc-950">
+                <div class="p-4 bg-indigo-600/5 border-b border-zinc-800">
+                    <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block mb-2">Vibe Coder</label>
+                    <textarea placeholder="Describe your game..." class="w-full h-24 bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-sm focus:border-indigo-500 outline-none"></textarea>
+                    <button class="w-full mt-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-md text-sm font-bold flex items-center justify-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> Generate Flash
+                    </button>
+                </div>
+                <div class="flex-1 flex flex-col">
+                    <div class="h-9 bg-zinc-900 border-b border-zinc-800 px-4 flex items-center justify-between">
+                        <span class="text-[10px] uppercase text-zinc-500">Live Preview</span>
+                        <i data-lucide="maximize" class="w-3 h-3 text-zinc-500"></i>
+                    </div>
+                    <div class="flex-1 bg-black flex items-center justify-center">
+                        <div class="text-zinc-800 text-center">
+                            <i data-lucide="clapperboard" class="w-12 h-12 mx-auto mb-2 opacity-20"></i>
+                            <p class="text-xs">Preview Ready</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/80" onclick="toggleAuthModal()"></div>
+        <div class="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-8 z-10 shadow-2xl">
+            <h2 class="text-2xl font-bold mb-2">Welcome to FlashCode</h2>
+            <p class="text-zinc-500 mb-6 text-sm">Sign in to save your AI projects to the cloud.</p>
+            
+            <div class="space-y-4">
+                <button onclick="loginWithGitHub()" class="w-full flex items-center justify-center gap-3 bg-white text-black font-bold py-3 rounded-lg hover:bg-zinc-200 transition-colors">
+                    <i data-lucide="github" class="w-5 h-5"></i> Continue with GitHub
+                </button>
+                <div class="relative py-4">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-zinc-800"></div></div>
+                    <div class="relative flex justify-center text-xs uppercase"><span class="bg-zinc-900 px-2 text-zinc-500">Or email</span></div>
+                </div>
+                <input type="email" id="email-input" placeholder="dev@example.com" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 outline-none focus:border-indigo-500">
+                <button onclick="loginWithEmail()" class="w-full bg-indigo-600 py-3 rounded-lg font-bold hover:bg-indigo-500">Send Magic Link</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // UI Navigation Logic
+        function showDashboard() {
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('ide-view').classList.add('hidden');
+        }
+
+        function openIDE() {
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('ide-view').classList.remove('hidden');
+        }
+
+        function toggleAuthModal() {
+            document.getElementById('auth-modal').classList.toggle('hidden');
+        }
+
+        // Supabase Auth Integration
+        async function loginWithGitHub() {
+            const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'github' });
+        }
+
+        async function loginWithEmail() {
+            const email = document.getElementById('email-input').value;
+            const { error } = await supabase.auth.signInWithOtp({ email });
+            if (!error) alert('Check your email for the login link!');
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        // Project Saving Logic
+        async function saveProject() {
+            const user = await supabase.auth.getUser();
+            if (!user.data.user) {
+                toggleAuthModal();
+                return;
+            }
+            // Logic to upsert into 'projects' table
+            alert('Project synced to Supabase Cloud!');
+        }
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

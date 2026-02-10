@@ -1,162 +1,118 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlashCode | AI-Native IDE</title>
+    <title>FlashCode v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com"></script>
-    <script src="https://unpkg.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com');
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fafafa; margin: 0; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
+        #resizer { width: 6px; cursor: col-resize; background: #27272a; transition: background 0.2s; }
+        #resizer:hover { background: #6366f1; }
         .hidden { display: none !important; }
-        .tab-active { border-bottom: 2px solid #6366f1; color: #fff; background: #18181b; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
-
-    <script>
-        // INSERT YOUR KEYS HERE
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    </script>
-
+<body class="h-screen flex flex-col bg-zinc-950 text-white overflow-hidden">
     <!-- Header -->
-    <header class="h-14 border-b border-zinc-800 flex items-center justify-between px-4 bg-zinc-950 z-50">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('dashboard')">
-            <div class="p-1.5 bg-indigo-600 rounded-lg"><i data-lucide="zap" class="w-5 h-5 text-white fill-current"></i></div>
-            <h1 class="text-lg font-bold tracking-tight">FlashCode</h1>
+    <header class="h-14 border-b border-zinc-800 flex items-center justify-between px-4">
+        <div class="flex items-center gap-2">
+            <div class="bg-indigo-600 p-1 rounded"><i data-lucide="zap" class="w-5 h-5 text-white"></i></div>
+            <span class="font-bold">FlashCode</span>
         </div>
         <div class="flex items-center gap-4">
-            <button onclick="shareProject()" class="text-xs text-zinc-400 hover:text-white flex items-center gap-1">
-                <i data-lucide="share-2" class="w-3 h-3"></i> Share
-            </button>
-            <div id="auth-section">
-                <button onclick="toggleAuthModal()" class="px-4 py-1.5 bg-zinc-800 rounded-md text-sm border border-zinc-700">Login</button>
-            </div>
+            <button onclick="toggleSettings()" class="text-zinc-400 hover:text-white"><i data-lucide="settings" class="w-5 h-5"></i></button>
         </div>
     </header>
 
     <main class="flex-1 flex overflow-hidden">
-        <!-- Sidebar -->
-        <nav class="w-12 border-r border-zinc-800 flex flex-col items-center py-4 gap-6 bg-zinc-950">
-            <i data-lucide="layout-dashboard" onclick="switchView('dashboard')" class="w-5 h-5 text-zinc-400 cursor-pointer hover:text-white"></i>
-            <i data-lucide="code" onclick="switchView('editor')" class="w-5 h-5 text-zinc-400 cursor-pointer hover:text-white"></i>
-            <i data-lucide="sparkles" onclick="toggleVibeMode()" class="w-5 h-5 text-yellow-500 cursor-pointer animate-pulse"></i>
-        </nav>
-
-        <!-- DASHBOARD (Empty State Fix) -->
-        <div id="dashboard-view" class="flex-1 overflow-y-auto p-8 bg-zinc-950">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-bold">Recent Projects</h2>
-                <button onclick="switchView('editor')" class="bg-indigo-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-500 transition-all">New Project</button>
+        <!-- Editor -->
+        <div id="left-panel" class="flex-1 flex flex-col min-w-[200px]">
+            <div class="h-10 bg-zinc-900 border-b border-zinc-800 flex items-center px-4 justify-between">
+                <input id="filename-input" type="text" value="index.js" class="bg-transparent text-xs outline-none border-b border-zinc-700 text-zinc-300 w-32 focus:border-indigo-500">
+                <button onclick="runCode()" class="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-xs font-bold">Run</button>
             </div>
-            <div id="project-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- If no projects, show this -->
-                <div class="col-span-full border-2 border-dashed border-zinc-800 rounded-2xl h-64 flex flex-col items-center justify-center text-zinc-600">
-                    <i data-lucide="folder-plus" class="w-12 h-12 mb-4 opacity-20"></i>
-                    <p>No projects found. Create your first Flash!</p>
-                </div>
-            </div>
+            <textarea id="code-editor" class="flex-1 bg-zinc-950 p-4 font-mono text-sm outline-none resize-none">console.log("Console is now active!");</textarea>
         </div>
 
-        <!-- EDITOR (JDoodle Style) -->
-        <div id="editor-view" class="flex-1 flex hidden">
-            <div class="flex-1 flex flex-col border-r border-zinc-800">
-                <div class="h-10 bg-zinc-900 border-b border-zinc-800 flex items-center px-4 justify-between">
-                    <span class="text-xs mono text-zinc-500">main.js</span>
-                    <button onclick="runCode()" class="bg-green-600 hover:bg-green-500 text-white text-xs px-3 py-1 rounded flex items-center gap-1">
-                        <i data-lucide="play" class="w-3 h-3 fill-current"></i> Run
-                    </button>
-                </div>
-                <textarea id="code-editor" class="flex-1 bg-zinc-950 p-4 mono text-sm outline-none text-zinc-300 resize-none">console.log("Welcome to FlashCode!");</textarea>
-            </div>
+        <!-- Resizer -->
+        <div id="resizer"></div>
 
-            <!-- Tabbed Window -->
-            <div class="w-[500px] flex flex-col bg-zinc-900">
-                <div class="flex bg-zinc-950 border-b border-zinc-800">
-                    <button onclick="switchTab('preview')" id="tab-preview" class="px-4 py-2 text-[10px] font-bold tracking-widest text-zinc-500 tab-active">PREVIEW</button>
-                    <button onclick="switchTab('console')" id="tab-console" class="px-4 py-2 text-[10px] font-bold tracking-widest text-zinc-500">CONSOLE</button>
-                    <button onclick="switchTab('ai')" id="tab-ai" class="px-4 py-2 text-[10px] font-bold tracking-widest text-zinc-500">AI ASSISTANT</button>
-                </div>
-                <div class="flex-1 relative">
-                    <div id="content-preview" class="absolute inset-0 bg-white">
-                        <iframe id="output-iframe" class="w-full h-full border-none"></iframe>
-                    </div>
-                    <div id="content-console" class="absolute inset-0 bg-black p-4 hidden mono text-[11px] text-green-400 overflow-y-auto">
-                        <div>> FlashCode Kernel 1.0... Ready.</div>
-                    </div>
-                    <div id="content-ai" class="absolute inset-0 bg-zinc-900 flex flex-col hidden">
-                        <div id="chat-history" class="flex-1 p-4 overflow-y-auto text-sm space-y-4">
-                            <div class="bg-zinc-800 p-3 rounded-lg text-zinc-300">AI Assistant ready. How can I help you build today?</div>
-                        </div>
-                        <div class="p-4 border-t border-zinc-800">
-                            <input type="text" placeholder="Ask AI..." class="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-xs outline-none focus:border-indigo-500">
-                        </div>
-                    </div>
+        <!-- Preview/Console -->
+        <div id="right-panel" class="w-[400px] flex flex-col bg-zinc-900 min-w-[200px]">
+            <div class="flex bg-zinc-950 border-b border-zinc-800">
+                <button onclick="switchTab('preview')" class="px-4 py-2 text-xs">PREVIEW</button>
+                <button onclick="switchTab('console')" class="px-4 py-2 text-xs border-b-2 border-indigo-500">CONSOLE</button>
+            </div>
+            <div class="flex-1 relative">
+                <iframe id="output-iframe" class="absolute inset-0 w-full h-full bg-white hidden"></iframe>
+                <div id="console-output" class="absolute inset-0 p-4 font-mono text-xs text-zinc-300 overflow-y-auto bg-black">
+                    <div class="text-zinc-500">// Logs will appear here...</div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- VIBE MODE MODAL -->
-    <div id="vibe-overlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center hidden">
-        <div class="w-full max-w-xl p-8 bg-zinc-900 border border-indigo-500/50 rounded-3xl shadow-2xl">
-            <div class="flex items-center gap-3 mb-6">
-                <i data-lucide="sparkles" class="w-8 h-8 text-yellow-400"></i>
-                <h2 class="text-2xl font-black tracking-tight uppercase italic">Vibe Coder</h2>
-            </div>
-            <textarea id="vibe-prompt" placeholder="E.g. 'A neon-themed synthwave racing game with basic physics'..." class="w-full h-40 bg-black border border-zinc-800 rounded-xl p-4 text-lg outline-none focus:border-indigo-500 transition-all"></textarea>
-            <button onclick="generateVibe()" class="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-lg uppercase tracking-widest shadow-lg shadow-indigo-500/20 transition-all">Generate Flash</button>
-            <button onclick="toggleVibeMode()" class="w-full mt-2 text-zinc-600 text-xs hover:text-white uppercase tracking-widest">Cancel</button>
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden">
+        <div class="bg-zinc-900 p-6 rounded-lg border border-zinc-800 w-80">
+            <h3 class="font-bold mb-4">Settings</h3>
+            <label class="text-xs text-zinc-500">API KEY</label>
+            <input type="password" id="api-key" class="w-full bg-black border border-zinc-800 p-2 rounded mb-4 text-xs" placeholder="Paste key here">
+            <button onclick="toggleSettings()" class="w-full bg-indigo-600 py-2 rounded text-sm font-bold">Save</button>
         </div>
     </div>
 
     <script>
-        // INITIALIZE ICONS - CRITICAL FIX
-        window.addEventListener('DOMContentLoaded', () => { lucide.createIcons(); });
+        lucide.createIcons();
 
-        function refreshIcons() { setTimeout(() => lucide.createIcons(), 10); }
+        // Resizing Logic
+        const leftPanel = document.getElementById('left-panel');
+        const rightPanel = document.getElementById('right-panel');
+        const resizer = document.getElementById('resizer');
 
-        function switchView(view) {
-            document.getElementById('dashboard-view').classList.toggle('hidden', view !== 'dashboard');
-            document.getElementById('editor-view').classList.toggle('hidden', view !== 'editor');
-            refreshIcons();
+        resizer.addEventListener('mousedown', (e) => {
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', () => document.removeEventListener('mousemove', resize));
+        });
+
+        function resize(e) {
+            const newWidth = window.innerWidth - e.clientX;
+            if (newWidth > 150 && newWidth < (window.innerWidth - 150)) {
+                rightPanel.style.width = newWidth + 'px';
+            }
         }
 
-        function switchTab(tab) {
-            ['preview', 'console', 'ai'].forEach(t => {
-                document.getElementById(`content-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.remove('tab-active');
-            });
-            document.getElementById(`content-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.add('tab-active');
-            refreshIcons();
-        }
-
-        function toggleVibeMode() {
-            document.getElementById('vibe-overlay').classList.toggle('hidden');
-            refreshIcons();
-        }
-
+        // Console & Execution Logic
         function runCode() {
             const code = document.getElementById('code-editor').value;
             const iframe = document.getElementById('output-iframe');
-            iframe.srcdoc = `<html><body style="margin:0; background:white;"><script>${code}<\/script></body></html>`;
-            switchTab('preview');
+            const patch = `
+                <script>
+                    const originalLog = console.log;
+                    console.log = (...args) => {
+                        window.parent.postMessage({ type: 'log', data: args.join(' ') }, '*');
+                        originalLog(...args);
+                    };
+                <\/script>`;
+            iframe.srcdoc = `<html><body>${patch}<script>${code}<\/script></body></html>`;
         }
 
-        async function generateVibe() {
-            toggleVibeMode();
-            switchView('editor');
-            switchTab('ai');
-            // Logic for AI call goes here
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'log') {
+                const entry = document.createElement('div');
+                entry.className = 'border-b border-zinc-800 py-1';
+                entry.textContent = `> ${e.data.data}`;
+                document.getElementById('console-output').appendChild(entry);
+            }
+        });
+
+        function switchTab(tab) {
+            document.getElementById('output-iframe').classList.toggle('hidden', tab === 'console');
+            document.getElementById('console-output').classList.toggle('hidden', tab === 'preview');
         }
 
-        function toggleAuthModal() { alert("Supabase Auth modal would open here."); }
+        function toggleSettings() {
+            document.getElementById('settings-modal').classList.toggle('hidden');
+        }
     </script>
 </body>
 </html>

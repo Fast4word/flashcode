@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; overflow: hidden; }
@@ -118,12 +119,7 @@
               Run
             </button>
           </div>
-          <textarea 
-            id="codeEditor" 
-            class="flex-1 bg-gray-900 text-gray-100 p-4 resize-none outline-none"
-            spellcheck="false"
-            placeholder="// Start coding..."
-          ></textarea>
+          <div id="monacoEditor" class="flex-1"></div>
         </div>
 
         <!-- Resizer -->
@@ -322,10 +318,64 @@
       initSupabase();
     }
 
+    // Initialize Monaco Editor
+    function initMonacoEditor() {
+      require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+      
+      require(['vs/editor/editor.main'], function() {
+        editor = monaco.editor.create(monacoEditorContainer, {
+          value: '<!DOCTYPE html>\n<html>\n<head>\n  <title>New Project</title>\n</head>\n<body>\n  <h1>Hello FlashCode!</h1>\n</body>\n</html>',
+          language: 'html',
+          theme: 'vs-dark',
+          automaticLayout: true,
+          fontSize: 14,
+          minimap: { enabled: true },
+          scrollBeyondLastLine: false,
+          wordWrap: 'on',
+          tabSize: 2,
+          insertSpaces: true,
+          formatOnPaste: true,
+          formatOnType: true
+        });
+        
+        // Update language based on filename
+        filename.addEventListener('change', updateEditorLanguage);
+        filename.addEventListener('input', updateEditorLanguage);
+      });
+    }
+    
+    function updateEditorLanguage() {
+      if (!editor) return;
+      const fname = filename.value.toLowerCase();
+      let language = 'plaintext';
+      
+      if (fname.endsWith('.html')) language = 'html';
+      else if (fname.endsWith('.css')) language = 'css';
+      else if (fname.endsWith('.js')) language = 'javascript';
+      else if (fname.endsWith('.jsx')) language = 'javascript';
+      else if (fname.endsWith('.ts')) language = 'typescript';
+      else if (fname.endsWith('.tsx')) language = 'typescript';
+      else if (fname.endsWith('.json')) language = 'json';
+      else if (fname.endsWith('.py')) language = 'python';
+      else if (fname.endsWith('.java')) language = 'java';
+      else if (fname.endsWith('.cpp') || fname.endsWith('.c')) language = 'cpp';
+      else if (fname.endsWith('.md')) language = 'markdown';
+      
+      monaco.editor.setModelLanguage(editor.getModel(), language);
+    }
+    
+    // Initialize Monaco when the library is ready
+    if (typeof require !== 'undefined') {
+      initMonacoEditor();
+    } else {
+      setTimeout(initMonacoEditor, 100);
+    }
+
     // State Management
     let currentUser = null;
     let currentProject = null;
     let isResizing = false;
+    let editor = null; // Monaco Editor instance
 
     // DOM Elements
     const loginBtn = document.getElementById('loginBtn');
@@ -345,7 +395,7 @@
     const projectsGrid = document.getElementById('projectsGrid');
     const newProjectBtn = document.getElementById('newProjectBtn');
     
-    const codeEditor = document.getElementById('codeEditor');
+    const monacoEditorContainer = document.getElementById('monacoEditor');
     const filename = document.getElementById('filename');
     const runBtn = document.getElementById('runBtn');
     const saveBtn = document.getElementById('saveBtn');
@@ -423,7 +473,7 @@
       const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: window.location.origin + '/flashcode'
         }
       });
       if (error) {
@@ -532,9 +582,12 @@
         
         card.querySelector('.open-btn').addEventListener('click', () => {
           currentProject = project;
-          codeEditor.value = project.code || '';
+          if (editor) {
+            editor.setValue(project.code || '');
+          }
           filename.value = project.name;
           if (project.vibe_prompt) vibePrompt.value = project.vibe_prompt;
+          updateEditorLanguage();
           switchView('editor');
           lucide.createIcons();
         });
@@ -555,9 +608,12 @@
     // New Project
     newProjectBtn.addEventListener('click', () => {
       currentProject = null;
-      codeEditor.value = '<!DOCTYPE html>\n<html>\n<head>\n  <title>New Project</title>\n</head>\n<body>\n  <h1>Hello FlashCode!</h1>\n</body>\n</html>';
+      if (editor) {
+        editor.setValue('<!DOCTYPE html>\n<html>\n<head>\n  <title>New Project</title>\n</head>\n<body>\n  <h1>Hello FlashCode!</h1>\n</body>\n</html>');
+      }
       filename.value = 'Untitled Project';
       vibePrompt.value = '';
+      updateEditorLanguage();
       switchView('editor');
     });
 
@@ -571,7 +627,7 @@
       const projectData = {
         user_id: currentUser.id,
         name: filename.value || 'Untitled Project',
-        code: codeEditor.value,
+        code: editor ? editor.getValue() : '',
         vibe_prompt: vibePrompt.value || null,
         updated_at: new Date().toISOString()
       };
@@ -604,7 +660,7 @@
 
     // Run Code
     runBtn.addEventListener('click', () => {
-      const code = codeEditor.value;
+      const code = editor ? editor.getValue() : '';
       consoleOutput.innerHTML = '';
       
       // Inject console capture
@@ -770,7 +826,10 @@
           generatedCode = codeMatch[1];
         }
         
-        codeEditor.value = generatedCode;
+        if (editor) {
+          editor.setValue(generatedCode);
+        }
+        updateEditorLanguage();
         vibeOverlay.classList.add('hidden');
         alert('Code generated! Click Run to preview.');
         
@@ -816,7 +875,7 @@
         return;
       }
       
-      const currentCode = codeEditor.value;
+      const currentCode = editor ? editor.getValue() : '';
       const systemPrompt = `You are an AI coding assistant. The user is working on this code:\n\n${currentCode}\n\nHelp them with their question.`;
       
       try {

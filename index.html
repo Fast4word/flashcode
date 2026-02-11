@@ -104,12 +104,41 @@
         <!-- Code Editor (Center) -->
         <div class="flex-1 flex flex-col bg-gray-900">
           <div class="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <select id="fileSelector" class="bg-gray-700 px-3 py-1 rounded text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="main">main file</option>
+              </select>
+              <button id="addFileBtn" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm" title="Add file">
+                <i data-lucide="file-plus" class="w-4 h-4"></i>
+              </button>
+              <button id="deleteFileBtn" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm" title="Delete file">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
             <input 
               id="filename" 
               type="text" 
               value="index.html" 
               class="bg-gray-700 px-3 py-1 rounded text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="filename.ext"
             />
+            <select id="languageSelector" class="bg-gray-700 px-3 py-1 rounded text-sm outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+              <option value="javascript">JavaScript</option>
+              <option value="typescript">TypeScript</option>
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+              <option value="json">JSON</option>
+              <option value="markdown">Markdown</option>
+              <option value="plaintext">Plain Text</option>
+            </select>
+            <div class="flex-1"></div>
+            <button id="exportBtn" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded flex items-center gap-2 text-sm">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Export
+            </button>
             <button id="saveBtn" class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded flex items-center gap-2 text-sm">
               <i data-lucide="save" class="w-4 h-4"></i>
               Save
@@ -287,10 +316,16 @@
 
   <script>
     // Suppress harmless ResizeObserver errors from Monaco Editor
+    const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/;
     window.addEventListener('error', (e) => {
-      if (e.message === 'ResizeObserver loop completed with undelivered notifications.' ||
-          e.message === 'ResizeObserver loop limit exceeded') {
-        e.stopImmediatePropagation();
+      if (resizeObserverLoopErrRe.test(e.message)) {
+        const resizeObserverErr = e.message === 'ResizeObserver loop completed with undelivered notifications.' ||
+                                  e.message === 'ResizeObserver loop limit exceeded';
+        if (resizeObserverErr) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          return false;
+        }
       }
     });
     
@@ -332,8 +367,8 @@
       
       require(['vs/editor/editor.main'], function() {
         editor = monaco.editor.create(monacoEditorContainer, {
-          value: '<!DOCTYPE html>\n<html>\n<head>\n  <title>New Project</title>\n</head>\n<body>\n  <h1>Hello FlashCode!</h1>\n</body>\n</html>',
-          language: 'html',
+          value: projectFiles[currentFileId].content,
+          language: projectFiles[currentFileId].language,
           theme: 'vs-dark',
           automaticLayout: true,
           fontSize: 14,
@@ -346,37 +381,41 @@
           formatOnType: true
         });
         
-        // Update language based on filename
-        filename.addEventListener('change', updateEditorLanguage);
-        filename.addEventListener('input', updateEditorLanguage);
+        // Sync language selector
+        languageSelector.value = projectFiles[currentFileId].language;
+        
+        // Language selector change
+        languageSelector.addEventListener('change', () => {
+          const language = languageSelector.value;
+          monaco.editor.setModelLanguage(editor.getModel(), language);
+          projectFiles[currentFileId].language = language;
+        });
+        
+        // Auto-detect language from filename
+        filename.addEventListener('input', () => {
+          projectFiles[currentFileId].name = filename.value;
+          const detectedLang = detectLanguageFromFilename(filename.value);
+          if (detectedLang) {
+            languageSelector.value = detectedLang;
+            monaco.editor.setModelLanguage(editor.getModel(), detectedLang);
+            projectFiles[currentFileId].language = detectedLang;
+          }
+        });
       });
     }
     
-    function updateEditorLanguage() {
-      if (!editor) return;
-      const fname = filename.value.toLowerCase();
-      let language = 'plaintext';
-      
-      if (fname.endsWith('.html')) language = 'html';
-      else if (fname.endsWith('.css')) language = 'css';
-      else if (fname.endsWith('.js')) language = 'javascript';
-      else if (fname.endsWith('.jsx')) language = 'javascript';
-      else if (fname.endsWith('.ts')) language = 'typescript';
-      else if (fname.endsWith('.tsx')) language = 'typescript';
-      else if (fname.endsWith('.json')) language = 'json';
-      else if (fname.endsWith('.py')) language = 'python';
-      else if (fname.endsWith('.java')) language = 'java';
-      else if (fname.endsWith('.cpp') || fname.endsWith('.c')) language = 'cpp';
-      else if (fname.endsWith('.md')) language = 'markdown';
-      
-      monaco.editor.setModelLanguage(editor.getModel(), language);
-    }
-    
-    // Initialize Monaco when the library is ready
-    if (typeof require !== 'undefined') {
-      initMonacoEditor();
-    } else {
-      setTimeout(initMonacoEditor, 100);
+    function detectLanguageFromFilename(fname) {
+      const lower = fname.toLowerCase();
+      if (lower.endsWith('.html')) return 'html';
+      if (lower.endsWith('.css')) return 'css';
+      if (lower.endsWith('.js') || lower.endsWith('.jsx')) return 'javascript';
+      if (lower.endsWith('.ts') || lower.endsWith('.tsx')) return 'typescript';
+      if (lower.endsWith('.json')) return 'json';
+      if (lower.endsWith('.py')) return 'python';
+      if (lower.endsWith('.java')) return 'java';
+      if (lower.endsWith('.cpp') || lower.endsWith('.c')) return 'cpp';
+      if (lower.endsWith('.md')) return 'markdown';
+      return null;
     }
 
     // State Management
@@ -384,6 +423,10 @@
     let currentProject = null;
     let isResizing = false;
     let editor = null; // Monaco Editor instance
+    let projectFiles = { // Multi-file support
+      'main': { name: 'index.html', content: '<!DOCTYPE html>\n<html>\n<head>\n  <title>New Project</title>\n</head>\n<body>\n  <h1>Hello FlashCode!</h1>\n</body>\n</html>', language: 'html' }
+    };
+    let currentFileId = 'main';
 
     // DOM Elements
     const loginBtn = document.getElementById('loginBtn');
@@ -405,6 +448,11 @@
     
     const monacoEditorContainer = document.getElementById('monacoEditor');
     const filename = document.getElementById('filename');
+    const languageSelector = document.getElementById('languageSelector');
+    const fileSelector = document.getElementById('fileSelector');
+    const addFileBtn = document.getElementById('addFileBtn');
+    const deleteFileBtn = document.getElementById('deleteFileBtn');
+    const exportBtn = document.getElementById('exportBtn');
     const runBtn = document.getElementById('runBtn');
     const saveBtn = document.getElementById('saveBtn');
     
@@ -518,12 +566,29 @@
     signUpBtn.addEventListener('click', async () => {
       const email = loginEmailInput.value;
       const password = loginPasswordInput.value;
-      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      const { data, error } = await supabaseClient.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          emailRedirectTo: window.location.origin + '/flashcode'
+        }
+      });
       if (error) {
-        alert('Sign up failed: ' + error.message);
+        if (error.message.includes('Email not confirmed')) {
+          alert('Email verification is enabled. To disable it:\n1. Go to Supabase Dashboard\n2. Authentication > Providers\n3. Email > Confirm email = OFF');
+        } else {
+          alert('Sign up failed: ' + error.message);
+        }
+      } else if (data.user && !data.session) {
+        alert('Please check your email to verify your account. To disable email verification, go to Supabase Dashboard > Authentication > Providers > Email and turn off "Confirm email".');
       } else {
-        alert('Sign up successful! Please check your email to verify.');
+        // Auto sign-in after signup (no email verification needed if disabled in Supabase)
+        alert('Account created! You are now signed in.');
+        currentUser = data.user;
+        updateAuthUI();
         loginModal.classList.add('hidden');
+        loadProjects();
+        switchView('dashboard');
       }
     });
     
@@ -601,12 +666,38 @@
         
         card.querySelector('.open-btn').addEventListener('click', () => {
           currentProject = project;
-          if (editor) {
-            editor.setValue(project.code || '');
+          
+          // Load files
+          try {
+            const filesData = JSON.parse(project.code || '{}');
+            if (filesData.files) {
+              projectFiles = filesData.files;
+              currentFileId = filesData.currentFileId || Object.keys(projectFiles)[0];
+            } else {
+              // Legacy single file
+              projectFiles = {
+                'main': { name: project.name, content: project.code || '', language: 'html' }
+              };
+              currentFileId = 'main';
+            }
+          } catch (e) {
+            // Legacy single file
+            projectFiles = {
+              'main': { name: project.name, content: project.code || '', language: 'html' }
+            };
+            currentFileId = 'main';
           }
-          filename.value = project.name;
+          
+          updateFileSelector();
+          
+          if (editor) {
+            editor.setValue(projectFiles[currentFileId].content);
+            monaco.editor.setModelLanguage(editor.getModel(), projectFiles[currentFileId].language);
+          }
+          
+          filename.value = projectFiles[currentFileId].name;
+          languageSelector.value = projectFiles[currentFileId].language;
           if (project.vibe_prompt) vibePrompt.value = project.vibe_prompt;
-          updateEditorLanguage();
           switchView('editor');
           lucide.createIcons();
         });
@@ -627,12 +718,24 @@
     // New Project
     newProjectBtn.addEventListener('click', () => {
       currentProject = null;
+      projectFiles = {
+        'main': { 
+          name: 'index.html', 
+          content: '<!DOCTYPE html>\n<html>\n<head>\n  <title>New Project</title>\n</head>\n<body>\n  <h1>Hello FlashCode!</h1>\n</body>\n</html>', 
+          language: 'html' 
+        }
+      };
+      currentFileId = 'main';
+      
+      updateFileSelector();
+      
       if (editor) {
-        editor.setValue('<!DOCTYPE html>\n<html>\n<head>\n  <title>New Project</title>\n</head>\n<body>\n  <h1>Hello FlashCode!</h1>\n</body>\n</html>');
+        editor.setValue(projectFiles[currentFileId].content);
+        monaco.editor.setModelLanguage(editor.getModel(), projectFiles[currentFileId].language);
       }
-      filename.value = 'Untitled Project';
+      filename.value = 'index.html';
+      languageSelector.value = 'html';
       vibePrompt.value = '';
-      updateEditorLanguage();
       switchView('editor');
     });
 
@@ -643,10 +746,18 @@
         return;
       }
       
+      // Save current file content
+      if (editor) {
+        projectFiles[currentFileId].content = editor.getValue();
+      }
+      
+      // Get project name from first file or use default
+      const projectName = projectFiles[Object.keys(projectFiles)[0]].name.replace(/\.[^/.]+$/, '') || 'Untitled Project';
+      
       const projectData = {
         user_id: currentUser.id,
-        name: filename.value || 'Untitled Project',
-        code: editor ? editor.getValue() : '',
+        name: projectName,
+        code: JSON.stringify({ files: projectFiles, currentFileId: currentFileId }),
         vibe_prompt: vibePrompt.value || null,
         updated_at: new Date().toISOString()
       };
@@ -679,7 +790,22 @@
 
     // Run Code
     runBtn.addEventListener('click', () => {
-      const code = editor ? editor.getValue() : '';
+      // Save current file
+      if (editor) {
+        projectFiles[currentFileId].content = editor.getValue();
+      }
+      
+      // Find HTML file to run
+      let htmlContent = '';
+      const htmlFile = Object.values(projectFiles).find(f => f.name.endsWith('.html'));
+      
+      if (htmlFile) {
+        htmlContent = htmlFile.content;
+      } else {
+        // If no HTML file, try to run current file if it's HTML-like
+        htmlContent = projectFiles[currentFileId].content;
+      }
+      
       consoleOutput.innerHTML = '';
       
       // Inject console capture
@@ -708,7 +834,7 @@
             };
           })();
         <\/script>
-        ${code}
+        ${htmlContent}
       `;
       
       const blob = new Blob([wrappedCode], { type: 'text/html' });
@@ -754,12 +880,13 @@
       resizer.classList.add('active');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
+      e.preventDefault();
     });
 
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
-      const containerWidth = editorView.offsetWidth;
-      const newWidth = containerWidth - e.clientX;
+      const editorViewRect = editorView.getBoundingClientRect();
+      const newWidth = editorViewRect.right - e.clientX;
       const clampedWidth = Math.max(200, Math.min(800, newWidth));
       rightPanel.style.width = clampedWidth + 'px';
     });
@@ -918,6 +1045,11 @@
             })
           });
           
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || 'API request failed');
+          }
+          
           const data = await response.json();
           responseText = data.content[0].text;
         } else {
@@ -960,6 +1092,118 @@
       chatMessages.appendChild(msg);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
+
+    // ============================================
+    // INITIALIZATION - Must be LAST
+    // ============================================
+    
+    // Initialize Monaco when the library is ready
+    if (typeof require !== 'undefined') {
+      initMonacoEditor();
+    } else {
+      setTimeout(initMonacoEditor, 100);
+    }
+
+    // File Management - Initialize after DOM is ready
+    function updateFileSelector() {
+      fileSelector.innerHTML = '';
+      Object.keys(projectFiles).forEach(fileId => {
+        const option = document.createElement('option');
+        option.value = fileId;
+        option.textContent = projectFiles[fileId].name;
+        fileSelector.appendChild(option);
+      });
+      fileSelector.value = currentFileId;
+    }
+
+    // Initialize file selector
+    updateFileSelector();
+
+    fileSelector.addEventListener('change', () => {
+      // Save current file
+      if (editor) {
+        projectFiles[currentFileId].content = editor.getValue();
+      }
+      
+      // Switch to new file
+      currentFileId = fileSelector.value;
+      const file = projectFiles[currentFileId];
+      
+      if (editor) {
+        editor.setValue(file.content);
+        monaco.editor.setModelLanguage(editor.getModel(), file.language);
+      }
+      
+      filename.value = file.name;
+      languageSelector.value = file.language;
+    });
+
+    addFileBtn.addEventListener('click', () => {
+      const fileName = prompt('Enter filename (e.g., style.css, script.js):');
+      if (!fileName) return;
+      
+      const fileId = 'file_' + Date.now();
+      const detectedLang = detectLanguageFromFilename(fileName) || 'plaintext';
+      
+      projectFiles[fileId] = {
+        name: fileName,
+        content: '',
+        language: detectedLang
+      };
+      
+      updateFileSelector();
+      fileSelector.value = fileId;
+      fileSelector.dispatchEvent(new Event('change'));
+      lucide.createIcons();
+    });
+
+    deleteFileBtn.addEventListener('click', () => {
+      if (Object.keys(projectFiles).length === 1) {
+        alert('Cannot delete the last file');
+        return;
+      }
+      
+      if (!confirm(`Delete ${projectFiles[currentFileId].name}?`)) return;
+      
+      delete projectFiles[currentFileId];
+      currentFileId = Object.keys(projectFiles)[0];
+      
+      updateFileSelector();
+      fileSelector.dispatchEvent(new Event('change'));
+    });
+
+    // Export Project
+    exportBtn.addEventListener('click', () => {
+      // Save current file content
+      if (editor) {
+        projectFiles[currentFileId].content = editor.getValue();
+      }
+      
+      if (Object.keys(projectFiles).length === 1) {
+        // Single file export
+        const file = projectFiles[currentFileId];
+        const blob = new Blob([file.content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        // Multi-file export as ZIP (using JSZip would require adding library)
+        // For now, download each file separately
+        Object.values(projectFiles).forEach(file => {
+          const blob = new Blob([file.content], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = file.name;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+        alert('All files downloaded separately');
+      }
+    });
   </script>
 
 </body>

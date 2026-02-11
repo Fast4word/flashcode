@@ -47,6 +47,12 @@
   <!-- Main App Container -->
   <div id="app" class="h-screen flex flex-col">
     
+    <!-- Success Notification -->
+    <div id="successNotification" class="hidden fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
+      <i data-lucide="check-circle" class="w-5 h-5"></i>
+      <span id="successMessage">Project saved!</span>
+    </div>
+    
     <!-- Top Bar -->
     <div class="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -480,6 +486,18 @@
     const chatMessages = document.getElementById('chatMessages');
     const chatInput = document.getElementById('chatInput');
     const sendChatBtn = document.getElementById('sendChatBtn');
+    const successNotification = document.getElementById('successNotification');
+    const successMessage = document.getElementById('successMessage');
+
+    // Show success notification
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successNotification.classList.remove('hidden');
+      setTimeout(() => {
+        successNotification.classList.add('hidden');
+      }, 3000);
+      lucide.createIcons();
+    }
 
     // Initialize
     async function init() {
@@ -636,17 +654,24 @@
     async function loadProjects() {
       if (!currentUser) return;
       
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('projects')
         .select('*')
         .order('updated_at', { ascending: false });
       
       if (error) {
         console.error('Error loading projects:', error);
+        alert('Failed to load projects: ' + error.message);
         return;
       }
       
       projectsGrid.innerHTML = '';
+      
+      if (data.length === 0) {
+        projectsGrid.innerHTML = '<p class="col-span-3 text-center text-gray-400">No projects yet. Click "New Project" to get started!</p>';
+        return;
+      }
+      
       data.forEach(project => {
         const card = document.createElement('div');
         card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer';
@@ -763,7 +788,7 @@
       };
       
       if (currentProject) {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from('projects')
           .update(projectData)
           .eq('id', currentProject.id);
@@ -771,10 +796,10 @@
         if (error) {
           alert('Save failed: ' + error.message);
         } else {
-          alert('Project saved!');
+          showSuccess('Project saved successfully!');
         }
       } else {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('projects')
           .insert([projectData])
           .select();
@@ -783,7 +808,7 @@
           alert('Save failed: ' + error.message);
         } else {
           currentProject = data[0];
-          alert('Project created!');
+          showSuccess('Project created successfully!');
         }
       }
     });
@@ -795,18 +820,48 @@
         projectFiles[currentFileId].content = editor.getValue();
       }
       
-      // Find HTML file to run
+      consoleOutput.innerHTML = '';
+      
+      // Find HTML file to run or create wrapper
       let htmlContent = '';
       const htmlFile = Object.values(projectFiles).find(f => f.name.endsWith('.html'));
+      const currentFile = projectFiles[currentFileId];
       
       if (htmlFile) {
+        // Use HTML file if exists
         htmlContent = htmlFile.content;
+      } else if (currentFile.language === 'javascript') {
+        // Wrap JavaScript in HTML
+        htmlContent = `<!DOCTYPE html>
+<html>
+<head><title>JavaScript Output</title></head>
+<body>
+<h3>Console Output:</h3>
+<script>${currentFile.content}</script>
+</body>
+</html>`;
+      } else if (currentFile.language === 'css') {
+        // Show CSS preview
+        htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+<style>${currentFile.content}</style>
+</head>
+<body>
+<h1>CSS Preview</h1>
+<p>This is a paragraph</p>
+<button>Button</button>
+<div class="container">Container</div>
+</body>
+</html>`;
+      } else if (currentFile.language === 'python' || currentFile.language === 'java' || currentFile.language === 'cpp') {
+        // Can't run server-side languages in browser
+        alert(`Cannot run ${currentFile.language} directly in browser. This preview is for HTML/CSS/JavaScript only.`);
+        return;
       } else {
-        // If no HTML file, try to run current file if it's HTML-like
-        htmlContent = projectFiles[currentFileId].content;
+        // Try to run as HTML
+        htmlContent = currentFile.content;
       }
-      
-      consoleOutput.innerHTML = '';
       
       // Inject console capture
       const wrappedCode = `
@@ -875,8 +930,13 @@
     });
 
     // Resizer Logic
+    let startX = 0;
+    let startWidth = 0;
+    
     resizer.addEventListener('mousedown', (e) => {
       isResizing = true;
+      startX = e.clientX;
+      startWidth = rightPanel.offsetWidth;
       resizer.classList.add('active');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
@@ -885,8 +945,10 @@
 
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
-      const editorViewRect = editorView.getBoundingClientRect();
-      const newWidth = editorViewRect.right - e.clientX;
+      e.preventDefault();
+      
+      const diff = startX - e.clientX;
+      const newWidth = startWidth + diff;
       const clampedWidth = Math.max(200, Math.min(800, newWidth));
       rightPanel.style.width = clampedWidth + 'px';
     });
@@ -942,6 +1004,11 @@
               }]
             })
           });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || `API error: ${response.status}`);
+          }
           
           const data = await response.json();
           generatedCode = data.content[0].text;

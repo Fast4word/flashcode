@@ -286,6 +286,14 @@
   </div>
 
   <script>
+    // Suppress harmless ResizeObserver errors from Monaco Editor
+    window.addEventListener('error', (e) => {
+      if (e.message === 'ResizeObserver loop completed with undelivered notifications.' ||
+          e.message === 'ResizeObserver loop limit exceeded') {
+        e.stopImmediatePropagation();
+      }
+    });
+    
     // Initialize Lucide icons after library loads
     function initLucide() {
       if (typeof lucide !== 'undefined') {
@@ -301,7 +309,7 @@
     
     function initSupabase() {
       const SUPABASE_URL = 'https://cxhhcmupzlskffdeamtm.supabase.co';
-      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4aGhjbXVwemxza2ZmZGVhbXRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NjU0NzQsImV4cCI6MjA1NTA0MTQ3NH0.sb_publishable_4YZa6LefR_wfbaJXefjI_A_dMY11r4J';
+      const SUPABASE_KEY = 'sb_publishable_BymRGYxch7g8iJs81NDS5w_TfAQ-Plf';
       
       if (typeof window.supabase !== 'undefined') {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

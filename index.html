@@ -427,19 +427,30 @@
 
     // Initialize
     async function init() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      // Check for existing session or OAuth callback
+      const { data: { session }, error } = await supabaseClient.auth.getSession();
+      
       if (session) {
         currentUser = session.user;
         updateAuthUI();
+        // If this is an OAuth callback, load projects
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('code')) {
+          loadProjects();
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
       }
       
       // Listen for auth state changes (important for OAuth callbacks)
       supabaseClient.auth.onAuthStateChange((event, session) => {
+        console.log('Auth event:', event, session);
         if (event === 'SIGNED_IN' && session) {
           currentUser = session.user;
           updateAuthUI();
           loginModal.classList.add('hidden');
           loadProjects();
+          switchView('dashboard');
         } else if (event === 'SIGNED_OUT') {
           currentUser = null;
           updateAuthUI();

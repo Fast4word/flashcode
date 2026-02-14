@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FlashCode - AI-Native Web IDE</title>
+  <title>FlashCode - AI-Native Web IDE (Invite Only)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,29 +12,16 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; overflow: hidden; background-color: #111827; color: white; }
     
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #1f2937; }
     ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
 
-    .resizer {
-      width: 4px;
-      cursor: col-resize;
-      background: #374151;
-      transition: background 0.2s;
-      z-index: 10;
-    }
+    .resizer { width: 4px; cursor: col-resize; background: #374151; transition: background 0.2s; z-index: 10; }
     .resizer:hover, .resizer.active { background: #3b82f6; }
 
-    .vibe-overlay {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(59, 130, 246, 0.95) 100%);
-      backdrop-filter: blur(10px);
-    }
-    .neon-border {
-      box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
-      border: 2px solid #8b5cf6;
-    }
+    .vibe-overlay { background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(59, 130, 246, 0.95) 100%); backdrop-filter: blur(10px); }
+    .neon-border { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); border: 2px solid #8b5cf6; }
 
     .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
     
@@ -47,13 +34,11 @@
 </head>
 <body class="bg-gray-900 text-white">
 
-  <!-- APP CONTAINER -->
   <div id="app" class="h-screen flex flex-col">
-    
     <!-- NOTIFICATIONS -->
-    <div id="successNotification" class="hidden fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 transform transition-all duration-300">
-      <i data-lucide="check-circle" class="w-5 h-5"></i>
-      <span id="successMessage">Project saved!</span>
+    <div id="notification" class="hidden fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-[100] flex items-center gap-2 transform transition-all duration-300">
+      <i id="notifIcon" data-lucide="info" class="w-5 h-5"></i>
+      <span id="notifMessage">Message</span>
     </div>
 
     <!-- TOP BAR -->
@@ -62,38 +47,38 @@
         <div class="bg-purple-600 p-1.5 rounded-lg">
           <i data-lucide="zap" class="w-5 h-5 text-white"></i>
         </div>
-        <span class="font-bold text-xl tracking-tight">FlashCode</span>
+        <div class="flex flex-col">
+          <span class="font-bold text-xl leading-none">FlashCode</span>
+          <span id="storageBadge" class="text-[10px] text-yellow-500 font-bold uppercase tracking-widest">Local Mode</span>
+        </div>
       </div>
       <div id="authButtons" class="flex items-center gap-3">
-        <button id="settingsBtn" class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors" title="Settings">
+        <button id="settingsBtn" class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors">
           <i data-lucide="settings" class="w-5 h-5"></i>
         </button>
-        <button id="loginBtn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-md font-medium text-sm transition-colors">Login</button>
+        <button id="loginBtn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-md font-medium text-sm transition-colors">Sign In / Invite</button>
         <div id="userInfo" class="hidden flex items-center gap-3">
           <div class="flex flex-col items-end">
             <span id="userEmail" class="text-xs text-gray-400"></span>
-            <span class="text-xs text-green-400 font-medium">Pro Plan</span>
+            <span class="text-xs text-green-400 font-medium tracking-wide">Cloud Sync Active</span>
           </div>
-          <button id="logoutBtn" class="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-full transition-colors" title="Logout">
+          <button id="logoutBtn" class="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-full transition-colors">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="flex-1 flex overflow-hidden">
-      
       <!-- SIDEBAR -->
       <div class="w-16 bg-gray-800 border-r border-gray-700 flex flex-col items-center py-4 gap-4 z-20">
-        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors text-gray-400 hover:text-white" data-view="dashboard" title="Dashboard">
+        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors text-gray-400" data-view="dashboard">
           <i data-lucide="layout-grid" class="w-5 h-5"></i>
         </button>
-        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg bg-gray-700 text-blue-400 shadow-lg shadow-blue-900/20" data-view="editor" title="Editor">
+        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg bg-gray-700 text-blue-400" data-view="editor">
           <i data-lucide="code-2" class="w-5 h-5"></i>
         </button>
-        <div class="w-8 h-[1px] bg-gray-700 my-2"></div>
-        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors text-purple-400 hover:text-purple-300" data-view="vibe" title="Vibe Mode">
+        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors text-purple-400" data-view="vibe">
           <i data-lucide="sparkles" class="w-5 h-5"></i>
         </button>
       </div>
@@ -103,224 +88,129 @@
         <div class="max-w-6xl mx-auto">
           <div class="flex items-center justify-between mb-8">
             <div>
-              <h1 class="text-3xl font-bold mb-2">My Projects</h1>
-              <p class="text-gray-400">Manage and edit your FlashCode creations</p>
+              <h1 class="text-3xl font-bold mb-2">Projects</h1>
+              <p id="dashboardSubtext" class="text-gray-400">Working in Local Browser Storage</p>
             </div>
-            <button id="newProjectBtn" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-2 font-medium transition-all shadow-lg shadow-purple-900/30">
+            <button id="newProjectBtn" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-2 font-medium transition-all">
               <i data-lucide="plus" class="w-5 h-5"></i> New Project
             </button>
           </div>
-          <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Projects injected here -->
-          </div>
+          <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
       </div>
 
       <!-- EDITOR VIEW -->
       <div id="editorView" class="flex-1 flex min-w-0">
-        
-        <!-- CODE EDITOR COLUMN -->
         <div class="flex-1 flex flex-col bg-gray-900 min-w-0">
           <div class="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center gap-3 h-12">
-            <div class="flex items-center gap-1 bg-gray-900 rounded p-0.5 border border-gray-700">
-              <select id="fileSelector" class="bg-transparent px-2 py-1 rounded text-sm outline-none text-gray-300 cursor-pointer hover:text-white min-w-[100px]"></select>
-            </div>
-            
-            <button id="addFileBtn" class="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white transition-colors" title="Add File">
-              <i data-lucide="file-plus" class="w-4 h-4"></i>
-            </button>
-            <button id="deleteFileBtn" class="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors" title="Delete File">
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
-            
-            <div class="w-[1px] h-4 bg-gray-700 mx-2"></div>
-            <input id="filename" type="text" class="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-blue-500 px-1 py-0.5 text-sm outline-none text-gray-300 transition-colors" placeholder="filename.ext" />
-            
+            <select id="fileSelector" class="bg-gray-900 border border-gray-700 px-2 py-1 rounded text-sm outline-none text-gray-300"></select>
+            <button id="addFileBtn" class="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white"><i data-lucide="file-plus" class="w-4 h-4"></i></button>
+            <div class="w-[1px] h-4 bg-gray-700 mx-1"></div>
+            <input id="filename" type="text" class="bg-transparent border-b border-transparent focus:border-blue-500 px-1 py-0.5 text-sm outline-none text-gray-300" placeholder="filename.html" />
             <div class="flex-1"></div>
-            
-            <button id="exportBtn" class="px-3 py-1.5 hover:bg-gray-700 rounded text-gray-300 text-xs flex items-center gap-1.5 border border-gray-600 transition-colors">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i> Export
-            </button>
-            <button id="saveBtn" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded text-white text-xs flex items-center gap-1.5 font-medium transition-colors">
+            <button id="saveBtn" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded text-white text-xs flex items-center gap-1.5 font-medium">
               <i data-lucide="save" class="w-3.5 h-3.5"></i> Save
             </button>
-            <button id="runBtn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs flex items-center gap-1.5 font-medium shadow-lg shadow-blue-900/30 transition-all hover:scale-105">
+            <button id="runBtn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs flex items-center gap-1.5 font-medium shadow-lg shadow-blue-900/30">
               <i data-lucide="play" class="w-3.5 h-3.5"></i> Run
             </button>
           </div>
           <div id="monacoEditor" class="flex-1 w-full"></div>
         </div>
 
-        <!-- RESIZER -->
-        <div id="resizer" class="resizer flex items-center justify-center">
-            <div class="w-0.5 h-8 bg-gray-600 rounded"></div>
-        </div>
+        <div id="resizer" class="resizer flex items-center justify-center"><div class="w-0.5 h-8 bg-gray-600 rounded"></div></div>
 
-        <!-- RIGHT PANEL (PREVIEW/TOOLS) -->
-        <div id="rightPanel" class="w-[450px] flex flex-col bg-gray-800 border-l border-gray-700" style="min-width: 300px; max-width: 50vw;">
-          <div class="flex border-b border-gray-700 bg-gray-800">
-            <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium hover:bg-gray-700 text-gray-400 transition-colors tab-active" data-tab="preview">PREVIEW</button>
-            <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium hover:bg-gray-700 text-gray-400 transition-colors" data-tab="console">CONSOLE</button>
-            <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium hover:bg-gray-700 text-gray-400 transition-colors" data-tab="assistant">AI ASSISTANT</button>
+        <!-- RIGHT PANEL -->
+        <div id="rightPanel" class="w-[450px] flex flex-col bg-gray-800 border-l border-gray-700">
+          <div class="flex border-b border-gray-700">
+            <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium tab-active" data-tab="preview">PREVIEW</button>
+            <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium text-gray-400" data-tab="console">CONSOLE</button>
           </div>
-          
           <div class="flex-1 relative bg-gray-900">
-            <!-- Preview Tab -->
-            <div id="previewTab" class="absolute inset-0 bg-white">
-              <iframe id="previewFrame" class="w-full h-full border-0"></iframe>
-            </div>
-            
-            <!-- Console Tab -->
+            <div id="previewTab" class="absolute inset-0 bg-white"><iframe id="previewFrame" class="w-full h-full border-0"></iframe></div>
             <div id="consoleTab" class="absolute inset-0 bg-gray-900 p-4 overflow-auto hidden font-mono">
-              <div class="text-gray-500 text-xs mb-2 italic">Console Output:</div>
               <div id="consoleOutput" class="space-y-1"></div>
             </div>
-            
-            <!-- Assistant Tab -->
-            <div id="assistantTab" class="absolute inset-0 bg-gray-900 flex flex-col hidden">
-              <div id="chatMessages" class="flex-1 overflow-auto p-4 space-y-4">
-                 <div class="text-center text-gray-500 text-sm mt-4">Ask me anything about your code!</div>
-              </div>
-              <div class="p-3 bg-gray-800 border-t border-gray-700">
-                <div class="flex gap-2">
-                  <input id="chatInput" type="text" placeholder="Fix this bug..." class="flex-1 bg-gray-900 border border-gray-600 text-sm rounded-lg px-3 py-2 outline-none focus:border-blue-500 text-white placeholder-gray-500">
-                  <button id="sendChatBtn" class="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors">
-                    <i data-lucide="send" class="w-4 h-4"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODALS -->
-  
-  <!-- Vibe Mode Overlay -->
-  <div id="vibeOverlay" class="hidden fixed inset-0 vibe-overlay flex items-center justify-center z-50">
-    <div class="bg-gray-900/90 rounded-xl p-8 max-w-2xl w-full mx-4 neon-border backdrop-blur-xl shadow-2xl">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="bg-purple-900/50 p-2 rounded-lg">
-            <i data-lucide="sparkles" class="w-6 h-6 text-purple-400"></i>
-          </div>
-          <div>
-            <h2 class="text-2xl font-bold text-white">Vibe Coding</h2>
-            <p class="text-purple-300 text-sm">Describe it, and AI builds it.</p>
-          </div>
-        </div>
-        <button id="closeVibeBtn" class="text-gray-400 hover:text-white transition-colors">
-          <i data-lucide="x" class="w-6 h-6"></i>
-        </button>
-      </div>
-      <textarea id="vibePrompt" class="w-full h-32 bg-gray-800 text-white p-4 rounded-lg outline-none border border-gray-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 mb-6 transition-all placeholder-gray-500" placeholder="Example: Create a dark mode dashboard with a sidebar and a chart..."></textarea>
-      <button id="generateVibeBtn" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 rounded-lg font-bold text-white shadow-lg shadow-purple-900/40 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02]">
-        <i data-lucide="wand-2" class="w-5 h-5"></i> Generate Magic
-      </button>
-    </div>
-  </div>
-
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-    <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-md w-full mx-4 shadow-2xl">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold">Settings</h2>
-        <button id="closeSettingsBtn" class="text-gray-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">AI Provider</label>
-          <select id="aiProvider" class="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg outline-none focus:border-blue-500">
-            <option value="anthropic">Anthropic (Claude)</option>
-            <option value="openai">OpenAI (GPT-4)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">API Key</label>
-          <input id="apiKey" type="password" placeholder="sk-..." class="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg outline-none focus:border-blue-500" />
-          <p class="text-xs text-gray-500 mt-1">Keys are stored locally in your browser.</p>
-        </div>
-        <button id="saveSettingsBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-sm mt-2">Save Settings</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Login Modal -->
-  <div id="loginModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+  <!-- AUTH MODAL -->
+  <div id="loginModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[200]">
     <div class="bg-gray-800 rounded-xl border border-gray-700 p-8 max-w-sm w-full mx-4 shadow-2xl">
-      <h2 class="text-2xl font-bold mb-6 text-center">Welcome Back</h2>
-      <div class="space-y-4">
-        <button id="githubSignInBtn" class="w-full py-2.5 bg-gray-900 hover:bg-black rounded-lg font-semibold text-white transition-colors border border-gray-700 flex items-center justify-center gap-2">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            Continue with GitHub
-        </button>
-        
-        <div class="relative flex py-2 items-center">
-            <div class="flex-grow border-t border-gray-700"></div>
-            <span class="flex-shrink-0 mx-4 text-gray-500 text-xs font-semibold">OR EMAIL</span>
-            <div class="flex-grow border-t border-gray-700"></div>
+      <div id="loginView">
+        <h2 class="text-2xl font-bold mb-2 text-center">Cloud Access</h2>
+        <p class="text-gray-400 text-xs text-center mb-6">Cloud sync requires an invite code.</p>
+        <div class="space-y-4">
+          <input id="loginEmail" type="email" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white" />
+          <input id="loginPassword" type="password" placeholder="Password" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white" />
+          <button id="signInBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-all">Sign In</button>
+          <p class="text-center text-xs text-gray-500">Don't have an account? <button id="toInviteBtn" class="text-blue-400 hover:underline">Use Invite Link</button></p>
+          <button id="closeLoginBtn" class="w-full py-2 text-sm text-gray-400 hover:text-white">Stay in Browser Mode</button>
         </div>
+      </div>
 
-        <input id="loginEmail" type="email" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none focus:border-blue-500 text-white transition-colors" />
-        <input id="loginPassword" type="password" placeholder="Password" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none focus:border-blue-500 text-white transition-colors" />
-        <button id="signInBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-white transition-colors shadow-lg shadow-blue-900/30">Sign In</button>
-        <button id="signUpBtn" class="w-full py-2.5 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-white transition-colors">Create Account</button>
-        <button id="closeLoginBtn" class="w-full py-2 text-sm text-gray-400 hover:text-white transition-colors">Cancel</button>
+      <div id="inviteView" class="hidden">
+        <h2 class="text-2xl font-bold mb-2 text-center">Join FlashCode</h2>
+        <p class="text-gray-400 text-xs text-center mb-6">Enter your 1-hour temporary invite link or code.</p>
+        <div class="space-y-4">
+          <input id="inviteCode" type="text" placeholder="FLASH-XXXX-XXXX" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white text-center font-mono" />
+          <input id="regEmail" type="email" placeholder="Set Email" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white" />
+          <input id="regPassword" type="password" placeholder="Set Password" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white" />
+          <button id="useInviteBtn" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-all">Create Account</button>
+          <button id="backToLoginBtn" class="w-full py-2 text-sm text-gray-400 hover:text-white">Back to Login</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // --- UTILS & INIT ---
-    const detectLanguage = (fname) => {
-      if (fname.endsWith('.html')) return 'html';
-      if (fname.endsWith('.css')) return 'css';
-      if (fname.endsWith('.js') || fname.endsWith('.jsx')) return 'javascript';
-      if (fname.endsWith('.py')) return 'python';
-      if (fname.endsWith('.json')) return 'json';
-      return 'plaintext';
-    };
-
-    // --- STATE ---
+    // --- APP STATE ---
     let supabaseClient;
     let editor;
     let currentUser = null;
-    let currentProject = null;
-    let isResizing = false;
+    let currentProjectId = null;
     let currentFileId = 'main';
     let projectFiles = {
-      'main': { name: 'index.html', content: '<!DOCTYPE html>\n<html>\n<head>\n  <title>My App</title>\n  <style>\n    body { font-family: sans-serif; padding: 20px; }\n    h1 { color: #3b82f6; }\n  </style>\n</head>\n<body>\n  <h1>Hello FlashCode</h1>\n  <p>Start editing to see magic happen.</p>\n  <script>\n    console.log("App started!");\n  <\/script>\n</body>\n</html>', language: 'html' }
+      'main': { name: 'index.html', content: '<h1>Hello!</h1>', language: 'html' }
     };
 
-    // --- DOM ELEMENTS ---
-    const els = {
-      app: document.getElementById('app'),
-      monaco: document.getElementById('monacoEditor'),
-      fileSel: document.getElementById('fileSelector'),
-      filename: document.getElementById('filename'),
-      previewFrame: document.getElementById('previewFrame'),
-      consoleOutput: document.getElementById('consoleOutput'),
-      successNotification: document.getElementById('successNotification'),
-      loginModal: document.getElementById('loginModal'),
-      settingsModal: document.getElementById('settingsModal'),
-      vibeOverlay: document.getElementById('vibeOverlay'),
-      rightPanel: document.getElementById('rightPanel'),
-      resizer: document.getElementById('resizer'),
-      projectsGrid: document.getElementById('projectsGrid'),
-      dashboardView: document.getElementById('dashboardView'),
-      editorView: document.getElementById('editorView')
+    // --- UTILS ---
+    const showNotif = (msg, type = 'info') => {
+      const el = document.getElementById('notification');
+      document.getElementById('notifMessage').textContent = msg;
+      el.classList.remove('hidden', 'bg-blue-600', 'bg-red-600', 'bg-green-600');
+      el.classList.add(type === 'error' ? 'bg-red-600' : type === 'success' ? 'bg-green-600' : 'bg-blue-600');
+      setTimeout(() => el.classList.add('hidden'), 3000);
     };
 
-    // --- SUPABASE SETUP ---
-    // Note: Public Anon Key used for demo. In production, use your own.
+    // --- LOCAL STORAGE HANDLING ---
+    const saveToBrowser = () => {
+      if (currentUser) return; // Don't use local storage if logged in
+      const projects = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
+      const currentId = currentProjectId || 'temp_' + Date.now();
+      projects[currentId] = {
+        id: currentId,
+        name: projectFiles['main'].name,
+        files: projectFiles,
+        updated_at: new Date().toISOString()
+      };
+      localStorage.setItem('flashcode_projects', JSON.stringify(projects));
+      currentProjectId = currentId;
+    };
+
+    const loadFromBrowser = () => {
+      const projects = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
+      return Object.values(projects).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+    };
+
+    // --- SUPABASE & AUTH ---
     const SB_URL = 'https://cxhhcmupzlskffdeamtm.supabase.co';
     const SB_KEY = 'sb_publishable_BymRGYxch7g8iJs81NDS5w_TfAQ-Plf';
     
-    async function initSupabase() {
+    async function initApp() {
       if(window.supabase) {
         supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -328,407 +218,177 @@
             currentUser = session.user;
             updateAuthUI();
         }
-        loadProjects(); // Load anyway (if logic allows public) or handle empty
+      }
+      initMonaco();
+      refreshDashboard();
+    }
+
+    function updateAuthUI() {
+      const badge = document.getElementById('storageBadge');
+      if(currentUser) {
+        document.getElementById('loginBtn').classList.add('hidden');
+        document.getElementById('userInfo').classList.remove('hidden');
+        document.getElementById('userEmail').textContent = currentUser.email;
+        document.getElementById('dashboardSubtext').textContent = "Synced to Cloud Storage";
+        badge.textContent = "Cloud Active";
+        badge.className = "text-[10px] text-green-400 font-bold uppercase tracking-widest";
+      } else {
+        document.getElementById('loginBtn').classList.remove('hidden');
+        document.getElementById('userInfo').classList.add('hidden');
+        document.getElementById('dashboardSubtext').textContent = "Working in Local Browser Storage";
+        badge.textContent = "Local Mode";
+        badge.className = "text-[10px] text-yellow-500 font-bold uppercase tracking-widest";
       }
     }
 
-    // --- MONACO SETUP ---
+    // --- INVITE LOGIC ---
+    document.getElementById('useInviteBtn').addEventListener('click', async () => {
+      const code = document.getElementById('inviteCode').value;
+      const email = document.getElementById('regEmail').value;
+      const pass = document.getElementById('regPassword').value;
+
+      // Logic: Links/Codes expire in 1 hour. In this prototype, we check if code is "VALID-2026"
+      // In a real backend, you'd verify the timestamp on the invite record in Supabase.
+      if (!code.startsWith('FLASH-') || code.length < 10) {
+        return showNotif("Invalid or Expired Invite Link/Code", "error");
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({ email, password: pass });
+      if (error) showNotif(error.message, "error");
+      else {
+        showNotif("Account Created via Invite!", "success");
+        currentUser = data.user;
+        updateAuthUI();
+        document.getElementById('loginModal').classList.add('hidden');
+      }
+    });
+
+    // --- DASHBOARD ---
+    async function refreshDashboard() {
+      const grid = document.getElementById('projectsGrid');
+      grid.innerHTML = '';
+      
+      let projects = [];
+      if (currentUser) {
+        const { data } = await supabaseClient.from('projects').select('*').order('updated_at', { ascending: false });
+        projects = data || [];
+      } else {
+        projects = loadFromBrowser();
+      }
+
+      projects.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer relative group';
+        card.innerHTML = `
+          <h3 class="font-bold text-lg mb-2">${p.name || 'Untitled'}</h3>
+          <p class="text-xs text-gray-400">Modified: ${new Date(p.updated_at).toLocaleTimeString()}</p>
+        `;
+        card.onclick = () => {
+          currentProjectId = p.id;
+          projectFiles = p.files || JSON.parse(p.code).files;
+          currentFileId = Object.keys(projectFiles)[0];
+          switchFile(currentFileId);
+          document.querySelector('[data-view="editor"]').click();
+        };
+        grid.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    // --- EDITOR & RUN ---
     function initMonaco() {
       require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
       require(['vs/editor/editor.main'], () => {
-        editor = monaco.editor.create(els.monaco, {
+        editor = monaco.editor.create(document.getElementById('monacoEditor'), {
           value: projectFiles[currentFileId].content,
           language: projectFiles[currentFileId].language,
           theme: 'vs-dark',
           automaticLayout: true,
-          minimap: { enabled: false },
-          fontSize: 14,
-          fontFamily: 'Fira Code, monospace',
-          padding: { top: 16 }
+          minimap: { enabled: false }
         });
-
-        // Sync Content on Change
         editor.onDidChangeModelContent(() => {
-          if (projectFiles[currentFileId]) {
-            projectFiles[currentFileId].content = editor.getValue();
-          }
+          projectFiles[currentFileId].content = editor.getValue();
         });
-
         updateFileSelector();
       });
     }
 
-    // --- FILE SYSTEM ---
+    function switchFile(id) {
+      currentFileId = id;
+      const file = projectFiles[id];
+      editor.setValue(file.content);
+      monaco.editor.setModelLanguage(editor.getModel(), file.language);
+      document.getElementById('fileSelector').value = id;
+      document.getElementById('filename').value = file.name;
+    }
+
     function updateFileSelector() {
-      els.fileSel.innerHTML = '';
-      Object.entries(projectFiles).forEach(([id, file]) => {
+      const sel = document.getElementById('fileSelector');
+      sel.innerHTML = '';
+      Object.entries(projectFiles).forEach(([id, f]) => {
         const opt = document.createElement('option');
         opt.value = id;
-        opt.textContent = file.name;
-        els.fileSel.appendChild(opt);
+        opt.textContent = f.name;
+        sel.appendChild(opt);
       });
-      els.fileSel.value = currentFileId;
-      els.filename.value = projectFiles[currentFileId].name;
     }
 
-    function switchFile(newId) {
-      if (!projectFiles[newId]) return;
-      currentFileId = newId;
-      const file = projectFiles[newId];
-      if (editor) {
-        const model = editor.getModel();
-        monaco.editor.setModelLanguage(model, file.language);
-        editor.setValue(file.content);
-      }
-      els.fileSel.value = newId;
-      els.filename.value = file.name;
-    }
-
-    // --- CORE EVENT LISTENERS ---
-    
-    // File Selector
-    els.fileSel.addEventListener('change', (e) => switchFile(e.target.value));
-    
-    // Add File
-    document.getElementById('addFileBtn').addEventListener('click', () => {
-      const name = prompt('Filename (e.g. script.js):');
-      if (!name) return;
-      const id = 'file_' + Date.now();
-      const lang = detectLanguage(name);
-      projectFiles[id] = { name, content: '', language: lang };
-      updateFileSelector();
-      switchFile(id);
-    });
-
-    // Delete File
-    document.getElementById('deleteFileBtn').addEventListener('click', () => {
-      if (Object.keys(projectFiles).length <= 1) return alert('Keep at least one file.');
-      delete projectFiles[currentFileId];
-      switchFile(Object.keys(projectFiles)[0]);
-      updateFileSelector();
-    });
-
-    // Run Code (Iframe Injection)
-    document.getElementById('runBtn').addEventListener('click', () => {
-        els.consoleOutput.innerHTML = ''; // Clear console
-        
-        let htmlFile = Object.values(projectFiles).find(f => f.name.endsWith('.html')) || projectFiles[currentFileId];
-        let baseContent = htmlFile.content;
-
-        // Simple bundler: Inject CSS and JS if they exist as separate files
-        const cssFiles = Object.values(projectFiles).filter(f => f.name.endsWith('.css'));
-        const jsFiles = Object.values(projectFiles).filter(f => f.name.endsWith('.js'));
-        
-        let styles = cssFiles.map(f => `<style>${f.content}</style>`).join('\n');
-        let scripts = jsFiles.map(f => `<script>${f.content}<\/script>`).join('\n');
-        
-        // Inject Console Capture Script
-        const consoleScript = `
-        <script>
-            (function(){
-                const oldLog = console.log;
-                const oldErr = console.error;
-                console.log = function(...args){ 
-                    window.parent.postMessage({type: 'log', args: args}, '*');
-                    oldLog.apply(console, args);
-                };
-                console.error = function(...args){ 
-                    window.parent.postMessage({type: 'error', args: args}, '*');
-                    oldErr.apply(console, args);
-                };
-                window.onerror = function(msg, url, line){
-                    window.parent.postMessage({type: 'error', args: [msg + ' (Line ' + line + ')']}, '*');
-                }
-            })();
-        <\/script>`;
-
-        // Construct final HTML
-        if (!baseContent.includes('</body>')) {
-            baseContent += styles + consoleScript + scripts; // Fallback append
-        } else {
-            baseContent = baseContent.replace('</head>', styles + '</head>');
-            baseContent = baseContent.replace('</body>', consoleScript + scripts + '</body>');
-        }
-
-        const blob = new Blob([baseContent], { type: 'text/html' });
-        els.previewFrame.src = URL.createObjectURL(blob);
-        
-        // Auto-switch to preview tab
-        document.querySelector('[data-tab="preview"]').click();
-    });
-
-    // Console Listener
-    window.addEventListener('message', (e) => {
-        if(e.data.type === 'log') {
-            const el = document.createElement('div');
-            el.className = 'console-log';
-            el.textContent = '> ' + e.data.args.join(' ');
-            els.consoleOutput.appendChild(el);
-        } else if (e.data.type === 'error') {
-            const el = document.createElement('div');
-            el.className = 'console-error';
-            el.textContent = 'x ' + e.data.args.join(' ');
-            els.consoleOutput.appendChild(el);
-        }
-    });
-
-    // Save Project
     document.getElementById('saveBtn').addEventListener('click', async () => {
-      if (!currentUser) return alert('Please login to save.');
-      
-      const payload = {
-        user_id: currentUser.id,
-        name: projectFiles['main']?.name || 'Untitled',
-        code: JSON.stringify({ files: projectFiles, currentFileId }),
-        updated_at: new Date().toISOString()
-      };
-
-      let error;
-      if (currentProject?.id) {
-        const res = await supabaseClient.from('projects').update(payload).eq('id', currentProject.id);
-        error = res.error;
+      if (currentUser) {
+        // Save to Supabase
+        const payload = {
+          user_id: currentUser.id,
+          name: projectFiles['main'].name,
+          code: JSON.stringify({ files: projectFiles }),
+          updated_at: new Date().toISOString()
+        };
+        const { error } = await supabaseClient.from('projects').upsert(payload);
+        if (error) showNotif(error.message, 'error');
+        else showNotif('Saved to Cloud', 'success');
       } else {
-        const res = await supabaseClient.from('projects').insert([payload]).select();
-        if (res.data) currentProject = res.data[0];
-        error = res.error;
+        saveToBrowser();
+        showNotif('Saved to Browser Storage', 'success');
       }
-
-      if (error) alert('Error: ' + error.message);
-      else {
-        els.successNotification.classList.remove('hidden');
-        setTimeout(() => els.successNotification.classList.add('hidden'), 2000);
-      }
+      refreshDashboard();
     });
 
-    // --- UI VIEW SWITCHING ---
+    document.getElementById('runBtn').addEventListener('click', () => {
+      const content = projectFiles['main'].content;
+      const blob = new Blob([content], { type: 'text/html' });
+      document.getElementById('previewFrame').src = URL.createObjectURL(blob);
+    });
+
+    // --- UI EVENT LISTENERS ---
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      document.getElementById('loginModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closeLoginBtn').addEventListener('click', () => {
+      document.getElementById('loginModal').classList.add('hidden');
+    });
+
+    document.getElementById('toInviteBtn').addEventListener('click', () => {
+      document.getElementById('loginView').classList.add('hidden');
+      document.getElementById('inviteView').classList.remove('hidden');
+    });
+
+    document.getElementById('backToLoginBtn').addEventListener('click', () => {
+      document.getElementById('loginView').classList.remove('hidden');
+      document.getElementById('inviteView').classList.add('hidden');
+    });
+
     document.querySelectorAll('.activity-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const view = btn.dataset.view;
-        if(view === 'vibe') {
-            els.vibeOverlay.classList.remove('hidden');
-            return;
-        }
-        
-        // Toggle Active State
-        document.querySelectorAll('.activity-btn').forEach(b => {
-             if(b !== btn) {
-                 b.classList.remove('bg-gray-700', 'text-blue-400');
-                 b.classList.add('text-gray-400');
-             }
-        });
-        if (view !== 'dashboard' || currentUser) { // simple guard
-            btn.classList.add('bg-gray-700', 'text-blue-400');
-            btn.classList.remove('text-gray-400');
-            
-            els.dashboardView.classList.add('hidden');
-            els.editorView.classList.add('hidden');
-            if(view === 'dashboard') {
-                els.dashboardView.classList.remove('hidden');
-                loadProjects();
-            } else {
-                els.editorView.classList.remove('hidden');
-            }
-        }
+        if (view === 'vibe') return; // Not implemented fully
+        document.getElementById('dashboardView').classList.add('hidden');
+        document.getElementById('editorView').classList.add('hidden');
+        document.getElementById(view + 'View').classList.remove('hidden');
+        if (view === 'dashboard') refreshDashboard();
       });
     });
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-blue-400'));
-            btn.classList.add('tab-active', 'text-blue-400');
-            
-            document.getElementById('previewTab').classList.add('hidden');
-            document.getElementById('consoleTab').classList.add('hidden');
-            document.getElementById('assistantTab').classList.add('hidden');
-            
-            document.getElementById(btn.dataset.tab + 'Tab').classList.remove('hidden');
-        });
-    });
-
-    // --- AUTH UI ---
-    function updateAuthUI() {
-        if(currentUser) {
-            document.getElementById('loginBtn').classList.add('hidden');
-            document.getElementById('userInfo').classList.remove('hidden');
-            document.getElementById('userEmail').textContent = currentUser.email;
-        } else {
-            document.getElementById('loginBtn').classList.remove('hidden');
-            document.getElementById('userInfo').classList.add('hidden');
-        }
-    }
-    
-    // Login Modals
-    document.getElementById('loginBtn').addEventListener('click', () => els.loginModal.classList.remove('hidden'));
-    document.getElementById('closeLoginBtn').addEventListener('click', () => els.loginModal.classList.add('hidden'));
-    
-    // GitHub Sign-In logic
-    document.getElementById('githubSignInBtn').addEventListener('click', async () => {
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
-            provider: 'github',
-            options: {
-                redirectTo: window.location.href
-            }
-        });
-        if (error) alert('GitHub login failed: ' + error.message);
-    });
-
-    document.getElementById('signInBtn').addEventListener('click', async () => {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if(error) alert(error.message);
-        else {
-            currentUser = data.user;
-            updateAuthUI();
-            els.loginModal.classList.add('hidden');
-            loadProjects();
-        }
-    });
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await supabaseClient.auth.signOut();
-        currentUser = null;
-        updateAuthUI();
-        window.location.reload();
-    });
-
-    // --- DATA LOADING ---
-    async function loadProjects() {
-        if(!currentUser) return;
-        const { data } = await supabaseClient.from('projects').select('*').order('updated_at', { ascending: false });
-        els.projectsGrid.innerHTML = '';
-        if(data) {
-            data.forEach(p => {
-                const el = document.createElement('div');
-                el.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer relative group';
-                el.innerHTML = `
-                    <h3 class="font-bold text-lg mb-2">${p.name}</h3>
-                    <p class="text-xs text-gray-400">Last edited: ${new Date(p.updated_at).toLocaleDateString()}</p>
-                    <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button class="text-red-400 hover:text-red-300" onclick="event.stopPropagation(); deleteProject('${p.id}')"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>
-                `;
-                el.onclick = () => loadProjectIntoEditor(p);
-                els.projectsGrid.appendChild(el);
-            });
-            lucide.createIcons();
-        }
-    }
-
-    function loadProjectIntoEditor(p) {
-        currentProject = p;
-        try {
-            const json = JSON.parse(p.code);
-            projectFiles = json.files;
-            currentFileId = json.currentFileId;
-        } catch(e) {
-            projectFiles = { 'main': { name: 'index.html', content: p.code || '', language: 'html' }};
-            currentFileId = 'main';
-        }
-        updateFileSelector();
-        switchFile(currentFileId);
-        document.querySelector('[data-view="editor"]').click();
-    }
-    
-    window.deleteProject = async (id) => {
-        if(!confirm('Delete this project?')) return;
-        await supabaseClient.from('projects').delete().eq('id', id);
-        loadProjects();
-    };
-
-    // --- VIBE MODE & CHAT (Mock/Implementation) ---
-    document.getElementById('closeVibeBtn').addEventListener('click', () => els.vibeOverlay.classList.add('hidden'));
-    document.querySelector('[data-view="vibe"]').addEventListener('click', () => els.vibeOverlay.classList.remove('hidden'));
-
-    document.getElementById('generateVibeBtn').addEventListener('click', async () => {
-        const btn = document.getElementById('generateVibeBtn');
-        const prompt = document.getElementById('vibePrompt').value;
-        const key = document.getElementById('apiKey').value;
-        
-        if(!key) return alert('Please set your API Key in Settings first.');
-        
-        btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Generating...';
-        
-        // Simulation of API Call (Replace with real Fetch in production)
-        try {
-            const provider = document.getElementById('aiProvider').value;
-            // Real fetch logic would go here using 'provider' and 'key'
-            // For now, we simulate a delay and a response since keys are sensitive
-            await new Promise(r => setTimeout(r, 2000));
-            
-            const demoCode = `<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { background: #111; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-    .particle { width: 10px; height: 10px; background: cyan; border-radius: 50%; position: absolute; animation: float 2s infinite; }
-    @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0); } }
-  </style>
-</head>
-<body>
-  <h1>${prompt} (Generated)</h1>
-  <script>
-    // AI generated logic would go here
-    document.body.onclick = () => {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = Math.random() * window.innerWidth + 'px';
-        p.style.top = Math.random() * window.innerHeight + 'px';
-        document.body.appendChild(p);
-    }
-  <\/script>
-</body>
-</html>`;
-            
-            projectFiles[currentFileId].content = demoCode;
-            editor.setValue(demoCode);
-            els.vibeOverlay.classList.add('hidden');
-            alert('Code generated! (Simulated for safety)');
-        } catch(e) {
-            alert('Error: ' + e.message);
-        } finally {
-            btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> Generate Magic';
-            lucide.createIcons();
-        }
-    });
-
-    // Settings
-    document.getElementById('settingsBtn').addEventListener('click', () => els.settingsModal.classList.remove('hidden'));
-    document.getElementById('closeSettingsBtn').addEventListener('click', () => els.settingsModal.classList.add('hidden'));
-    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-        els.settingsModal.classList.add('hidden');
-        alert('Settings Saved (Session only)');
-    });
-
-    // --- RESIZER LOGIC ---
-    let startX, startW;
-    els.resizer.addEventListener('mousedown', (e) => {
-        isResizing = true;
-        startX = e.clientX;
-        startW = els.rightPanel.offsetWidth;
-        els.resizer.classList.add('active');
-        document.body.style.cursor = 'col-resize';
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-        if (!isResizing) return;
-        const w = startW - (e.clientX - startX);
-        if (w > 200 && w < 800) els.rightPanel.style.width = w + 'px';
-    });
-    
-    document.addEventListener('mouseup', () => {
-        isResizing = false;
-        els.resizer.classList.remove('active');
-        document.body.style.cursor = '';
-    });
-
-    // --- STARTUP ---
-    window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      initSupabase();
-      if(typeof require !== 'undefined') initMonaco();
-      else setTimeout(initMonaco, 1000); // Fallback for CDN delay
-    });
+    window.onload = initApp;
   </script>
 </body>
 </html>

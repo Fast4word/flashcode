@@ -20,14 +20,7 @@
     .resizer { width: 4px; cursor: col-resize; background: #374151; transition: background 0.2s; z-index: 10; }
     .resizer:hover, .resizer.active { background: #3b82f6; }
 
-    .vibe-overlay { background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(59, 130, 246, 0.95) 100%); backdrop-filter: blur(10px); }
-    .neon-border { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); border: 2px solid #8b5cf6; }
-
     .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
-    
-    .console-log { color: #10b981; font-family: 'Fira Code', monospace; font-size: 13px; padding: 2px 0; border-bottom: 1px solid #1f2937; }
-    .console-error { color: #ef4444; font-family: 'Fira Code', monospace; font-size: 13px; padding: 2px 0; border-bottom: 1px solid #1f2937; }
-    
     .project-card { transition: all 0.3s; border: 1px solid #374151; }
     .project-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.4); border-color: #60a5fa; }
   </style>
@@ -53,15 +46,9 @@
         </div>
       </div>
       <div id="authButtons" class="flex items-center gap-3">
-        <button id="settingsBtn" class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors">
-          <i data-lucide="settings" class="w-5 h-5"></i>
-        </button>
         <button id="loginBtn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-md font-medium text-sm transition-colors">Sign In / Invite</button>
         <div id="userInfo" class="hidden flex items-center gap-3">
-          <div class="flex flex-col items-end">
-            <span id="userEmail" class="text-xs text-gray-400"></span>
-            <span class="text-xs text-green-400 font-medium tracking-wide">Cloud Sync Active</span>
-          </div>
+          <span id="userEmail" class="text-xs text-gray-400"></span>
           <button id="logoutBtn" class="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-full transition-colors">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
@@ -78,20 +65,17 @@
         <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg bg-gray-700 text-blue-400" data-view="editor">
           <i data-lucide="code-2" class="w-5 h-5"></i>
         </button>
-        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors text-purple-400" data-view="vibe">
-          <i data-lucide="sparkles" class="w-5 h-5"></i>
-        </button>
       </div>
 
-      <!-- DASHBOARD VIEW -->
+      <!-- DASHBOARD -->
       <div id="dashboardView" class="flex-1 p-8 overflow-auto hidden bg-gray-900">
         <div class="max-w-6xl mx-auto">
           <div class="flex items-center justify-between mb-8">
             <div>
-              <h1 class="text-3xl font-bold mb-2">Projects</h1>
-              <p id="dashboardSubtext" class="text-gray-400">Working in Local Browser Storage</p>
+              <h1 class="text-3xl font-bold mb-2">My Projects</h1>
+              <p id="dashboardSubtext" class="text-gray-400">Stored locally in your browser.</p>
             </div>
-            <button id="newProjectBtn" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-2 font-medium transition-all">
+            <button id="newProjectBtn" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-2 font-medium">
               <i data-lucide="plus" class="w-5 h-5"></i> New Project
             </button>
           </div>
@@ -99,39 +83,46 @@
         </div>
       </div>
 
-      <!-- EDITOR VIEW -->
+      <!-- EDITOR -->
       <div id="editorView" class="flex-1 flex min-w-0">
         <div class="flex-1 flex flex-col bg-gray-900 min-w-0">
           <div class="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center gap-3 h-12">
-            <select id="fileSelector" class="bg-gray-900 border border-gray-700 px-2 py-1 rounded text-sm outline-none text-gray-300"></select>
-            <button id="addFileBtn" class="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white"><i data-lucide="file-plus" class="w-4 h-4"></i></button>
-            <div class="w-[1px] h-4 bg-gray-700 mx-1"></div>
-            <input id="filename" type="text" class="bg-transparent border-b border-transparent focus:border-blue-500 px-1 py-0.5 text-sm outline-none text-gray-300" placeholder="filename.html" />
-            <div class="flex-1"></div>
-            <button id="saveBtn" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded text-white text-xs flex items-center gap-1.5 font-medium">
-              <i data-lucide="save" class="w-3.5 h-3.5"></i> Save
+            <!-- File Controls -->
+            <div class="flex items-center bg-gray-900 rounded border border-gray-700">
+              <select id="fileSelector" class="bg-transparent border-none px-2 py-1 rounded text-sm outline-none text-gray-300 w-32 cursor-pointer"></select>
+            </div>
+            
+            <button id="addFileBtn" class="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white" title="Add File">
+              <i data-lucide="file-plus" class="w-4 h-4"></i>
             </button>
-            <button id="runBtn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs flex items-center gap-1.5 font-medium shadow-lg shadow-blue-900/30">
-              <i data-lucide="play" class="w-3.5 h-3.5"></i> Run
+            <button id="deleteFileBtn" class="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-red-400" title="Delete File">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+
+            <div class="h-4 w-[1px] bg-gray-700 mx-2"></div>
+
+            <input id="filename" type="text" class="bg-transparent border-b border-transparent focus:border-blue-500 px-1 py-0.5 text-sm outline-none text-gray-300 w-40" placeholder="filename.ext" />
+            
+            <div class="flex-1"></div>
+            
+            <button id="saveBtn" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded text-white text-xs font-medium flex items-center gap-1">
+              <i data-lucide="save" class="w-3 h-3"></i> Save
+            </button>
+            <button id="runBtn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-medium flex items-center gap-1 shadow-lg shadow-blue-900/30">
+              <i data-lucide="play" class="w-3 h-3"></i> Run
             </button>
           </div>
           <div id="monacoEditor" class="flex-1 w-full"></div>
         </div>
+        
+        <div id="resizer" class="resizer flex items-center justify-center">
+            <div class="w-0.5 h-8 bg-gray-600 rounded"></div>
+        </div>
 
-        <div id="resizer" class="resizer flex items-center justify-center"><div class="w-0.5 h-8 bg-gray-600 rounded"></div></div>
-
-        <!-- RIGHT PANEL -->
-        <div id="rightPanel" class="w-[450px] flex flex-col bg-gray-800 border-l border-gray-700">
-          <div class="flex border-b border-gray-700">
-            <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium tab-active" data-tab="preview">PREVIEW</button>
-            <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium text-gray-400" data-tab="console">CONSOLE</button>
-          </div>
-          <div class="flex-1 relative bg-gray-900">
-            <div id="previewTab" class="absolute inset-0 bg-white"><iframe id="previewFrame" class="w-full h-full border-0"></iframe></div>
-            <div id="consoleTab" class="absolute inset-0 bg-gray-900 p-4 overflow-auto hidden font-mono">
-              <div id="consoleOutput" class="space-y-1"></div>
+        <div id="rightPanel" class="w-[450px] flex flex-col bg-gray-800 border-l border-gray-700" style="min-width: 300px; max-width: 800px;">
+            <div id="previewTab" class="flex-1 bg-white relative">
+              <iframe id="previewFrame" class="w-full h-full border-0"></iframe>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -141,43 +132,39 @@
   <div id="loginModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[200]">
     <div class="bg-gray-800 rounded-xl border border-gray-700 p-8 max-w-sm w-full mx-4 shadow-2xl">
       <div id="loginView">
-        <h2 class="text-2xl font-bold mb-2 text-center">Cloud Access</h2>
-        <p class="text-gray-400 text-xs text-center mb-6">Cloud sync requires an invite code.</p>
+        <h2 class="text-2xl font-bold mb-6 text-center">Sign In</h2>
         <div class="space-y-4">
-          <input id="loginEmail" type="email" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white" />
-          <input id="loginPassword" type="password" placeholder="Password" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white" />
-          <button id="signInBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-all">Sign In</button>
-          <p class="text-center text-xs text-gray-500">Don't have an account? <button id="toInviteBtn" class="text-blue-400 hover:underline">Use Invite Link</button></p>
-          <button id="closeLoginBtn" class="w-full py-2 text-sm text-gray-400 hover:text-white">Stay in Browser Mode</button>
+          <input id="loginEmail" type="email" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none" />
+          <input id="loginPassword" type="password" placeholder="Password" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none" />
+          <button id="signInBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold">Login</button>
+          <p class="text-center text-xs text-gray-500">Need an account? <button id="toInviteBtn" class="text-blue-400 hover:underline">Use Invite Code</button></p>
+          <button id="closeLoginBtn" class="w-full py-2 text-sm text-gray-400 hover:text-white">Cancel</button>
         </div>
       </div>
-
       <div id="inviteView" class="hidden">
-        <h2 class="text-2xl font-bold mb-2 text-center">Join FlashCode</h2>
-        <p class="text-gray-400 text-xs text-center mb-6">Enter your 1-hour temporary invite link or code.</p>
+        <h2 class="text-2xl font-bold mb-6 text-center">Join via Invite</h2>
         <div class="space-y-4">
-          <input id="inviteCode" type="text" placeholder="FLASH-XXXX-XXXX" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white text-center font-mono" />
-          <input id="regEmail" type="email" placeholder="Set Email" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white" />
-          <input id="regPassword" type="password" placeholder="Set Password" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg outline-none text-white" />
-          <button id="useInviteBtn" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-all">Create Account</button>
-          <button id="backToLoginBtn" class="w-full py-2 text-sm text-gray-400 hover:text-white">Back to Login</button>
+          <input id="inviteCode" type="text" placeholder="FLASH-2026-WELCOME" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg text-center font-mono placeholder-gray-600" />
+          <input id="regEmail" type="email" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg" />
+          <input id="regPassword" type="password" placeholder="Password" class="w-full bg-gray-900 border border-gray-700 px-4 py-2.5 rounded-lg" />
+          <button id="useInviteBtn" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold">Create Account</button>
+          <button id="backToLoginBtn" class="w-full py-2 text-sm text-gray-400 hover:text-white">Back</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // --- APP STATE ---
     let supabaseClient;
     let editor;
     let currentUser = null;
     let currentProjectId = null;
     let currentFileId = 'main';
+    let fileModels = {}; // Cache for Monaco models
     let projectFiles = {
-      'main': { name: 'index.html', content: '<h1>Hello!</h1>', language: 'html' }
+      'main': { name: 'index.html', content: '<h1>Hello World</h1>', language: 'html' }
     };
 
-    // --- UTILS ---
     const showNotif = (msg, type = 'info') => {
       const el = document.getElementById('notification');
       document.getElementById('notifMessage').textContent = msg;
@@ -186,207 +173,316 @@
       setTimeout(() => el.classList.add('hidden'), 3000);
     };
 
-    // --- LOCAL STORAGE HANDLING ---
-    const saveToBrowser = () => {
-      if (currentUser) return; // Don't use local storage if logged in
-      const projects = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
-      const currentId = currentProjectId || 'temp_' + Date.now();
-      projects[currentId] = {
-        id: currentId,
-        name: projectFiles['main'].name,
-        files: projectFiles,
-        updated_at: new Date().toISOString()
-      };
-      localStorage.setItem('flashcode_projects', JSON.stringify(projects));
-      currentProjectId = currentId;
-    };
-
-    const loadFromBrowser = () => {
-      const projects = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
-      return Object.values(projects).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
-    };
-
-    // --- SUPABASE & AUTH ---
-    const SB_URL = 'https://cxhhcmupzlskffdeamtm.supabase.co';
-    const SB_KEY = 'sb_publishable_BymRGYxch7g8iJs81NDS5w_TfAQ-Plf';
-    
     async function initApp() {
-      if(window.supabase) {
-        supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-            currentUser = session.user;
-            updateAuthUI();
+        const SB_URL = 'https://cxhhcmupzlskffdeamtm.supabase.co';
+        const SB_KEY = 'sb_publishable_BymRGYxch7g8iJs81NDS5w_TfAQ-Plf';
+        
+        if (window.supabase) {
+            supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
+            // FIX: Changed onAuthStateChanged to onAuthStateChange (v2 syntax)
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                currentUser = session?.user || null;
+                updateAuthUI();
+                refreshDashboard();
+            });
         }
-      }
-      initMonaco();
-      refreshDashboard();
+        
+        initMonaco();
+        initResizer();
+        lucide.createIcons();
     }
 
     function updateAuthUI() {
-      const badge = document.getElementById('storageBadge');
-      if(currentUser) {
-        document.getElementById('loginBtn').classList.add('hidden');
-        document.getElementById('userInfo').classList.remove('hidden');
-        document.getElementById('userEmail').textContent = currentUser.email;
-        document.getElementById('dashboardSubtext').textContent = "Synced to Cloud Storage";
-        badge.textContent = "Cloud Active";
-        badge.className = "text-[10px] text-green-400 font-bold uppercase tracking-widest";
-      } else {
-        document.getElementById('loginBtn').classList.remove('hidden');
-        document.getElementById('userInfo').classList.add('hidden');
-        document.getElementById('dashboardSubtext').textContent = "Working in Local Browser Storage";
-        badge.textContent = "Local Mode";
-        badge.className = "text-[10px] text-yellow-500 font-bold uppercase tracking-widest";
-      }
+        const badge = document.getElementById('storageBadge');
+        if (currentUser) {
+            document.getElementById('loginBtn').classList.add('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('userEmail').textContent = currentUser.email;
+            badge.textContent = "Cloud Active";
+            badge.className = "text-[10px] text-green-400 font-bold uppercase tracking-widest";
+        } else {
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('userInfo').classList.add('hidden');
+            badge.textContent = "Local Mode";
+            badge.className = "text-[10px] text-yellow-500 font-bold uppercase tracking-widest";
+        }
     }
 
-    // --- INVITE LOGIC ---
-    document.getElementById('useInviteBtn').addEventListener('click', async () => {
-      const code = document.getElementById('inviteCode').value;
-      const email = document.getElementById('regEmail').value;
-      const pass = document.getElementById('regPassword').value;
-
-      // Logic: Links/Codes expire in 1 hour. In this prototype, we check if code is "VALID-2026"
-      // In a real backend, you'd verify the timestamp on the invite record in Supabase.
-      if (!code.startsWith('FLASH-') || code.length < 10) {
-        return showNotif("Invalid or Expired Invite Link/Code", "error");
-      }
-
-      const { data, error } = await supabaseClient.auth.signUp({ email, password: pass });
-      if (error) showNotif(error.message, "error");
-      else {
-        showNotif("Account Created via Invite!", "success");
-        currentUser = data.user;
-        updateAuthUI();
-        document.getElementById('loginModal').classList.add('hidden');
-      }
-    });
-
-    // --- DASHBOARD ---
-    async function refreshDashboard() {
-      const grid = document.getElementById('projectsGrid');
-      grid.innerHTML = '';
-      
-      let projects = [];
-      if (currentUser) {
-        const { data } = await supabaseClient.from('projects').select('*').order('updated_at', { ascending: false });
-        projects = data || [];
-      } else {
-        projects = loadFromBrowser();
-      }
-
-      projects.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer relative group';
-        card.innerHTML = `
-          <h3 class="font-bold text-lg mb-2">${p.name || 'Untitled'}</h3>
-          <p class="text-xs text-gray-400">Modified: ${new Date(p.updated_at).toLocaleTimeString()}</p>
-        `;
-        card.onclick = () => {
-          currentProjectId = p.id;
-          projectFiles = p.files || JSON.parse(p.code).files;
-          currentFileId = Object.keys(projectFiles)[0];
-          switchFile(currentFileId);
-          document.querySelector('[data-view="editor"]').click();
-        };
-        grid.appendChild(card);
-      });
-      lucide.createIcons();
-    }
-
-    // --- EDITOR & RUN ---
     function initMonaco() {
-      require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
-      require(['vs/editor/editor.main'], () => {
-        editor = monaco.editor.create(document.getElementById('monacoEditor'), {
-          value: projectFiles[currentFileId].content,
-          language: projectFiles[currentFileId].language,
-          theme: 'vs-dark',
-          automaticLayout: true,
-          minimap: { enabled: false }
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+        require(['vs/editor/editor.main'], () => {
+            editor = monaco.editor.create(document.getElementById('monacoEditor'), {
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: false },
+                fontSize: 14,
+                padding: { top: 10 }
+            });
+            // Initial load
+            updateFileSelector();
+            switchFile('main');
         });
-        editor.onDidChangeModelContent(() => {
-          projectFiles[currentFileId].content = editor.getValue();
-        });
-        updateFileSelector();
-      });
-    }
-
-    function switchFile(id) {
-      currentFileId = id;
-      const file = projectFiles[id];
-      editor.setValue(file.content);
-      monaco.editor.setModelLanguage(editor.getModel(), file.language);
-      document.getElementById('fileSelector').value = id;
-      document.getElementById('filename').value = file.name;
     }
 
     function updateFileSelector() {
-      const sel = document.getElementById('fileSelector');
-      sel.innerHTML = '';
-      Object.entries(projectFiles).forEach(([id, f]) => {
-        const opt = document.createElement('option');
-        opt.value = id;
-        opt.textContent = f.name;
-        sel.appendChild(opt);
-      });
+        const sel = document.getElementById('fileSelector');
+        sel.innerHTML = '';
+        Object.entries(projectFiles).forEach(([id, f]) => {
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = f.name;
+            sel.appendChild(opt);
+        });
+        sel.value = currentFileId;
     }
 
-    document.getElementById('saveBtn').addEventListener('click', async () => {
-      if (currentUser) {
-        // Save to Supabase
-        const payload = {
-          user_id: currentUser.id,
-          name: projectFiles['main'].name,
-          code: JSON.stringify({ files: projectFiles }),
-          updated_at: new Date().toISOString()
-        };
-        const { error } = await supabaseClient.from('projects').upsert(payload);
+    function switchFile(id) {
+        if (!editor) return;
+        
+        // Save state of current file before switching
+        if (projectFiles[currentFileId]) {
+            projectFiles[currentFileId].content = editor.getValue();
+            // Also cache the model state if needed, but simple content sync is enough for now
+        }
+
+        currentFileId = id;
+        const file = projectFiles[id];
+        
+        // Use cached model or create new one to preserve undo history/cursor
+        let model = fileModels[id];
+        if (!model || model.isDisposed()) {
+            model = monaco.editor.createModel(file.content, file.language);
+            fileModels[id] = model;
+        }
+        
+        editor.setModel(model);
+        document.getElementById('fileSelector').value = id;
+        document.getElementById('filename').value = file.name;
+    }
+
+    document.getElementById('fileSelector').addEventListener('change', (e) => {
+        switchFile(e.target.value);
+    });
+
+    document.getElementById('addFileBtn').addEventListener('click', () => {
+        const name = prompt("Enter file name (e.g. style.css):");
+        if(name) {
+            const id = 'file_' + Date.now();
+            projectFiles[id] = { name: name, content: '', language: getLanguage(name) };
+            updateFileSelector();
+            switchFile(id);
+        }
+    });
+
+    document.getElementById('deleteFileBtn').addEventListener('click', () => {
+        if(Object.keys(projectFiles).length <= 1) return showNotif("Cannot delete last file", "error");
+        
+        delete projectFiles[currentFileId];
+        delete fileModels[currentFileId]; // clear cache
+        
+        const nextId = Object.keys(projectFiles)[0];
+        updateFileSelector();
+        switchFile(nextId);
+    });
+
+    function getLanguage(filename) {
+        if (filename.endsWith('.js')) return 'javascript';
+        if (filename.endsWith('.css')) return 'css';
+        if (filename.endsWith('.json')) return 'json';
+        return 'html';
+    }
+
+    // AUTH ACTIONS
+    document.getElementById('signInBtn').addEventListener('click', async () => {
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPassword').value;
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
         if (error) showNotif(error.message, 'error');
-        else showNotif('Saved to Cloud', 'success');
-      } else {
-        saveToBrowser();
-        showNotif('Saved to Browser Storage', 'success');
-      }
-      refreshDashboard();
+        else document.getElementById('loginModal').classList.add('hidden');
+    });
+
+    document.getElementById('useInviteBtn').addEventListener('click', async () => {
+        const code = document.getElementById('inviteCode').value;
+        const email = document.getElementById('regEmail').value;
+        const pass = document.getElementById('regPassword').value;
+
+        if (code !== 'FLASH-2026-WELCOME') return showNotif("Invalid Invite Code", "error");
+
+        const { error } = await supabaseClient.auth.signUp({ email, password: pass });
+        if (error) showNotif(error.message, 'error');
+        else {
+            showNotif("Account Created!", 'success');
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => supabaseClient.auth.signOut());
+
+    // SAVE LOGIC
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+        projectFiles[currentFileId].content = editor.getValue();
+        projectFiles[currentFileId].name = document.getElementById('filename').value;
+        projectFiles[currentFileId].language = getLanguage(projectFiles[currentFileId].name);
+        
+        // Update selector in case name changed
+        updateFileSelector();
+
+        if (currentUser) {
+            const payload = {
+                user_id: currentUser.id,
+                name: projectFiles['main']?.name || 'Untitled',
+                code: JSON.stringify({ files: projectFiles }),
+                updated_at: new Date().toISOString()
+            };
+            if (currentProjectId && !currentProjectId.startsWith('temp')) payload.id = currentProjectId;
+            const { data, error } = await supabaseClient.from('projects').upsert(payload).select();
+            if (error) showNotif(error.message, 'error');
+            else {
+                currentProjectId = data[0].id;
+                showNotif('Saved to Cloud', 'success');
+                refreshDashboard();
+            }
+        } else {
+            const projects = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
+            const id = currentProjectId || 'temp_' + Date.now();
+            projects[id] = { id, name: projectFiles['main']?.name || 'Untitled', files: projectFiles, updated_at: new Date().toISOString() };
+            localStorage.setItem('flashcode_projects', JSON.stringify(projects));
+            currentProjectId = id;
+            showNotif('Saved to Browser', 'success');
+            refreshDashboard();
+        }
     });
 
     document.getElementById('runBtn').addEventListener('click', () => {
-      const content = projectFiles['main'].content;
-      const blob = new Blob([content], { type: 'text/html' });
-      document.getElementById('previewFrame').src = URL.createObjectURL(blob);
+        // Simple Bundle Logic
+        let htmlContent = '';
+        let cssContent = '';
+        let jsContent = '';
+
+        Object.values(projectFiles).forEach(f => {
+            if(f.name.endsWith('.html')) htmlContent += f.content;
+            else if(f.name.endsWith('.css')) cssContent += f.content;
+            else if(f.name.endsWith('.js')) jsContent += f.content;
+        });
+
+        // Fallback if no HTML file
+        if(!htmlContent) htmlContent = '<html><body><h1>No HTML File Found</h1></body></html>';
+
+        // Inject CSS and JS
+        const finalCode = `
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <style>${cssContent}</style>
+                </head>
+                <body>
+                    ${htmlContent}
+                    <script>${jsContent}<\/script>
+                </body>
+            </html>
+        `;
+
+        const blob = new Blob([finalCode], { type: 'text/html' });
+        document.getElementById('previewFrame').src = URL.createObjectURL(blob);
     });
 
-    // --- UI EVENT LISTENERS ---
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      document.getElementById('loginModal').classList.remove('hidden');
+    document.getElementById('newProjectBtn').addEventListener('click', () => {
+        currentProjectId = null;
+        fileModels = {};
+        projectFiles = { 'main': { name: 'index.html', content: '<h1>New Project</h1>', language: 'html' } };
+        updateFileSelector();
+        switchFile('main');
+        document.querySelector('[data-view="editor"]').click();
     });
 
-    document.getElementById('closeLoginBtn').addEventListener('click', () => {
-      document.getElementById('loginModal').classList.add('hidden');
-    });
+    function refreshDashboard() {
+        const grid = document.getElementById('projectsGrid');
+        grid.innerHTML = '';
+        let projects = [];
+        
+        if (currentUser) {
+            supabaseClient.from('projects').select('*').order('updated_at', { ascending: false }).then(({data}) => {
+                renderCards(data || []);
+            });
+        } else {
+            const local = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
+            renderCards(Object.values(local).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at)));
+        }
+    }
 
-    document.getElementById('toInviteBtn').addEventListener('click', () => {
-      document.getElementById('loginView').classList.add('hidden');
-      document.getElementById('inviteView').classList.remove('hidden');
-    });
+    function renderCards(list) {
+        const grid = document.getElementById('projectsGrid');
+        grid.innerHTML = list.length ? '' : '<p class="text-gray-500 col-span-3 text-center py-10">No projects yet.</p>';
+        list.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer';
+            card.innerHTML = `<h3 class="font-bold text-lg mb-1">${p.name}</h3><p class="text-xs text-gray-500">${new Date(p.updated_at).toLocaleDateString()}</p>`;
+            card.onclick = () => {
+                currentProjectId = p.id;
+                projectFiles = typeof p.code === 'string' ? JSON.parse(p.code).files : p.files;
+                // clear cache for new project
+                fileModels = {};
+                updateFileSelector();
+                switchFile(Object.keys(projectFiles)[0]);
+                document.querySelector('[data-view="editor"]').click();
+            };
+            grid.appendChild(card);
+        });
+    }
 
-    document.getElementById('backToLoginBtn').addEventListener('click', () => {
-      document.getElementById('loginView').classList.remove('hidden');
-      document.getElementById('inviteView').classList.add('hidden');
-    });
+    function initResizer() {
+        const resizer = document.getElementById('resizer');
+        const rightPanel = document.getElementById('rightPanel');
+        let isResizing = false;
+        let startX, startWidth;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            startX = e.clientX;
+            startWidth = rightPanel.offsetWidth;
+            resizer.classList.add('active');
+            document.body.style.cursor = 'col-resize';
+            document.getElementById('previewFrame').style.pointerEvents = 'none'; // Fix iframe capture
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const width = startWidth - (e.clientX - startX);
+            if(width > 200 && width < window.innerWidth - 200) {
+                rightPanel.style.width = width + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isResizing = false;
+            resizer.classList.remove('active');
+            document.body.style.cursor = 'default';
+            document.getElementById('previewFrame').style.pointerEvents = 'auto';
+        });
+    }
 
     document.querySelectorAll('.activity-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const view = btn.dataset.view;
-        if (view === 'vibe') return; // Not implemented fully
-        document.getElementById('dashboardView').classList.add('hidden');
-        document.getElementById('editorView').classList.add('hidden');
-        document.getElementById(view + 'View').classList.remove('hidden');
-        if (view === 'dashboard') refreshDashboard();
-      });
+        btn.addEventListener('click', (e) => {
+            const view = btn.dataset.view;
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('editorView').classList.add('hidden');
+            document.getElementById(view + 'View').classList.remove('hidden');
+            document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('bg-gray-700', 'text-blue-400'));
+            btn.classList.add('bg-gray-700', 'text-blue-400');
+            if (view === 'dashboard') refreshDashboard();
+        });
     });
+
+    document.getElementById('toInviteBtn').onclick = () => {
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('inviteView').classList.remove('hidden');
+    };
+    document.getElementById('backToLoginBtn').onclick = () => {
+        document.getElementById('loginView').classList.remove('hidden');
+        document.getElementById('inviteView').classList.add('hidden');
+    };
+    document.getElementById('closeLoginBtn').onclick = () => document.getElementById('loginModal').classList.add('hidden');
+    document.getElementById('loginBtn').onclick = () => document.getElementById('loginModal').classList.remove('hidden');
 
     window.onload = initApp;
   </script>

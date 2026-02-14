@@ -262,11 +262,8 @@
   </div>
 
   <script>
-    // --- OPENROUTER KEY ---
+    // --- CONSTANTS & STATE ---
     const OPENROUTER_API_KEY = "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"; 
-    // ----------------------------------------------
-    
-    // SYSTEM PROMPT FOR SHORT RESPONSES
     const SYSTEM_PROMPT = "You are an expert coding assistant. Provide concise, direct answers. You have access to the user's current code context. Use Markdown code blocks for code snippets. Avoid verbose explanations.";
 
     let supabaseClient;
@@ -278,10 +275,10 @@
     let projectFiles = {
       'main': { name: 'index.html', content: '<h1>Hello World</h1>', language: 'html' }
     };
-    
-    // Chat History for Multi-turn conversation
     let chatHistory = [];
+    let aiConfig = { provider: 'openrouter_free', key: '' };
 
+    // --- HELPER FUNCTIONS (DEFINED FIRST) ---
     const showNotif = (msg, type = 'info') => {
       const el = document.getElementById('notification');
       document.getElementById('notifMessage').textContent = msg;
@@ -289,26 +286,6 @@
       el.classList.add(type === 'error' ? 'bg-red-600' : type === 'success' ? 'bg-green-600' : 'bg-blue-600');
       setTimeout(() => el.classList.add('hidden'), 3000);
     };
-
-    async function initApp() {
-        const SB_URL = 'https://cxhhcmupzlskffdeamtm.supabase.co';
-        const SB_KEY = 'sb_publishable_BymRGYxch7g8iJs81NDS5w_TfAQ-Plf';
-        
-        if (window.supabase) {
-            supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                currentUser = session?.user || null;
-                updateAuthUI();
-                refreshDashboard();
-            });
-        }
-        
-        initMonaco();
-        initResizer();
-        loadSettings();
-        lucide.createIcons();
-        window.addEventListener('resize', () => { if (editor) editor.layout(); });
-    }
 
     function updateAuthUI() {
         const badge = document.getElementById('storageBadge');
@@ -326,6 +303,103 @@
         }
     }
 
+    function renderCards(list) {
+        const grid = document.getElementById('projectsGrid');
+        grid.innerHTML = list.length ? '' : '<p class="text-gray-500 col-span-3 text-center py-10">No projects yet.</p>';
+        list.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer relative group border border-gray-700 hover:border-blue-500';
+            
+            const title = document.createElement('h3');
+            title.className = 'font-bold text-lg mb-1 text-white pr-20 truncate';
+            title.textContent = p.name;
+            
+            const date = document.createElement('p');
+            date.className = 'text-xs text-gray-500';
+            date.textContent = new Date(p.updated_at).toLocaleDateString();
+
+            const actionDiv = document.createElement('div');
+            actionDiv.className = 'absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity';
+
+            const renameBtn = document.createElement('button');
+            renameBtn.className = 'p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-full transition-colors';
+            renameBtn.innerHTML = '<i data-lucide="pencil" class="w-4 h-4"></i>';
+            renameBtn.onclick = (e) => { e.stopPropagation(); renameProject(p.id, p.name); };
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-full transition-colors';
+            delBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
+            delBtn.onclick = (e) => { e.stopPropagation(); deleteProject(p.id); };
+
+            actionDiv.appendChild(renameBtn);
+            actionDiv.appendChild(delBtn);
+
+            card.appendChild(title);
+            card.appendChild(date);
+            card.appendChild(actionDiv);
+            
+            card.onclick = () => {
+                currentProjectId = p.id;
+                projectFiles = typeof p.code === 'string' ? JSON.parse(p.code).files : p.files;
+                fileModels = {};
+                updateFileSelector();
+                switchFile(Object.keys(projectFiles)[0]);
+                document.querySelector('[data-view="editor"]').click();
+            };
+            grid.appendChild(card);
+        });
+        lucide.createIcons();
+    }
+
+    function refreshDashboard() {
+        const grid = document.getElementById('projectsGrid');
+        grid.innerHTML = '';
+        let projects = [];
+        if (currentUser) {
+            supabaseClient.from('projects').select('*').order('updated_at', { ascending: false }).then(({data}) => renderCards(data || []));
+        } else {
+            const local = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
+            renderCards(Object.values(local).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at)));
+        }
+    }
+
+    function loadSettings() {
+        const stored = localStorage.getItem('flashcode_ai_config');
+        if(stored) aiConfig = JSON.parse(stored);
+        document.getElementById('aiProvider').value = aiConfig.provider;
+        document.getElementById('apiKey').value = aiConfig.key;
+        toggleKeyField();
+    }
+
+    function toggleKeyField() {
+        const p = document.getElementById('aiProvider').value;
+        const noKeyNeeded = ['openrouter_free', 'wiki'].includes(p);
+        document.getElementById('apiKeyField').classList.toggle('hidden', noKeyNeeded);
+    }
+
+    // --- MAIN INIT ---
+    async function initApp() {
+        const SB_URL = 'https://cxhhcmupzlskffdeamtm.supabase.co';
+        const SB_KEY = 'sb_publishable_BymRGYxch7g8iJs81NDS5w_TfAQ-Plf';
+        
+        if (window.supabase) {
+            supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                currentUser = session?.user || null;
+                // Functions are defined now
+                updateAuthUI();
+                refreshDashboard();
+            });
+        }
+        
+        initMonaco();
+        initResizer();
+        loadSettings();
+        lucide.createIcons();
+        window.addEventListener('resize', () => { if (editor) editor.layout(); });
+    }
+
+    // --- OTHER LOGIC ---
     function initMonaco() {
         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
         require(['vs/editor/editor.main'], () => {
@@ -399,7 +473,22 @@
         return 'html';
     }
 
-    // AUTH
+    document.getElementById('aiProvider').addEventListener('change', toggleKeyField);
+    
+    document.getElementById('settingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.remove('hidden'));
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.add('hidden'));
+    
+    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+        aiConfig = {
+            provider: document.getElementById('aiProvider').value,
+            key: document.getElementById('apiKey').value
+        };
+        localStorage.setItem('flashcode_ai_config', JSON.stringify(aiConfig));
+        document.getElementById('settingsModal').classList.add('hidden');
+        showNotif("Settings Saved", "success");
+    });
+
+    // AUTH LISTENERS
     document.getElementById('signInBtn').addEventListener('click', async () => {
         const email = document.getElementById('loginEmail').value;
         const pass = document.getElementById('loginPassword').value;
@@ -423,7 +512,7 @@
 
     document.getElementById('logoutBtn').addEventListener('click', () => supabaseClient.auth.signOut());
 
-    // SAVE
+    // SAVE LOGIC
     document.getElementById('saveBtn').addEventListener('click', async () => {
         projectFiles[currentFileId].content = editor.getValue();
         projectFiles[currentFileId].name = document.getElementById('filename').value;
@@ -456,21 +545,51 @@
         }
     });
 
-    // RUN & PYTHON SUPPORT
+    async function renameProject(id, currentName) {
+        const newName = prompt("Rename Project:", currentName);
+        if(!newName || newName.trim() === "") return;
+        
+        if(currentUser) {
+             const { error } = await supabaseClient.from('projects').update({ name: newName }).eq('id', id);
+             if(!error) showNotif("Project Renamed", "success");
+             else showNotif(error.message, 'error');
+        } else {
+            const local = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
+            if(local[id]) {
+                local[id].name = newName;
+                localStorage.setItem('flashcode_projects', JSON.stringify(local));
+                showNotif("Project Renamed", "success");
+            }
+        }
+        refreshDashboard();
+    }
+
+    async function deleteProject(id) {
+        if(!confirm("Delete this project?")) return;
+        if(currentUser) {
+             const { error } = await supabaseClient.from('projects').delete().eq('id', id);
+             if(!error) showNotif("Project Deleted", "success");
+        } else {
+            const local = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
+            delete local[id];
+            localStorage.setItem('flashcode_projects', JSON.stringify(local));
+            showNotif("Project Deleted", "success");
+        }
+        refreshDashboard();
+    }
+
+    // RUN & PYTHON
     document.getElementById('runBtn').addEventListener('click', () => {
         document.getElementById('consoleOutput').innerHTML = '';
         
         const currentFile = projectFiles[currentFileId];
         if (currentFile) currentFile.content = editor.getValue();
 
-        // SMART RUN LOGIC:
-        // 1. If looking at a Python file, run it.
         if (currentFile.name.endsWith('.py')) {
             runPython(currentFile.content);
             return;
         }
 
-        // 2. Otherwise, assume Web Project. Find HTML.
         let htmlContent = '';
         let cssContent = '';
         let jsContent = '';
@@ -481,7 +600,6 @@
             else if(f.name.endsWith('.js')) jsContent += f.content;
         });
 
-        // Auto-wrap JS if no HTML
         if(!htmlContent && jsContent) {
             htmlContent = `<html><body><h2>Running JS...</h2><p>Check console for output.</p></body></html>`;
         } else if (!htmlContent) {
@@ -568,38 +686,7 @@
         }
     });
 
-    // AI FEATURES
-    let aiConfig = { provider: 'openrouter_free', key: '' };
-    
-    function loadSettings() {
-        const stored = localStorage.getItem('flashcode_ai_config');
-        if(stored) aiConfig = JSON.parse(stored);
-        document.getElementById('aiProvider').value = aiConfig.provider;
-        document.getElementById('apiKey').value = aiConfig.key;
-        toggleKeyField();
-    }
-
-    function toggleKeyField() {
-        const p = document.getElementById('aiProvider').value;
-        const noKeyNeeded = ['openrouter_free', 'wiki'].includes(p);
-        document.getElementById('apiKeyField').classList.toggle('hidden', noKeyNeeded);
-    }
-
-    document.getElementById('aiProvider').addEventListener('change', toggleKeyField);
-    
-    document.getElementById('settingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.remove('hidden'));
-    document.getElementById('closeSettingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.add('hidden'));
-    
-    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-        aiConfig = {
-            provider: document.getElementById('aiProvider').value,
-            key: document.getElementById('apiKey').value
-        };
-        localStorage.setItem('flashcode_ai_config', JSON.stringify(aiConfig));
-        document.getElementById('settingsModal').classList.add('hidden');
-        showNotif("Settings Saved", "success");
-    });
-
+    // AI & VIBE
     document.querySelector('[data-view="vibe"]').addEventListener('click', () => document.getElementById('vibeOverlay').classList.remove('hidden'));
     document.getElementById('closeVibeBtn').addEventListener('click', () => document.getElementById('vibeOverlay').classList.add('hidden'));
 
@@ -647,10 +734,7 @@
         div.className = role === 'user' ? 'text-right' : 'text-left';
         
         let content = text;
-        
-        // Simple Markdown Code Block Formatting
         if (role === 'ai' || role === 'assistant') {
-            // Replace ```lang ... ``` with styled boxes
             content = content.replace(/```(\w*)([\s\S]*?)```/g, (match, lang, code) => {
                 return `
                     <div class="chat-content text-left">
@@ -659,51 +743,35 @@
                     </div>
                 `;
             });
-            
-            // Basic Bold/Italic formatting
-            content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            content = content.replace(/\*(.*?)\*/g, '<i>$1</i>');
+            content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>');
         }
 
-        div.innerHTML = `
-            <div class="inline-block max-w-[90%] px-4 py-3 rounded-lg ${role === 'user' ? 'bg-blue-600' : 'bg-gray-700'} text-sm leading-relaxed shadow-sm">
-                ${content}
-            </div>
-        `;
+        div.innerHTML = `<div class="inline-block max-w-[90%] px-4 py-3 rounded-lg ${role === 'user' ? 'bg-blue-600' : 'bg-gray-700'} text-sm leading-relaxed shadow-sm">${content}</div>`;
         document.getElementById('chatMessages').appendChild(div);
         document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
     }
 
     async function callAI(prompt, history, mode = 'chat') {
-        
-        // --- PREPARE CONTEXT (Attached to prompt or system message) ---
         let context = "";
         if (editor) {
             const currentCode = editor.getValue();
             const currentFileName = projectFiles[currentFileId].name;
             if (currentCode.trim().length > 0) {
-                // Truncate overly large files to save tokens
                 const truncatedCode = currentCode.length > 5000 ? currentCode.substring(0, 5000) + "\n...[truncated]" : currentCode;
                 context = `\n\n[CONTEXT: User is currently editing file '${currentFileName}'. Code content:]\n\`\`\`\n${truncatedCode}\n\`\`\`\n`;
             }
         }
-
         const fullSystemPrompt = SYSTEM_PROMPT + context;
 
-        // --- OPENROUTER (FREE MODE) ---
         if(aiConfig.provider === 'openrouter_free') {
             const key = OPENROUTER_API_KEY;
-            
             if(!key) return "Please paste your OpenRouter API Key into the 'const OPENROUTER_API_KEY' variable at the start of the script.";
-
-            // For Chat, we inject context into the latest message logic or system prompt
             let messages = [];
             if (mode === 'chat') {
                 messages = [{ role: 'system', content: fullSystemPrompt }, ...history];
             } else {
                 messages = [{ role: 'system', content: fullSystemPrompt }, { role: 'user', content: prompt }];
             }
-
             const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
@@ -717,29 +785,19 @@
                     "messages": messages
                 })
             });
-            
-            if(!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error?.message || "OpenRouter Error");
-            }
-            
+            if(!res.ok) { const err = await res.json(); throw new Error(err.error?.message || "OpenRouter Error"); }
             const data = await res.json();
             let txt = data.choices[0].message.content;
-            
-            // Only strip code for 'generation' mode (Vibe), NOT chat
             if(mode === 'generation' && txt.includes('```')) {
-                // Split by ``` and take the second part (index 1)
                 let parts = txt.split('```');
                 if (parts.length >= 2) {
                     txt = parts[1];
-                    // Remove language identifier if present (e.g., "python\n")
                     txt = txt.replace(/^[a-z]+\n/, '');
                 }
             }
             return txt;
         }
 
-        // --- LOCAL WIKI ---
         if(aiConfig.provider === 'wiki') {
             const searchRes = await fetch(`https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${encodeURIComponent(prompt)}&limit=1&format=json`);
             const searchData = await searchRes.json();
@@ -754,32 +812,17 @@
         if(!aiConfig.key) throw new Error("Missing API Key");
 
         if(aiConfig.provider === 'gemini') {
-            const contents = history.length > 0 ? history.map(m => ({
-                role: m.role === 'user' ? 'user' : 'model',
-                parts: [{ text: m.content }]
-            })) : [{ role: 'user', parts: [{ text: prompt }] }];
-
+            const contents = history.length > 0 ? history.map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] })) : [{ role: 'user', parts: [{ text: prompt }] }];
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiConfig.key}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    systemInstruction: { parts: [{ text: fullSystemPrompt }] },
-                    contents: contents, 
-                    tools: [{ google_search: {} }] 
-                })
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ systemInstruction: { parts: [{ text: fullSystemPrompt }] }, contents: contents, tools: [{ google_search: {} }] })
             });
             const data = await res.json();
             if(data.error) throw new Error(data.error.message);
             let txt = data.candidates[0].content.parts[0].text;
-            
             if(mode === 'generation' && txt.includes('```')) {
-                // Split by ``` and take the second part (index 1)
                 let parts = txt.split('```');
-                if (parts.length >= 2) {
-                    txt = parts[1];
-                    // Remove language identifier if present (e.g., "python\n")
-                    txt = txt.replace(/^[a-z]+\n/, '');
-                }
+                if (parts.length >= 2) { txt = parts[1]; txt = txt.replace(/^[a-z]+\n/, ''); }
             }
             return txt;
         }
@@ -787,26 +830,15 @@
         let url = 'https://api.openai.com/v1/chat/completions';
         let model = 'gpt-4';
         let headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiConfig.key}` };
-        
         let messages = [];
-        if (mode === 'chat') {
-            messages = [{ role: 'system', content: fullSystemPrompt }, ...history];
-        } else {
-            messages = [{ role: 'system', content: fullSystemPrompt }, { role: 'user', content: prompt }];
-        }
-        
+        if (mode === 'chat') messages = [{ role: 'system', content: fullSystemPrompt }, ...history];
+        else messages = [{ role: 'system', content: fullSystemPrompt }, { role: 'user', content: prompt }];
         let body = { messages: messages };
 
         if(aiConfig.provider === 'anthropic') {
             url = 'https://api.anthropic.com/v1/messages';
             headers = { 'Content-Type': 'application/json', 'x-api-key': aiConfig.key, 'anthropic-version': '2023-06-01' };
-            // Anthropic handles system prompt separately
-            body = { 
-                model: "claude-3-opus-20240229", 
-                max_tokens: 1024, 
-                system: fullSystemPrompt,
-                messages: history.length > 0 ? history : [{ role: "user", content: prompt }] 
-            };
+            body = { model: "claude-3-opus-20240229", max_tokens: 1024, system: fullSystemPrompt, messages: history.length > 0 ? history : [{ role: "user", content: prompt }] };
         } else {
             body.model = model;
         }
@@ -816,20 +848,24 @@
         if(data.error) throw new Error(data.error.message);
         
         let txt = aiConfig.provider === 'anthropic' ? data.content[0].text : data.choices[0].message.content;
-        
         if(mode === 'generation' && txt.includes('```')) {
-            // Split by ``` and take the second part (index 1)
             let parts = txt.split('```');
-            if (parts.length >= 2) {
-                txt = parts[1];
-                // Remove language identifier if present (e.g., "python\n")
-                txt = txt.replace(/^[a-z]+\n/, '');
-            }
+            if (parts.length >= 2) { txt = parts[1]; txt = txt.replace(/^[a-z]+\n/, ''); }
         }
         return txt;
     }
 
     // TABS & RESIZER
+    function initResizer() {
+        const resizer = document.getElementById('resizer');
+        const rightPanel = document.getElementById('rightPanel');
+        let isResizing = false;
+        let startX, startWidth;
+        resizer.addEventListener('mousedown', (e) => { isResizing = true; startX = e.clientX; startWidth = rightPanel.offsetWidth; resizer.classList.add('active'); document.body.style.cursor = 'col-resize'; document.getElementById('previewFrame').style.pointerEvents = 'none'; });
+        document.addEventListener('mousemove', (e) => { if (!isResizing) return; const width = startWidth - (e.clientX - startX); if(width > 200 && width < window.innerWidth - 200) rightPanel.style.width = width + 'px'; });
+        document.addEventListener('mouseup', () => { isResizing = false; resizer.classList.remove('active'); document.body.style.cursor = 'default'; document.getElementById('previewFrame').style.pointerEvents = 'auto'; });
+    }
+
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-blue-400'));
@@ -851,77 +887,6 @@
             if (view === 'dashboard') refreshDashboard();
         });
     });
-
-    document.getElementById('newProjectBtn').addEventListener('click', () => {
-        currentProjectId = null;
-        fileModels = {};
-        projectFiles = { 'main': { name: 'index.html', content: '<h1>New Project</h1>', language: 'html' } };
-        updateFileSelector();
-        switchFile('main');
-        document.querySelector('[data-view="editor"]').click();
-    });
-
-    function refreshDashboard() {
-        const grid = document.getElementById('projectsGrid');
-        grid.innerHTML = '';
-        let projects = [];
-        if (currentUser) {
-            supabaseClient.from('projects').select('*').order('updated_at', { ascending: false }).then(({data}) => renderCards(data || []));
-        } else {
-            const local = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
-            renderCards(Object.values(local).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at)));
-        }
-    }
-
-    function renderCards(list) {
-        const grid = document.getElementById('projectsGrid');
-        grid.innerHTML = list.length ? '' : '<p class="text-gray-500 col-span-3 text-center py-10">No projects yet.</p>';
-        list.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer relative group';
-            const title = document.createElement('h3'); title.className = 'font-bold text-lg mb-1'; title.textContent = p.name;
-            const date = document.createElement('p'); date.className = 'text-xs text-gray-500'; date.textContent = new Date(p.updated_at).toLocaleDateString();
-            const delBtn = document.createElement('button');
-            delBtn.className = 'absolute top-4 right-4 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-700 rounded-full';
-            delBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
-            delBtn.onclick = (e) => { e.stopPropagation(); deleteProject(p.id); };
-            card.appendChild(title); card.appendChild(date); card.appendChild(delBtn);
-            card.onclick = () => {
-                currentProjectId = p.id;
-                projectFiles = typeof p.code === 'string' ? JSON.parse(p.code).files : p.files;
-                fileModels = {};
-                updateFileSelector();
-                switchFile(Object.keys(projectFiles)[0]);
-                document.querySelector('[data-view="editor"]').click();
-            };
-            grid.appendChild(card);
-        });
-        lucide.createIcons();
-    }
-
-    async function deleteProject(id) {
-        if(!confirm("Delete this project?")) return;
-        if(currentUser) {
-             const { error } = await supabaseClient.from('projects').delete().eq('id', id);
-             if(!error) showNotif("Project Deleted", "success");
-        } else {
-            const local = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
-            delete local[id];
-            localStorage.setItem('flashcode_projects', JSON.stringify(local));
-            showNotif("Project Deleted", "success");
-        }
-        refreshDashboard();
-    }
-
-    function initResizer() {
-        const resizer = document.getElementById('resizer');
-        const rightPanel = document.getElementById('rightPanel');
-        let isResizing = false;
-        let startX, startWidth;
-        resizer.addEventListener('mousedown', (e) => { isResizing = true; startX = e.clientX; startWidth = rightPanel.offsetWidth; resizer.classList.add('active'); document.body.style.cursor = 'col-resize'; document.getElementById('previewFrame').style.pointerEvents = 'none'; });
-        document.addEventListener('mousemove', (e) => { if (!isResizing) return; const width = startWidth - (e.clientX - startX); if(width > 200 && width < window.innerWidth - 200) rightPanel.style.width = width + 'px'; });
-        document.addEventListener('mouseup', () => { isResizing = false; resizer.classList.remove('active'); document.body.style.cursor = 'default'; document.getElementById('previewFrame').style.pointerEvents = 'auto'; });
-    }
 
     document.getElementById('toInviteBtn').onclick = () => { document.getElementById('loginView').classList.add('hidden'); document.getElementById('inviteView').classList.remove('hidden'); };
     document.getElementById('backToLoginBtn').onclick = () => { document.getElementById('loginView').classList.remove('hidden'); document.getElementById('inviteView').classList.add('hidden'); };

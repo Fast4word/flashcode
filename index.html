@@ -29,6 +29,12 @@
     .console-error { color: #ef4444; }
     .console-warn { color: #f59e0b; }
     .console-info { color: #3b82f6; }
+
+    /* Chat Markdown Styling */
+    .chat-content pre { background: #1f2937; padding: 10px; border-radius: 6px; overflow-x: auto; margin: 8px 0; border: 1px solid #374151; }
+    .chat-content code { font-family: 'Fira Code', monospace; font-size: 12px; color: #e5e7eb; }
+    .chat-content p { margin-bottom: 6px; }
+    .code-header { font-size: 10px; color: #9ca3af; text-transform: uppercase; margin-bottom: 4px; display: block; font-weight: bold; }
   </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -151,11 +157,13 @@
                 <!-- Chat -->
                 <div id="chatTab" class="absolute inset-0 bg-gray-900 flex flex-col hidden">
                     <div id="chatMessages" class="flex-1 overflow-auto p-4 space-y-4">
-                        <div class="text-center text-gray-500 text-sm mt-4">I can help you code! Ask me anything.</div>
+                        <div class="text-center text-gray-500 text-sm mt-4">
+                            <p>I can see your code! Ask me to fix errors or explain it.</p>
+                        </div>
                     </div>
                     <div class="p-3 bg-gray-800 border-t border-gray-700">
                         <div class="flex gap-2">
-                            <input id="chatInput" type="text" placeholder="How do I make a loop?" class="flex-1 bg-gray-900 border border-gray-600 text-sm rounded-lg px-3 py-2 outline-none focus:border-blue-500 text-white placeholder-gray-500">
+                            <input id="chatInput" type="text" placeholder="Ask a question..." class="flex-1 bg-gray-900 border border-gray-600 text-sm rounded-lg px-3 py-2 outline-none focus:border-blue-500 text-white placeholder-gray-500">
                             <button id="sendChatBtn" class="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors">
                                 <i data-lucide="send" class="w-4 h-4"></i>
                             </button>
@@ -209,16 +217,21 @@
         <div>
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Provider</label>
           <select id="aiProvider" class="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg outline-none">
-            <option value="mock">Mock Mode (Free/Test)</option>
+            <option value="openrouter_free">OpenRouter (Free Mode)</option>
+            <option value="wiki">Local Knowledge + Wiki</option>
+            <option value="gemini">Google (Gemini + Search)</option>
             <option value="openai">OpenAI (GPT-4)</option>
             <option value="anthropic">Anthropic (Claude)</option>
           </select>
         </div>
+        
+        <!-- Standard API Key Field -->
         <div id="apiKeyField" class="hidden">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">API Key</label>
           <input id="apiKey" type="password" placeholder="sk-..." class="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg outline-none" />
           <p class="text-xs text-gray-500 mt-1">Keys are stored locally in your browser only.</p>
         </div>
+
         <button id="saveSettingsBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-sm mt-2">Save Settings</button>
       </div>
     </div>
@@ -249,6 +262,13 @@
   </div>
 
   <script>
+    // --- OPENROUTER KEY ---
+    const OPENROUTER_API_KEY = "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"; 
+    // ----------------------------------------------
+    
+    // SYSTEM PROMPT FOR SHORT RESPONSES
+    const SYSTEM_PROMPT = "You are an expert coding assistant. Provide concise, direct answers. You have access to the user's current code context. Use Markdown code blocks for code snippets. Avoid verbose explanations.";
+
     let supabaseClient;
     let editor;
     let currentUser = null;
@@ -258,6 +278,9 @@
     let projectFiles = {
       'main': { name: 'index.html', content: '<h1>Hello World</h1>', language: 'html' }
     };
+    
+    // Chat History for Multi-turn conversation
+    let chatHistory = [];
 
     const showNotif = (msg, type = 'info') => {
       const el = document.getElementById('notification');
@@ -437,17 +460,14 @@
     document.getElementById('runBtn').addEventListener('click', () => {
         document.getElementById('consoleOutput').innerHTML = '';
         
-        // Save current editor state
         if (projectFiles[currentFileId]) projectFiles[currentFileId].content = editor.getValue();
 
-        // Check for Python files
         const pyFile = Object.values(projectFiles).find(f => f.name.endsWith('.py'));
         if (pyFile) {
             runPython(pyFile.content);
             return;
         }
 
-        // Web Bundle Logic
         let htmlContent = '';
         let cssContent = '';
         let jsContent = '';
@@ -458,14 +478,12 @@
             else if(f.name.endsWith('.js')) jsContent += f.content;
         });
 
-        // Auto-wrap JS if no HTML
         if(!htmlContent && jsContent) {
             htmlContent = `<html><body><h2>Running JS...</h2><p>Check console for output.</p></body></html>`;
         } else if (!htmlContent) {
              htmlContent = '<html><body><h1>No HTML File Found</h1><p>Create an .html file or a .js file to run.</p></body></html>';
         }
 
-        // Inject Console Capture
         const consoleScript = `
             <script>
                 const _log = (type, args) => {
@@ -479,7 +497,6 @@
             <\/script>
         `;
 
-        // Inject content
         const finalCode = `
             <!DOCTYPE html>
             <html>
@@ -497,8 +514,6 @@
         const blob = new Blob([finalCode], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         document.getElementById('previewFrame').src = url;
-        
-        // Switch to preview tab
         document.querySelector('[data-tab="preview"]').click();
     });
 
@@ -514,18 +529,13 @@
                 <script>
                     async function main() {
                         try {
-                            // Setup communication
                             const _log = (msg) => window.parent.postMessage({ type: 'console', method: 'log', args: [msg] }, '*');
                             const _err = (msg) => window.parent.postMessage({ type: 'console', method: 'error', args: [msg] }, '*');
-                            
                             _log("Initializing Pyodide...");
                             const pyodide = await loadPyodide();
                             _log("Python Ready. Running...");
-                            
-                            // Redirect output
                             pyodide.setStdout({ batched: (s) => _log(s) });
                             pyodide.setStderr({ batched: (s) => _err(s) });
-                            
                             await pyodide.runPythonAsync(\`${code.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`);
                             _log("Execution finished.");
                         } catch(err) {
@@ -555,7 +565,7 @@
     });
 
     // AI FEATURES
-    let aiConfig = { provider: 'mock', key: '' };
+    let aiConfig = { provider: 'openrouter_free', key: '' };
     
     function loadSettings() {
         const stored = localStorage.getItem('flashcode_ai_config');
@@ -567,7 +577,8 @@
 
     function toggleKeyField() {
         const p = document.getElementById('aiProvider').value;
-        document.getElementById('apiKeyField').classList.toggle('hidden', p === 'mock');
+        const noKeyNeeded = ['openrouter_free', 'wiki'].includes(p);
+        document.getElementById('apiKeyField').classList.toggle('hidden', noKeyNeeded);
     }
 
     document.getElementById('aiProvider').addEventListener('change', toggleKeyField);
@@ -589,12 +600,14 @@
     document.getElementById('closeVibeBtn').addEventListener('click', () => document.getElementById('vibeOverlay').classList.add('hidden'));
 
     document.getElementById('generateVibeBtn').addEventListener('click', async () => {
+        if(aiConfig.provider === 'wiki') return showNotif("Wiki Mode cannot write code.", "error");
+        
         const prompt = document.getElementById('vibePrompt').value;
         const btn = document.getElementById('generateVibeBtn');
         btn.innerHTML = 'Generating...';
         
         try {
-            const code = await callAI("Generate full HTML/JS code for: " + prompt);
+            const code = await callAI("Generate full HTML/JS code for: " + prompt, [], 'generation');
             if(projectFiles[currentFileId]) projectFiles[currentFileId].content = code;
             editor.setValue(code);
             document.getElementById('vibeOverlay').classList.add('hidden');
@@ -613,11 +626,13 @@
         if(!msg) return;
         
         addChatMsg('user', msg);
+        chatHistory.push({ role: 'user', content: msg });
         inp.value = '';
         
         try {
-            const res = await callAI("User question: " + msg);
+            const res = await callAI(msg, chatHistory, 'chat');
             addChatMsg('ai', res);
+            chatHistory.push({ role: 'assistant', content: res });
         } catch(e) {
             addChatMsg('ai', "Error: " + e.message);
         }
@@ -626,58 +641,176 @@
     function addChatMsg(role, text) {
         const div = document.createElement('div');
         div.className = role === 'user' ? 'text-right' : 'text-left';
-        div.innerHTML = `<span class="inline-block px-3 py-2 rounded-lg ${role === 'user' ? 'bg-blue-600' : 'bg-gray-700'} text-sm">${text}</span>`;
+        
+        let content = text;
+        
+        // Simple Markdown Code Block Formatting
+        if (role === 'ai' || role === 'assistant') {
+            // Replace ```lang ... ``` with styled boxes
+            content = content.replace(/```(\w*)([\s\S]*?)```/g, (match, lang, code) => {
+                return `
+                    <div class="chat-content text-left">
+                        <span class="code-header">${lang || 'CODE'}</span>
+                        <pre><code>${code.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+                    </div>
+                `;
+            });
+            
+            // Basic Bold/Italic formatting
+            content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            content = content.replace(/\*(.*?)\*/g, '<i>$1</i>');
+        }
+
+        div.innerHTML = `
+            <div class="inline-block max-w-[90%] px-4 py-3 rounded-lg ${role === 'user' ? 'bg-blue-600' : 'bg-gray-700'} text-sm leading-relaxed shadow-sm">
+                ${content}
+            </div>
+        `;
         document.getElementById('chatMessages').appendChild(div);
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
     }
 
-    async function callAI(prompt) {
-        if(aiConfig.provider === 'mock') {
-            await new Promise(r => setTimeout(r, 1500));
-            if(prompt.includes("Generate")) return `<!DOCTYPE html>\n<html><body><h1>Mock AI Generated</h1><p>You asked: ${prompt}</p></body></html>`;
-            return "I am in Mock Mode. Please add an API Key in settings for real intelligence!";
+    async function callAI(prompt, history, mode = 'chat') {
+        
+        // --- PREPARE CONTEXT (Attached to prompt or system message) ---
+        let context = "";
+        if (editor) {
+            const currentCode = editor.getValue();
+            const currentFileName = projectFiles[currentFileId].name;
+            if (currentCode.trim().length > 0) {
+                // Truncate overly large files to save tokens
+                const truncatedCode = currentCode.length > 5000 ? currentCode.substring(0, 5000) + "\n...[truncated]" : currentCode;
+                context = `\n\n[CONTEXT: User is currently editing file '${currentFileName}'. Code content:]\n\`\`\`\n${truncatedCode}\n\`\`\`\n`;
+            }
+        }
+
+        const fullSystemPrompt = SYSTEM_PROMPT + context;
+
+        // --- OPENROUTER (FREE MODE) ---
+        if(aiConfig.provider === 'openrouter_free') {
+            const key = OPENROUTER_API_KEY;
+            
+            if(!key) return "Please paste your OpenRouter API Key into the 'const OPENROUTER_API_KEY' variable at the start of the script.";
+
+            // For Chat, we inject context into the latest message logic or system prompt
+            let messages = [];
+            if (mode === 'chat') {
+                messages = [{ role: 'system', content: fullSystemPrompt }, ...history];
+            } else {
+                messages = [{ role: 'system', content: fullSystemPrompt }, { role: 'user', content: prompt }];
+            }
+
+            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${key}`,
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": window.location.href,
+                    "X-Title": "FlashCode IDE"
+                },
+                body: JSON.stringify({
+                    "model": "arcee-ai/trinity-large-preview:free",
+                    "messages": messages
+                })
+            });
+            
+            if(!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error?.message || "OpenRouter Error");
+            }
+            
+            const data = await res.json();
+            let txt = data.choices[0].message.content;
+            
+            // Only strip code for 'generation' mode (Vibe), NOT chat
+            if(mode === 'generation' && txt.includes('```')) {
+                if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
+                else txt = txt.split('```')[1].split('```')[0];
+            }
+            return txt;
+        }
+
+        // --- LOCAL WIKI ---
+        if(aiConfig.provider === 'wiki') {
+            const searchRes = await fetch(`https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${encodeURIComponent(prompt)}&limit=1&format=json`);
+            const searchData = await searchRes.json();
+            if (searchData[1].length === 0) return "I couldn't find that in my Local Knowledge Base. Try connecting a real AI key in Settings!";
+            const title = searchData[1][0];
+            const url = searchData[3][0];
+            const summaryRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+            const summaryData = await summaryRes.json();
+            return `<b>${title}</b><br/><br/>${summaryData.extract}<br/><br/><a href="${url}" target="_blank" class="text-blue-400 underline">Read more on Wikipedia</a>`;
         }
         
         if(!aiConfig.key) throw new Error("Missing API Key");
 
-        if(aiConfig.provider === 'openai') {
-            const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        if(aiConfig.provider === 'gemini') {
+            const contents = history.length > 0 ? history.map(m => ({
+                role: m.role === 'user' ? 'user' : 'model',
+                parts: [{ text: m.content }]
+            })) : [{ role: 'user', parts: [{ text: prompt }] }];
+
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiConfig.key}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiConfig.key}` },
-                body: JSON.stringify({
-                    model: "gpt-4",
-                    messages: [{role: "user", content: prompt}]
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    systemInstruction: { parts: [{ text: fullSystemPrompt }] },
+                    contents: contents, 
+                    tools: [{ google_search: {} }] 
                 })
             });
             const data = await res.json();
             if(data.error) throw new Error(data.error.message);
-            let txt = data.choices[0].message.content;
-            if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
+            let txt = data.candidates[0].content.parts[0].text;
+            
+            if(mode === 'generation' && txt.includes('```')) {
+                if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
+                else txt = txt.split('```')[1].split('```')[0];
+            }
             return txt;
+        }
+
+        let url = 'https://api.openai.com/v1/chat/completions';
+        let model = 'gpt-4';
+        let headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiConfig.key}` };
+        
+        let messages = [];
+        if (mode === 'chat') {
+            messages = [{ role: 'system', content: fullSystemPrompt }, ...history];
+        } else {
+            messages = [{ role: 'system', content: fullSystemPrompt }, { role: 'user', content: prompt }];
         }
         
+        let body = { messages: messages };
+
         if(aiConfig.provider === 'anthropic') {
-            const res = await fetch('[https://api.anthropic.com/v1/messages](https://api.anthropic.com/v1/messages)', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'x-api-key': aiConfig.key,
-                    'anthropic-version': '2023-06-01'
-                },
-                body: JSON.stringify({
-                    model: "claude-3-opus-20240229",
-                    max_tokens: 1024,
-                    messages: [{role: "user", content: prompt}]
-                })
-            });
-            const data = await res.json();
-            if(data.error) throw new Error(data.error.message);
-            let txt = data.content[0].text;
-            if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
-            return txt;
+            url = 'https://api.anthropic.com/v1/messages';
+            headers = { 'Content-Type': 'application/json', 'x-api-key': aiConfig.key, 'anthropic-version': '2023-06-01' };
+            // Anthropic handles system prompt separately
+            body = { 
+                model: "claude-3-opus-20240229", 
+                max_tokens: 1024, 
+                system: fullSystemPrompt,
+                messages: history.length > 0 ? history : [{ role: "user", content: prompt }] 
+            };
+        } else {
+            body.model = model;
         }
+
+        const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+        const data = await res.json();
+        if(data.error) throw new Error(data.error.message);
+        
+        let txt = aiConfig.provider === 'anthropic' ? data.content[0].text : data.choices[0].message.content;
+        
+        if(mode === 'generation' && txt.includes('```')) {
+            if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
+            else txt = txt.split('```')[1].split('```')[0];
+        }
+        return txt;
     }
 
-    // TABS
+    // TABS & RESIZER
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-blue-400'));
@@ -727,23 +860,13 @@
         list.forEach(p => {
             const card = document.createElement('div');
             card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer relative group';
-            
-            const title = document.createElement('h3');
-            title.className = 'font-bold text-lg mb-1';
-            title.textContent = p.name;
-            
-            const date = document.createElement('p');
-            date.className = 'text-xs text-gray-500';
-            date.textContent = new Date(p.updated_at).toLocaleDateString();
-
+            const title = document.createElement('h3'); title.className = 'font-bold text-lg mb-1'; title.textContent = p.name;
+            const date = document.createElement('p'); date.className = 'text-xs text-gray-500'; date.textContent = new Date(p.updated_at).toLocaleDateString();
             const delBtn = document.createElement('button');
             delBtn.className = 'absolute top-4 right-4 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-700 rounded-full';
             delBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
             delBtn.onclick = (e) => { e.stopPropagation(); deleteProject(p.id); };
-
-            card.appendChild(title);
-            card.appendChild(date);
-            card.appendChild(delBtn);
+            card.appendChild(title); card.appendChild(date); card.appendChild(delBtn);
             card.onclick = () => {
                 currentProjectId = p.id;
                 projectFiles = typeof p.code === 'string' ? JSON.parse(p.code).files : p.files;
@@ -776,38 +899,13 @@
         const rightPanel = document.getElementById('rightPanel');
         let isResizing = false;
         let startX, startWidth;
-
-        resizer.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            startX = e.clientX;
-            startWidth = rightPanel.offsetWidth;
-            resizer.classList.add('active');
-            document.body.style.cursor = 'col-resize';
-            document.getElementById('previewFrame').style.pointerEvents = 'none'; 
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
-            const width = startWidth - (e.clientX - startX);
-            if(width > 200 && width < window.innerWidth - 200) rightPanel.style.width = width + 'px';
-        });
-
-        document.addEventListener('mouseup', () => {
-            isResizing = false;
-            resizer.classList.remove('active');
-            document.body.style.cursor = 'default';
-            document.getElementById('previewFrame').style.pointerEvents = 'auto';
-        });
+        resizer.addEventListener('mousedown', (e) => { isResizing = true; startX = e.clientX; startWidth = rightPanel.offsetWidth; resizer.classList.add('active'); document.body.style.cursor = 'col-resize'; document.getElementById('previewFrame').style.pointerEvents = 'none'; });
+        document.addEventListener('mousemove', (e) => { if (!isResizing) return; const width = startWidth - (e.clientX - startX); if(width > 200 && width < window.innerWidth - 200) rightPanel.style.width = width + 'px'; });
+        document.addEventListener('mouseup', () => { isResizing = false; resizer.classList.remove('active'); document.body.style.cursor = 'default'; document.getElementById('previewFrame').style.pointerEvents = 'auto'; });
     }
 
-    document.getElementById('toInviteBtn').onclick = () => {
-        document.getElementById('loginView').classList.add('hidden');
-        document.getElementById('inviteView').classList.remove('hidden');
-    };
-    document.getElementById('backToLoginBtn').onclick = () => {
-        document.getElementById('loginView').classList.remove('hidden');
-        document.getElementById('inviteView').classList.add('hidden');
-    };
+    document.getElementById('toInviteBtn').onclick = () => { document.getElementById('loginView').classList.add('hidden'); document.getElementById('inviteView').classList.remove('hidden'); };
+    document.getElementById('backToLoginBtn').onclick = () => { document.getElementById('loginView').classList.remove('hidden'); document.getElementById('inviteView').classList.add('hidden'); };
     document.getElementById('closeLoginBtn').onclick = () => document.getElementById('loginModal').classList.add('hidden');
     document.getElementById('loginBtn').onclick = () => document.getElementById('loginModal').classList.remove('hidden');
 

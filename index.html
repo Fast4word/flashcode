@@ -23,6 +23,12 @@
     .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
     .project-card { transition: all 0.3s; border: 1px solid #374151; }
     .project-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.4); border-color: #60a5fa; }
+    
+    .console-msg { font-family: 'Fira Code', monospace; font-size: 13px; padding: 2px 0; border-bottom: 1px solid #374151; }
+    .console-log { color: #10b981; }
+    .console-error { color: #ef4444; }
+    .console-warn { color: #f59e0b; }
+    .console-info { color: #3b82f6; }
   </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -46,6 +52,9 @@
         </div>
       </div>
       <div id="authButtons" class="flex items-center gap-3">
+        <button id="settingsBtn" class="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors" title="AI Settings">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
         <button id="loginBtn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-md font-medium text-sm transition-colors">Sign In / Invite</button>
         <div id="userInfo" class="hidden flex items-center gap-3">
           <span id="userEmail" class="text-xs text-gray-400"></span>
@@ -59,11 +68,14 @@
     <div class="flex-1 flex overflow-hidden">
       <!-- SIDEBAR -->
       <div class="w-16 bg-gray-800 border-r border-gray-700 flex flex-col items-center py-4 gap-4 z-20">
-        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors text-gray-400" data-view="dashboard">
+        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors text-gray-400" data-view="dashboard" title="Dashboard">
           <i data-lucide="layout-grid" class="w-5 h-5"></i>
         </button>
-        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg bg-gray-700 text-blue-400" data-view="editor">
+        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg bg-gray-700 text-blue-400" data-view="editor" title="Editor">
           <i data-lucide="code-2" class="w-5 h-5"></i>
+        </button>
+        <button class="activity-btn w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors text-purple-400" data-view="vibe" title="Vibe AI">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
         </button>
       </div>
 
@@ -119,16 +131,46 @@
             <div class="w-0.5 h-8 bg-gray-600 rounded"></div>
         </div>
 
+        <!-- RIGHT PANEL -->
         <div id="rightPanel" class="w-[450px] flex flex-col bg-gray-800 border-l border-gray-700" style="min-width: 300px; max-width: 800px;">
-            <div id="previewTab" class="flex-1 bg-white relative">
-              <iframe id="previewFrame" class="w-full h-full border-0"></iframe>
+            <div class="flex border-b border-gray-700 bg-gray-800">
+                <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium hover:bg-gray-700 text-gray-400 transition-colors tab-active" data-tab="preview">PREVIEW</button>
+                <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium hover:bg-gray-700 text-gray-400 transition-colors" data-tab="console">CONSOLE</button>
+                <button class="tab-btn flex-1 px-4 py-3 text-xs font-medium hover:bg-gray-700 text-gray-400 transition-colors" data-tab="chat">AI CHAT</button>
+            </div>
+
+            <div class="flex-1 relative bg-gray-900 overflow-hidden">
+                <!-- Preview -->
+                <div id="previewTab" class="absolute inset-0 bg-white">
+                  <iframe id="previewFrame" class="w-full h-full border-0"></iframe>
+                </div>
+                <!-- Console -->
+                <div id="consoleTab" class="absolute inset-0 bg-gray-900 p-4 overflow-auto hidden">
+                    <div id="consoleOutput" class="flex flex-col gap-1"></div>
+                </div>
+                <!-- Chat -->
+                <div id="chatTab" class="absolute inset-0 bg-gray-900 flex flex-col hidden">
+                    <div id="chatMessages" class="flex-1 overflow-auto p-4 space-y-4">
+                        <div class="text-center text-gray-500 text-sm mt-4">I can help you code! Ask me anything.</div>
+                    </div>
+                    <div class="p-3 bg-gray-800 border-t border-gray-700">
+                        <div class="flex gap-2">
+                            <input id="chatInput" type="text" placeholder="How do I make a loop?" class="flex-1 bg-gray-900 border border-gray-600 text-sm rounded-lg px-3 py-2 outline-none focus:border-blue-500 text-white placeholder-gray-500">
+                            <button id="sendChatBtn" class="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- AUTH MODAL -->
+  <!-- MODALS -->
+
+  <!-- Auth Modal -->
   <div id="loginModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[200]">
     <div class="bg-gray-800 rounded-xl border border-gray-700 p-8 max-w-sm w-full mx-4 shadow-2xl">
       <div id="loginView">
@@ -154,13 +196,65 @@
     </div>
   </div>
 
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[200]">
+    <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-md w-full mx-4 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold">AI Settings</h2>
+        <button id="closeSettingsBtn" class="text-gray-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Provider</label>
+          <select id="aiProvider" class="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg outline-none">
+            <option value="mock">Mock Mode (Free/Test)</option>
+            <option value="openai">OpenAI (GPT-4)</option>
+            <option value="anthropic">Anthropic (Claude)</option>
+          </select>
+        </div>
+        <div id="apiKeyField" class="hidden">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">API Key</label>
+          <input id="apiKey" type="password" placeholder="sk-..." class="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg outline-none" />
+          <p class="text-xs text-gray-500 mt-1">Keys are stored locally in your browser only.</p>
+        </div>
+        <button id="saveSettingsBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-sm mt-2">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vibe Overlay -->
+  <div id="vibeOverlay" class="hidden fixed inset-0 vibe-overlay flex items-center justify-center z-[150]">
+    <div class="bg-gray-900/90 rounded-xl p-8 max-w-2xl w-full mx-4 neon-border backdrop-blur-xl shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="bg-purple-900/50 p-2 rounded-lg">
+            <i data-lucide="sparkles" class="w-6 h-6 text-purple-400"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-white">Vibe Coding</h2>
+            <p class="text-purple-300 text-sm">Describe it, and AI builds it.</p>
+          </div>
+        </div>
+        <button id="closeVibeBtn" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <textarea id="vibePrompt" class="w-full h-32 bg-gray-800 text-white p-4 rounded-lg outline-none border border-gray-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 mb-6 transition-all placeholder-gray-500" placeholder="Example: Create a python script that calculates fibonacci numbers..."></textarea>
+      <button id="generateVibeBtn" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 rounded-lg font-bold text-white shadow-lg shadow-purple-900/40 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02]">
+        <i data-lucide="wand-2" class="w-5 h-5"></i> Generate Magic
+      </button>
+    </div>
+  </div>
+
   <script>
     let supabaseClient;
     let editor;
     let currentUser = null;
     let currentProjectId = null;
     let currentFileId = 'main';
-    let fileModels = {}; // Cache for Monaco models
+    let fileModels = {}; 
     let projectFiles = {
       'main': { name: 'index.html', content: '<h1>Hello World</h1>', language: 'html' }
     };
@@ -179,7 +273,6 @@
         
         if (window.supabase) {
             supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
-            // FIX: Changed onAuthStateChanged to onAuthStateChange (v2 syntax)
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 currentUser = session?.user || null;
                 updateAuthUI();
@@ -189,7 +282,9 @@
         
         initMonaco();
         initResizer();
+        loadSettings();
         lucide.createIcons();
+        window.addEventListener('resize', () => { if (editor) editor.layout(); });
     }
 
     function updateAuthUI() {
@@ -218,7 +313,6 @@
                 fontSize: 14,
                 padding: { top: 10 }
             });
-            // Initial load
             updateFileSelector();
             switchFile('main');
         });
@@ -238,34 +332,25 @@
 
     function switchFile(id) {
         if (!editor) return;
-        
-        // Save state of current file before switching
         if (projectFiles[currentFileId]) {
             projectFiles[currentFileId].content = editor.getValue();
-            // Also cache the model state if needed, but simple content sync is enough for now
         }
-
         currentFileId = id;
         const file = projectFiles[id];
-        
-        // Use cached model or create new one to preserve undo history/cursor
         let model = fileModels[id];
         if (!model || model.isDisposed()) {
             model = monaco.editor.createModel(file.content, file.language);
             fileModels[id] = model;
         }
-        
         editor.setModel(model);
         document.getElementById('fileSelector').value = id;
         document.getElementById('filename').value = file.name;
     }
 
-    document.getElementById('fileSelector').addEventListener('change', (e) => {
-        switchFile(e.target.value);
-    });
+    document.getElementById('fileSelector').addEventListener('change', (e) => switchFile(e.target.value));
 
     document.getElementById('addFileBtn').addEventListener('click', () => {
-        const name = prompt("Enter file name (e.g. style.css):");
+        const name = prompt("Enter file name (e.g. script.js, main.py):");
         if(name) {
             const id = 'file_' + Date.now();
             projectFiles[id] = { name: name, content: '', language: getLanguage(name) };
@@ -276,10 +361,8 @@
 
     document.getElementById('deleteFileBtn').addEventListener('click', () => {
         if(Object.keys(projectFiles).length <= 1) return showNotif("Cannot delete last file", "error");
-        
         delete projectFiles[currentFileId];
-        delete fileModels[currentFileId]; // clear cache
-        
+        delete fileModels[currentFileId]; 
         const nextId = Object.keys(projectFiles)[0];
         updateFileSelector();
         switchFile(nextId);
@@ -289,10 +372,11 @@
         if (filename.endsWith('.js')) return 'javascript';
         if (filename.endsWith('.css')) return 'css';
         if (filename.endsWith('.json')) return 'json';
+        if (filename.endsWith('.py')) return 'python';
         return 'html';
     }
 
-    // AUTH ACTIONS
+    // AUTH
     document.getElementById('signInBtn').addEventListener('click', async () => {
         const email = document.getElementById('loginEmail').value;
         const pass = document.getElementById('loginPassword').value;
@@ -305,9 +389,7 @@
         const code = document.getElementById('inviteCode').value;
         const email = document.getElementById('regEmail').value;
         const pass = document.getElementById('regPassword').value;
-
         if (code !== 'FLASH-2026-WELCOME') return showNotif("Invalid Invite Code", "error");
-
         const { error } = await supabaseClient.auth.signUp({ email, password: pass });
         if (error) showNotif(error.message, 'error');
         else {
@@ -318,23 +400,22 @@
 
     document.getElementById('logoutBtn').addEventListener('click', () => supabaseClient.auth.signOut());
 
-    // SAVE LOGIC
+    // SAVE
     document.getElementById('saveBtn').addEventListener('click', async () => {
         projectFiles[currentFileId].content = editor.getValue();
         projectFiles[currentFileId].name = document.getElementById('filename').value;
         projectFiles[currentFileId].language = getLanguage(projectFiles[currentFileId].name);
-        
-        // Update selector in case name changed
         updateFileSelector();
 
+        const payload = {
+            id: currentProjectId || (currentUser ? undefined : 'temp_' + Date.now()),
+            name: projectFiles['main']?.name || 'Untitled',
+            code: JSON.stringify({ files: projectFiles }),
+            updated_at: new Date().toISOString()
+        };
+
         if (currentUser) {
-            const payload = {
-                user_id: currentUser.id,
-                name: projectFiles['main']?.name || 'Untitled',
-                code: JSON.stringify({ files: projectFiles }),
-                updated_at: new Date().toISOString()
-            };
-            if (currentProjectId && !currentProjectId.startsWith('temp')) payload.id = currentProjectId;
+            payload.user_id = currentUser.id;
             const { data, error } = await supabaseClient.from('projects').upsert(payload).select();
             if (error) showNotif(error.message, 'error');
             else {
@@ -344,17 +425,29 @@
             }
         } else {
             const projects = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
-            const id = currentProjectId || 'temp_' + Date.now();
-            projects[id] = { id, name: projectFiles['main']?.name || 'Untitled', files: projectFiles, updated_at: new Date().toISOString() };
+            projects[payload.id] = payload;
             localStorage.setItem('flashcode_projects', JSON.stringify(projects));
-            currentProjectId = id;
+            currentProjectId = payload.id;
             showNotif('Saved to Browser', 'success');
             refreshDashboard();
         }
     });
 
+    // RUN & PYTHON SUPPORT
     document.getElementById('runBtn').addEventListener('click', () => {
-        // Simple Bundle Logic
+        document.getElementById('consoleOutput').innerHTML = '';
+        
+        // Save current editor state
+        if (projectFiles[currentFileId]) projectFiles[currentFileId].content = editor.getValue();
+
+        // Check for Python files
+        const pyFile = Object.values(projectFiles).find(f => f.name.endsWith('.py'));
+        if (pyFile) {
+            runPython(pyFile.content);
+            return;
+        }
+
+        // Web Bundle Logic
         let htmlContent = '';
         let cssContent = '';
         let jsContent = '';
@@ -365,15 +458,34 @@
             else if(f.name.endsWith('.js')) jsContent += f.content;
         });
 
-        // Fallback if no HTML file
-        if(!htmlContent) htmlContent = '<html><body><h1>No HTML File Found</h1></body></html>';
+        // Auto-wrap JS if no HTML
+        if(!htmlContent && jsContent) {
+            htmlContent = `<html><body><h2>Running JS...</h2><p>Check console for output.</p></body></html>`;
+        } else if (!htmlContent) {
+             htmlContent = '<html><body><h1>No HTML File Found</h1><p>Create an .html file or a .js file to run.</p></body></html>';
+        }
 
-        // Inject CSS and JS
+        // Inject Console Capture
+        const consoleScript = `
+            <script>
+                const _log = (type, args) => {
+                    window.parent.postMessage({ type: 'console', method: type, args: Array.from(args).map(String) }, '*');
+                };
+                console.log = (...args) => _log('log', args);
+                console.error = (...args) => _log('error', args);
+                console.warn = (...args) => _log('warn', args);
+                console.info = (...args) => _log('info', args);
+                window.onerror = (msg, url, line) => _log('error', [msg + ' (Line ' + line + ')']);
+            <\/script>
+        `;
+
+        // Inject content
         const finalCode = `
             <!DOCTYPE html>
             <html>
                 <head>
                     <style>${cssContent}</style>
+                    ${consoleScript}
                 </head>
                 <body>
                     ${htmlContent}
@@ -383,7 +495,209 @@
         `;
 
         const blob = new Blob([finalCode], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        document.getElementById('previewFrame').src = url;
+        
+        // Switch to preview tab
+        document.querySelector('[data-tab="preview"]').click();
+    });
+
+    function runPython(code) {
+        showNotif("Loading Python Runtime...", "info");
+        document.querySelector('[data-tab="console"]').click();
+        
+        const pyodideHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"><\/script>
+                <script>
+                    async function main() {
+                        try {
+                            // Setup communication
+                            const _log = (msg) => window.parent.postMessage({ type: 'console', method: 'log', args: [msg] }, '*');
+                            const _err = (msg) => window.parent.postMessage({ type: 'console', method: 'error', args: [msg] }, '*');
+                            
+                            _log("Initializing Pyodide...");
+                            const pyodide = await loadPyodide();
+                            _log("Python Ready. Running...");
+                            
+                            // Redirect output
+                            pyodide.setStdout({ batched: (s) => _log(s) });
+                            pyodide.setStderr({ batched: (s) => _err(s) });
+                            
+                            await pyodide.runPythonAsync(\`${code.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`);
+                            _log("Execution finished.");
+                        } catch(err) {
+                            window.parent.postMessage({ type: 'console', method: 'error', args: [err.toString()] }, '*');
+                        }
+                    }
+                    main();
+                <\/script>
+            </head>
+            <body></body>
+            </html>
+        `;
+        
+        const blob = new Blob([pyodideHtml], { type: 'text/html' });
         document.getElementById('previewFrame').src = URL.createObjectURL(blob);
+    }
+
+    window.addEventListener('message', (e) => {
+        if (e.data.type === 'console') {
+            const out = document.getElementById('consoleOutput');
+            const line = document.createElement('div');
+            line.className = `console-msg console-${e.data.method}`;
+            line.textContent = `> ${e.data.args.join(' ')}`;
+            out.appendChild(line);
+            out.scrollTop = out.scrollHeight;
+        }
+    });
+
+    // AI FEATURES
+    let aiConfig = { provider: 'mock', key: '' };
+    
+    function loadSettings() {
+        const stored = localStorage.getItem('flashcode_ai_config');
+        if(stored) aiConfig = JSON.parse(stored);
+        document.getElementById('aiProvider').value = aiConfig.provider;
+        document.getElementById('apiKey').value = aiConfig.key;
+        toggleKeyField();
+    }
+
+    function toggleKeyField() {
+        const p = document.getElementById('aiProvider').value;
+        document.getElementById('apiKeyField').classList.toggle('hidden', p === 'mock');
+    }
+
+    document.getElementById('aiProvider').addEventListener('change', toggleKeyField);
+    
+    document.getElementById('settingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.remove('hidden'));
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => document.getElementById('settingsModal').classList.add('hidden'));
+    
+    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+        aiConfig = {
+            provider: document.getElementById('aiProvider').value,
+            key: document.getElementById('apiKey').value
+        };
+        localStorage.setItem('flashcode_ai_config', JSON.stringify(aiConfig));
+        document.getElementById('settingsModal').classList.add('hidden');
+        showNotif("Settings Saved", "success");
+    });
+
+    document.querySelector('[data-view="vibe"]').addEventListener('click', () => document.getElementById('vibeOverlay').classList.remove('hidden'));
+    document.getElementById('closeVibeBtn').addEventListener('click', () => document.getElementById('vibeOverlay').classList.add('hidden'));
+
+    document.getElementById('generateVibeBtn').addEventListener('click', async () => {
+        const prompt = document.getElementById('vibePrompt').value;
+        const btn = document.getElementById('generateVibeBtn');
+        btn.innerHTML = 'Generating...';
+        
+        try {
+            const code = await callAI("Generate full HTML/JS code for: " + prompt);
+            if(projectFiles[currentFileId]) projectFiles[currentFileId].content = code;
+            editor.setValue(code);
+            document.getElementById('vibeOverlay').classList.add('hidden');
+            showNotif("Code Generated!", "success");
+        } catch(e) {
+            showNotif("AI Error: " + e.message, "error");
+        } finally {
+            btn.innerHTML = '<i data-lucide="wand-2" class="w-5 h-5"></i> Generate Magic';
+            lucide.createIcons();
+        }
+    });
+
+    document.getElementById('sendChatBtn').addEventListener('click', async () => {
+        const inp = document.getElementById('chatInput');
+        const msg = inp.value;
+        if(!msg) return;
+        
+        addChatMsg('user', msg);
+        inp.value = '';
+        
+        try {
+            const res = await callAI("User question: " + msg);
+            addChatMsg('ai', res);
+        } catch(e) {
+            addChatMsg('ai', "Error: " + e.message);
+        }
+    });
+
+    function addChatMsg(role, text) {
+        const div = document.createElement('div');
+        div.className = role === 'user' ? 'text-right' : 'text-left';
+        div.innerHTML = `<span class="inline-block px-3 py-2 rounded-lg ${role === 'user' ? 'bg-blue-600' : 'bg-gray-700'} text-sm">${text}</span>`;
+        document.getElementById('chatMessages').appendChild(div);
+    }
+
+    async function callAI(prompt) {
+        if(aiConfig.provider === 'mock') {
+            await new Promise(r => setTimeout(r, 1500));
+            if(prompt.includes("Generate")) return `<!DOCTYPE html>\n<html><body><h1>Mock AI Generated</h1><p>You asked: ${prompt}</p></body></html>`;
+            return "I am in Mock Mode. Please add an API Key in settings for real intelligence!";
+        }
+        
+        if(!aiConfig.key) throw new Error("Missing API Key");
+
+        if(aiConfig.provider === 'openai') {
+            const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiConfig.key}` },
+                body: JSON.stringify({
+                    model: "gpt-4",
+                    messages: [{role: "user", content: prompt}]
+                })
+            });
+            const data = await res.json();
+            if(data.error) throw new Error(data.error.message);
+            let txt = data.choices[0].message.content;
+            if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
+            return txt;
+        }
+        
+        if(aiConfig.provider === 'anthropic') {
+            const res = await fetch('[https://api.anthropic.com/v1/messages](https://api.anthropic.com/v1/messages)', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'x-api-key': aiConfig.key,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: "claude-3-opus-20240229",
+                    max_tokens: 1024,
+                    messages: [{role: "user", content: prompt}]
+                })
+            });
+            const data = await res.json();
+            if(data.error) throw new Error(data.error.message);
+            let txt = data.content[0].text;
+            if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
+            return txt;
+        }
+    }
+
+    // TABS
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-blue-400'));
+            btn.classList.add('tab-active', 'text-blue-400');
+            ['preview', 'console', 'chat'].forEach(t => document.getElementById(t + 'Tab').classList.add('hidden'));
+            document.getElementById(btn.dataset.tab + 'Tab').classList.remove('hidden');
+        });
+    });
+
+    document.querySelectorAll('.activity-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const view = btn.dataset.view;
+            if(view === 'vibe') return;
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('editorView').classList.add('hidden');
+            document.getElementById(view + 'View').classList.remove('hidden');
+            document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('bg-gray-700', 'text-blue-400'));
+            btn.classList.add('bg-gray-700', 'text-blue-400');
+            if (view === 'dashboard') refreshDashboard();
+        });
     });
 
     document.getElementById('newProjectBtn').addEventListener('click', () => {
@@ -399,11 +713,8 @@
         const grid = document.getElementById('projectsGrid');
         grid.innerHTML = '';
         let projects = [];
-        
         if (currentUser) {
-            supabaseClient.from('projects').select('*').order('updated_at', { ascending: false }).then(({data}) => {
-                renderCards(data || []);
-            });
+            supabaseClient.from('projects').select('*').order('updated_at', { ascending: false }).then(({data}) => renderCards(data || []));
         } else {
             const local = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
             renderCards(Object.values(local).sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at)));
@@ -415,12 +726,27 @@
         grid.innerHTML = list.length ? '' : '<p class="text-gray-500 col-span-3 text-center py-10">No projects yet.</p>';
         list.forEach(p => {
             const card = document.createElement('div');
-            card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer';
-            card.innerHTML = `<h3 class="font-bold text-lg mb-1">${p.name}</h3><p class="text-xs text-gray-500">${new Date(p.updated_at).toLocaleDateString()}</p>`;
+            card.className = 'project-card bg-gray-800 rounded-lg p-6 cursor-pointer relative group';
+            
+            const title = document.createElement('h3');
+            title.className = 'font-bold text-lg mb-1';
+            title.textContent = p.name;
+            
+            const date = document.createElement('p');
+            date.className = 'text-xs text-gray-500';
+            date.textContent = new Date(p.updated_at).toLocaleDateString();
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'absolute top-4 right-4 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-700 rounded-full';
+            delBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
+            delBtn.onclick = (e) => { e.stopPropagation(); deleteProject(p.id); };
+
+            card.appendChild(title);
+            card.appendChild(date);
+            card.appendChild(delBtn);
             card.onclick = () => {
                 currentProjectId = p.id;
                 projectFiles = typeof p.code === 'string' ? JSON.parse(p.code).files : p.files;
-                // clear cache for new project
                 fileModels = {};
                 updateFileSelector();
                 switchFile(Object.keys(projectFiles)[0]);
@@ -428,6 +754,21 @@
             };
             grid.appendChild(card);
         });
+        lucide.createIcons();
+    }
+
+    async function deleteProject(id) {
+        if(!confirm("Delete this project?")) return;
+        if(currentUser) {
+             const { error } = await supabaseClient.from('projects').delete().eq('id', id);
+             if(!error) showNotif("Project Deleted", "success");
+        } else {
+            const local = JSON.parse(localStorage.getItem('flashcode_projects') || '{}');
+            delete local[id];
+            localStorage.setItem('flashcode_projects', JSON.stringify(local));
+            showNotif("Project Deleted", "success");
+        }
+        refreshDashboard();
     }
 
     function initResizer() {
@@ -442,15 +783,13 @@
             startWidth = rightPanel.offsetWidth;
             resizer.classList.add('active');
             document.body.style.cursor = 'col-resize';
-            document.getElementById('previewFrame').style.pointerEvents = 'none'; // Fix iframe capture
+            document.getElementById('previewFrame').style.pointerEvents = 'none'; 
         });
 
         document.addEventListener('mousemove', (e) => {
             if (!isResizing) return;
             const width = startWidth - (e.clientX - startX);
-            if(width > 200 && width < window.innerWidth - 200) {
-                rightPanel.style.width = width + 'px';
-            }
+            if(width > 200 && width < window.innerWidth - 200) rightPanel.style.width = width + 'px';
         });
 
         document.addEventListener('mouseup', () => {
@@ -460,18 +799,6 @@
             document.getElementById('previewFrame').style.pointerEvents = 'auto';
         });
     }
-
-    document.querySelectorAll('.activity-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const view = btn.dataset.view;
-            document.getElementById('dashboardView').classList.add('hidden');
-            document.getElementById('editorView').classList.add('hidden');
-            document.getElementById(view + 'View').classList.remove('hidden');
-            document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('bg-gray-700', 'text-blue-400'));
-            btn.classList.add('bg-gray-700', 'text-blue-400');
-            if (view === 'dashboard') refreshDashboard();
-        });
-    });
 
     document.getElementById('toInviteBtn').onclick = () => {
         document.getElementById('loginView').classList.add('hidden');

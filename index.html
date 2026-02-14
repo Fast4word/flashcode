@@ -460,14 +460,17 @@
     document.getElementById('runBtn').addEventListener('click', () => {
         document.getElementById('consoleOutput').innerHTML = '';
         
-        if (projectFiles[currentFileId]) projectFiles[currentFileId].content = editor.getValue();
+        const currentFile = projectFiles[currentFileId];
+        if (currentFile) currentFile.content = editor.getValue();
 
-        const pyFile = Object.values(projectFiles).find(f => f.name.endsWith('.py'));
-        if (pyFile) {
-            runPython(pyFile.content);
+        // SMART RUN LOGIC:
+        // 1. If looking at a Python file, run it.
+        if (currentFile.name.endsWith('.py')) {
+            runPython(currentFile.content);
             return;
         }
 
+        // 2. Otherwise, assume Web Project. Find HTML.
         let htmlContent = '';
         let cssContent = '';
         let jsContent = '';
@@ -478,10 +481,11 @@
             else if(f.name.endsWith('.js')) jsContent += f.content;
         });
 
+        // Auto-wrap JS if no HTML
         if(!htmlContent && jsContent) {
             htmlContent = `<html><body><h2>Running JS...</h2><p>Check console for output.</p></body></html>`;
         } else if (!htmlContent) {
-             htmlContent = '<html><body><h1>No HTML File Found</h1><p>Create an .html file or a .js file to run.</p></body></html>';
+             htmlContent = '<html><body><h1>No HTML File Found</h1><p>Create an .html file to run web project, or a .py file to run Python.</p></body></html>';
         }
 
         const consoleScript = `
@@ -724,8 +728,13 @@
             
             // Only strip code for 'generation' mode (Vibe), NOT chat
             if(mode === 'generation' && txt.includes('```')) {
-                if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
-                else txt = txt.split('```')[1].split('```')[0];
+                // Split by ``` and take the second part (index 1)
+                let parts = txt.split('```');
+                if (parts.length >= 2) {
+                    txt = parts[1];
+                    // Remove language identifier if present (e.g., "python\n")
+                    txt = txt.replace(/^[a-z]+\n/, '');
+                }
             }
             return txt;
         }
@@ -764,8 +773,13 @@
             let txt = data.candidates[0].content.parts[0].text;
             
             if(mode === 'generation' && txt.includes('```')) {
-                if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
-                else txt = txt.split('```')[1].split('```')[0];
+                // Split by ``` and take the second part (index 1)
+                let parts = txt.split('```');
+                if (parts.length >= 2) {
+                    txt = parts[1];
+                    // Remove language identifier if present (e.g., "python\n")
+                    txt = txt.replace(/^[a-z]+\n/, '');
+                }
             }
             return txt;
         }
@@ -804,8 +818,13 @@
         let txt = aiConfig.provider === 'anthropic' ? data.content[0].text : data.choices[0].message.content;
         
         if(mode === 'generation' && txt.includes('```')) {
-            if(txt.includes('```html')) txt = txt.split('```html')[1].split('```')[0];
-            else txt = txt.split('```')[1].split('```')[0];
+            // Split by ``` and take the second part (index 1)
+            let parts = txt.split('```');
+            if (parts.length >= 2) {
+                txt = parts[1];
+                // Remove language identifier if present (e.g., "python\n")
+                txt = txt.replace(/^[a-z]+\n/, '');
+            }
         }
         return txt;
     }

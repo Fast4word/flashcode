@@ -13,7 +13,7 @@
             --file-hover-bg: #404040; --file-active-bg: var(--accent); --error-text: #ff6347;
             --danger-color: #dc3545; --warning-color: #ffc107;
         }
-     .theme-light {
+    .theme-light {
             --bg: #f3f3f3; --sidebar: #e0e0e0; --header: #ccc; --accent: #007bff;
             --text-color: #333; --border-color: #bbb; --input-bg: #eee;
             --input-border: #999; --file-box-bg: #e9e9e9; --settings-overlay-bg: rgba(0,0,0,0.5);
@@ -21,7 +21,7 @@
             --danger-color: #c82333; --warning-color: #ffc107;
         }
         body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text-color); font-family: sans-serif; overflow: hidden; }
-     .app-container { display: flex; flex-direction: column; height: 100vh; }
+    .app-container { display: flex; flex-direction: column; height: 100vh; }
         header { background: var(--header); padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border-bottom: 1px solid var(--border-color); }
         header > input { flex-grow: 1; }
         main { display: flex; flex: 1; overflow: hidden; }
@@ -29,9 +29,9 @@
         #sidebar-header { margin-bottom: 10px; }
         #sidebar-header div { font-size: 11px; color: #888; margin-bottom: 5px; }
         #file-list-container { flex-grow: 1; overflow-y: auto; }
-     .file-box { background: var(--file-box-bg); padding: 8px; border-left: 3px solid transparent; font-size: 13px; margin-bottom: 5px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-     .file-box:hover { background: var(--file-hover-bg); }
-     .file-box.active { background: var(--file-active-bg); color: white; border-left-color: var(--accent); }
+    .file-box { background: var(--file-box-bg); padding: 8px; border-left: 3px solid transparent; font-size: 13px; margin-bottom: 5px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-box:hover { background: var(--file-hover-bg); }
+    .file-box.active { background: var(--file-active-bg); color: white; border-left-color: var(--accent); }
         #editor-container { flex: 1; position: relative; background: var(--bg); }
         #real-input { width: 100%; height: 100%; background: var(--bg); color: var(--text-color); border: none; padding: 20px; font-family: 'Courier New', monospace; font-size: 16px; resize: none; outline: none; box-sizing: border-box; }
         #output-panel { width: 40%; background: white; border-left: 2px solid var(--border-color); display: flex; flex-direction: column;}
@@ -40,17 +40,17 @@
         #preview-errors:empty { display: none; }
         input, select { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); padding: 6px; border-radius: 4px; }
         input[type="password"] { font-family: sans-serif; }
-     .btn { cursor: pointer; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; color: white; }
-     .btn-run { background: var(--accent); }
-     .btn-push { background: #007acc; }
-     .btn-neutral { background: #6c757d; }
-     .btn-create-repo { background: #f67b00; }
-     .btn-danger { background: var(--danger-color); }
-     .btn-warning { background: var(--warning-color); color: #212529; }
+    .btn { cursor: pointer; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; color: white; }
+    .btn-run { background: var(--accent); }
+    .btn-push { background: #007acc; }
+    .btn-neutral { background: #6c757d; }
+    .btn-create-repo { background: #f67b00; }
+    .btn-danger { background: var(--danger-color); }
+    .btn-warning { background: var(--warning-color); color: #212529; }
         #settings-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--settings-overlay-bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
         #settings-overlay-content { background: var(--bg); padding: 20px; width: 80%; max-width: 500px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 8px rgba(0,0,0,0.2); position: relative; }
         #settings-overlay-content h2 { margin-top: 0; } #settings-overlay-content label { display: block; margin-bottom: 5px; } #settings-overlay-content p { font-size: 12px; color: #aaa; margin-top: 5px; } #settings-overlay-content input, #settings-overlay-content select { width: calc(100% - 12px); box-sizing: border-box; }
-     .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text-color); }
+    .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text-color); }
     </style>
 </head>
 <body>
@@ -62,7 +62,7 @@
         <button class="btn btn-neutral" onclick="loadSelectedRepo()">Load Repo</button>
         <input id="current-file-path" type="text" value="index.html" style="width: 120px;" readonly>
         <button class="btn btn-run" onclick="runCode()">Run</button>
-        <button class="btn btn-push" onclick="pushToGitHub()">Push</button>
+        <button class="btn btn-push" onclick="handlePush()">Push</button>
         <button class="btn btn-neutral" onclick="createNewFile()">New File</button>
         <button class="btn btn-warning" onclick="renameCurrentFile()">Rename</button>
         <button class="btn btn-danger" onclick="deleteCurrentFile()">Delete</button>
@@ -181,7 +181,7 @@
                 const fullPath = getFullPath('index.html', path);
                 const isTS = fullPath.endsWith('.ts') || fullPath.endsWith('.tsx');
 
-                if (repoFiles[fullPath]) { // Check if file exists locally
+                if (repoFiles[fullPath]) {
                     if (isImg) {
                         const binaryContent = await fetchFileContentFromGitHub(fullPath, true);
                         if (binaryContent) {
@@ -260,7 +260,7 @@
                 if (!isBinary) {
                     const content = await fetchFileContentFromGitHub(file.path, false);
                     if (content!== null) {
-                        repoFiles[file.path] = { content: content, sha: file.sha };
+                        repoFiles[file.path] = { content, sha: file.sha };
                         fileSHAs[file.path] = file.sha;
                     }
                 } else {
@@ -325,19 +325,39 @@
         document.querySelector(`.file-box[data-path="${filePath}"]`)?.classList.add('active');
     }
 
-    // ** FIXED PUSHTOGITHUB FUNCTION **
-    async function pushToGitHub(message, content, path) {
+    // ** NEW: Wrapper function for the push button **
+    async function handlePush() {
+        const path = currentFilePath;
+        const sha = fileSHAs[path];
+        const defaultMessage = `FlashCode: ${sha? 'Update' : 'Create'} ${path}`;
+        
+        const message = prompt("Enter commit message:", defaultMessage);
+        
+        // If user cancels the prompt, message will be null
+        if (message === null) {
+            console.log("Push cancelled by user.");
+            return;
+        }
+
+        try {
+            await _pushToGitHub(message);
+            alert("Commit successful!"); // Provide success feedback
+        } catch(e) {
+            // Error is already alerted by _pushToGitHub
+            console.error("Push failed.", e);
+        }
+    }
+
+    // Renamed internal push function
+    async function _pushToGitHub(message, content, path) {
         const token = getGitHubToken();
-        if (!token ||!currentRepo) return alert("Load a repository first.");
+        if (!token ||!currentRepo) throw new Error("Load a repository first.");
         
         path = path || currentFilePath;
         content = content || document.getElementById('real-input').value;
-        const sha = fileSHAs[path]; // Can be undefined for new files
+        const sha = fileSHAs[path];
         
-        // ** THE FIX: If a message isn't passed, create a default one. **
-        if (!message) {
-            message = `FlashCode: ${sha? 'Update' : 'Create'} ${path}`;
-        }
+        if (!message) throw new Error("Commit message cannot be empty.");
 
         try {
             const res = await fetch(`https://api.github.com/repos/${currentRepo}/contents/${path}`, {
@@ -348,14 +368,13 @@
             if (!res.ok) throw await res.json();
             const responseData = await res.json();
             
-            // Update local state after successful push
             fileSHAs[path] = responseData.content.sha;
             repoFiles[path] = { content, sha: responseData.content.sha };
             
             return responseData;
         } catch (e) {
             alert(`GitHub API error: ${e.message}`);
-            throw e; // Re-throw for callers like renameFile to handle
+            throw e;
         }
     }
 
@@ -418,14 +437,11 @@
         const content = document.getElementById('real-input').value;
         
         try {
-            // Use the pushToGitHub function for creation, with a specific message
-            await pushToGitHub(`FlashCode: Create ${newPath} (rename from ${oldPath})`, content, newPath);
-
-            // Now delete the old file
+            await _pushToGitHub(`FlashCode: Create ${newPath} (rename from ${oldPath})`, content, newPath);
             await deleteFileFromGitHub(oldPath);
             
             alert(`Renamed '${oldPath}' to '${newPath}' successfully.`);
-            await loadSelectedRepo(newPath); // Reload repo to get all new SHAs and focus the new file
+            await loadSelectedRepo(newPath);
 
         } catch (e) {
             alert(`Error during rename: ${e.message}. You may need to resolve the state manually in GitHub.`);

@@ -1,493 +1,1310 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Web Editor</title>
-    <style>
-        :root {
-            --bg-dark: #1e1e1e;
-            --bg-light: #252526;
-            --border-color: #333;
-            --accent-color: #007acc;
-            --text-color: #ccc;
-            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: var(--font-family);
-            background-color: var(--bg-dark);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-       .main-container {
-            display: flex;
-            flex-grow: 1;
-        }
-        #login-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-        }
-        #login-screen h1 {
-            font-size: 2.5em;
-            color: #fff;
-        }
-        #login-button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        #login-button:hover {
-            background-color: #005a9e;
-        }
-        #app-container {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 15px;
-            background-color: var(--bg-light);
-            border-bottom: 1px solid var(--border-color);
-        }
-        header h2 {
-            margin: 0;
-            font-size: 1.2em;
-        }
-       .header-controls button,.header-controls select {
-            background-color: #3c3c3c;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 5px 10px;
-            margin-left: 10px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-       .header-controls button:hover {
-            background-color: #4f4f4f;
-        }
-        #status {
-            font-size: 0.9em;
-            margin-left: 15px;
-        }
-       .content-wrapper {
-            display: flex;
-            flex-grow: 1;
-            height: calc(100% - 50px);
-        }
-        #file-explorer {
-            width: 250px;
-            background-color: var(--bg-light);
-            padding: 10px;
-            overflow-y: auto;
-            border-right: 1px solid var(--border-color);
-        }
-        #file-explorer ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        #file-explorer li {
-            padding: 4px;
-            cursor: pointer;
-            border-radius: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        #file-explorer li:hover {
-            background-color: #37373d;
-        }
-        #file-explorer li.active {
-            background-color: var(--accent-color);
-            color: white;
-        }
-       .editor-area {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-        #editor-container {
-            flex-grow: 1;
-        }
-        #output-console {
-            height: 200px;
-            background-color: #1a1a1a;
-            border-top: 1px solid var(--border-color);
-            padding: 10px;
-            overflow-y: auto;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9em;
-        }
-        #output-console pre {
-             margin: 0;
-             white-space: pre-wrap;
-             word-wrap: break-word;
-        }
-        #ai-output {
-            border-top: 1px dashed var(--border-color);
-            padding-top: 10px;
-            margin-top: 10px;
-            color: #a6e22e;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>FlashCode – Browser IDE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Simple, stylish, no-framework layout -->
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-alt: #0b1020;
+      --panel: #0f172a;
+      --panel-alt: #111827;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.7);
+      --shadow-subtle: 0 10px 30px rgba(15, 23, 42, 0.6);
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
+      color: var(--text);
+      font-family: var(--font-sans);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar */
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      backdrop-filter: blur(18px);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: conic-gradient(from 210deg, #38bdf8, #a855f7, #f97316, #38bdf8);
+      padding: 2px;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-logo-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: radial-gradient(circle at 30% 0, #0f172a 0, #020617 60%, #000 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #e0f2fe;
+      font-family: var(--font-mono);
+    }
+
+    .brand-title {
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      font-size: 15px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .brand-title span:last-child {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      font-size: 11px;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #22c55e 0, #16a34a 40%, #166534 100%);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.9));
+      color: var(--text);
+      padding: 6px 14px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.16s ease-out;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.7);
+    }
+
+    .btn:hover {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 14px 35px rgba(15, 23, 42, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.7);
+    }
+
+    .btn-primary {
+      border-color: rgba(56, 189, 248, 0.9);
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: #e0f2fe;
+      box-shadow: 0 14px 35px rgba(37, 99, 235, 0.7);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px) translateZ(0);
+    }
+
+    .btn-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      padding: 0;
+    }
+
+    /* Layout */
+
+    .app {
+      flex: 1;
+      display: flex;
+      padding: 14px 14px 16px;
+      gap: 12px;
+      max-height: calc(100vh - 52px);
+    }
+
+    .panel {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.98));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(30, 64, 175, 0.7);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(30, 64, 175, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      z-index: 1;
+    }
+
+    .panel-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-header-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #38bdf8 0, #0ea5e9 40%, #0369a1 100%);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+
+    .panel-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Left: repo + files */
+
+    .sidebar {
+      width: 260px;
+      min-width: 220px;
+      max-width: 320px;
+    }
+
+    .repo-form {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: var(--radius-md);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(30, 64, 175, 0.7);
+    }
+
+    .repo-form-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .input {
+      flex: 1;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      outline: none;
+      transition: border-color 0.16s ease-out, box-shadow 0.16s ease-out, background 0.16s ease-out;
+    }
+
+    .input::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    .input:focus {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    .repo-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .repo-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .repo-meta strong {
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    .files {
+      flex: 1;
+      overflow: auto;
+      margin-top: 4px;
+      padding: 4px;
+      border-radius: var(--radius-md);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
+      border: 1px solid rgba(30, 64, 175, 0.7);
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--muted);
+      transition: background 0.12s ease-out, color 0.12s ease-out, transform 0.08s ease-out;
+    }
+
+    .file-item:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      transform: translateX(1px);
+    }
+
+    .file-item.active {
+      background: rgba(56, 189, 248, 0.16);
+      color: #e0f2fe;
+      border: 1px solid rgba(56, 189, 248, 0.7);
+    }
+
+    .file-icon {
+      width: 14px;
+      text-align: center;
+      opacity: 0.9;
+    }
+
+    .file-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-folder {
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    .file-indent {
+      width: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Center: editor */
+
+    .editor-panel {
+      flex: 1.4;
+      min-width: 0;
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 4px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.9);
+      transition: all 0.14s ease-out;
+    }
+
+    .tab.active {
+      border-color: rgba(56, 189, 248, 0.9);
+      color: #e0f2fe;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), rgba(15, 23, 42, 0.98));
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .tab-close {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      font-size: 11px;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(30, 64, 175, 0.7);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
+    }
+
+    .editor-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .editor-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge {
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .badge-accent {
+      border-color: rgba(56, 189, 248, 0.9);
+      color: #e0f2fe;
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .editor {
+      flex: 1;
+      position: relative;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-top: 6px;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), #020617);
+      border: 1px solid rgba(30, 64, 175, 0.7);
+    }
+
+    #editor {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Right: preview + commit */
+
+    .preview-panel {
+      flex: 1;
+      min-width: 260px;
+      max-width: 420px;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      font-size: 11px;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(30, 64, 175, 0.7);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
+    }
+
+    .preview-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preview-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preview-frame {
+      flex: 1;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-top: 6px;
+      background: #020617;
+      border: 1px solid rgba(30, 64, 175, 0.7);
+      position: relative;
+    }
+
+    .preview-frame iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+    }
+
+    .status-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .status-pill {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(30, 64, 175, 0.7);
+      pointer-events: auto;
+    }
+
+    /* Toast / messages */
+
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(30, 64, 175, 0.8);
+      color: var(--text);
+      font-size: 12px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+      display: none;
+      max-width: 280px;
+      z-index: 50;
+    }
+
+    .toast-error {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .toast-title {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .toast-body {
+      color: var(--muted);
+    }
+
+    .toast-close {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    /* Small screens */
+
+    @media (max-width: 960px) {
+      .app {
+        flex-direction: column;
+        max-height: none;
+      }
+      .sidebar {
+        width: 100%;
+        max-width: none;
+      }
+      .preview-panel {
+        max-width: none;
+      }
+    }
+  </style>
+
+  <!-- Monaco editor (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/loader.min.js" integrity="sha512-+4d3p8pZ9+9b9p6u7pZpQ5X6Jt1q3p7v1uZV3p8vZp7uZp7uZp7uZp7uZp7uZp7u" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Supabase JS (assumes you already configured client OR expose `window.supabase`) -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
+  <script>
+    // OPTIONAL: if you want to configure here instead of separate file, uncomment and fill:
+    // const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    // const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
+    // const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // window.supabase = supabaseClient;
+  </script>
 </head>
 <body>
-
-    <div id="login-screen">
-        <h1>Cloud Web Editor</h1>
-        <p>Edit your GitHub repos with a powerful in-browser IDE.</p>
-        <button id="login-button">Login with GitHub</button>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">
+        <div class="brand-logo-inner">⚡</div>
+      </div>
+      <div class="brand-title">
+        <span>FlashCode</span>
+        <span>browser ide</span>
+      </div>
     </div>
+    <div class="topbar-right">
+      <div class="pill">
+        <span class="pill-dot"></span>
+        <span id="session-status">Not signed in</span>
+      </div>
+      <button id="auth-btn" class="btn btn-ghost">
+        <span>Sign in with GitHub</span>
+      </button>
+    </div>
+  </header>
 
-    <div id="app-container">
-        <header>
-            <div style="display: flex; align-items: center;">
-                 <h2>Editor</h2>
-                 <span id="status">Ready.</span>
-            </div>
-            <div class="header-controls">
-                <span>Repo:</span>
-                <select id="repo-select"></select>
-                <button id="save-button">Save File</button>
-                <button id="run-button">Run Python</button>
-                <button id="ai-button">Ask AI</button>
-                <button id="logout-button">Logout</button>
-            </div>
-        </header>
-        <div class="content-wrapper">
-            <div id="file-explorer">
-                <ul id="file-list"></ul>
-            </div>
-            <div class="editor-area">
-                <div id="editor-container"></div>
-                <div id="output-console">
-                    <pre id="output-pre">Console output will appear here...</pre>
-                </div>
-            </div>
+  <main class="app">
+    <!-- Sidebar: repo + files -->
+    <section class="panel sidebar">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <span class="panel-header-dot"></span>
+          <span>Repository</span>
         </div>
-    </div>
+        <span id="repo-status">Idle</span>
+      </div>
+      <div class="panel-body">
+        <form id="repo-form" class="repo-form">
+          <div class="repo-form-row">
+            <input id="owner-input" class="input" placeholder="owner (e.g. vercel)" />
+            <input id="repo-input" class="input" placeholder="repo (e.g. next.js)" />
+          </div>
+          <div class="repo-form-row">
+            <input id="branch-input" class="input" placeholder="branch (default: main)" />
+            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+              <span>Load repo</span>
+            </button>
+          </div>
+          <div class="repo-meta">
+            <span>
+              <strong id="repo-name-label">No repo</strong>
+            </span>
+            <span>
+              <span style="width: 6px; height: 6px; border-radius: 999px; background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.8);"></span>
+              <span id="branch-label">-</span>
+            </span>
+          </div>
+        </form>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-    <script type="module">
-        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
-        env.allowLocalModels = false;
-        
-        // --- CONFIGURATION ---
-        const SUPABASE_URL = 'https://uvslkqxtkortoiacmknw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2c2xrcXh0a29ydG9pYWNta253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk4NzI0NTIsImV4cCI6MjAyNTQ0ODQ1Mn0.Rt0s4x2i4Y_N-J6xL4AZ361vEK075p7L9y1h2iM5aXo';
+        <div id="files" class="files">
+          <div style="font-size: 11px; color: var(--muted); padding: 4px 4px 6px;">
+            No repository loaded yet. Enter <strong>owner</strong>, <strong>repo</strong>, and optional <strong>branch</strong>, then click <strong>Load repo</strong>.
+          </div>
+        </div>
+      </div>
+    </section>
 
-        // --- DOM ELEMENTS ---
-        const loginScreen = document.getElementById('login-screen');
-        const appContainer = document.getElementById('app-container');
-        const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button');
-        const repoSelect = document.getElementById('repo-select');
-        const fileList = document.getElementById('file-list');
-        const saveButton = document.getElementById('save-button');
-        const runButton = document.getElementById('run-button');
-        const aiButton = document.getElementById('ai-button');
-        const statusEl = document.getElementById('status');
-        const outputEl = document.getElementById('output-pre');
+    <!-- Editor -->
+    <section class="panel editor-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <span class="panel-header-dot"></span>
+          <span>Editor</span>
+        </div>
+        <span id="file-status">No file open</span>
+      </div>
+      <div class="panel-body">
+        <div class="tabs" id="tabs"></div>
+        <div class="editor-toolbar">
+          <div class="editor-toolbar-left">
+            <span id="current-path" style="font-family: var(--font-mono); font-size: 11px; color: #e5e7eb;">—</span>
+          </div>
+          <div class="editor-toolbar-right">
+            <span class="badge" id="language-badge">plain text</span>
+            <span class="badge badge-accent" id="dirty-badge" style="display:none;">modified</span>
+          </div>
+        </div>
+        <div class="editor">
+          <div id="editor"></div>
+        </div>
+      </div>
+    </section>
 
-        // --- STATE ---
-        let supabase;
-        let monacoEditor;
-        let pyodide;
-        let session = null;
-        let currentFile = null;
-        let ai_pipe = null;
+    <!-- Preview + commit -->
+    <section class="panel preview-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <span class="panel-header-dot"></span>
+          <span>Preview & Commit</span>
+        </div>
+        <span id="commit-status">Ready</span>
+      </div>
+      <div class="panel-body">
+        <div class="preview-toolbar">
+          <div class="preview-toolbar-left">
+            <span class="badge">live preview</span>
+            <span id="preview-file-label">No preview file</span>
+          </div>
+          <div class="preview-toolbar-right">
+            <button id="preview-btn" class="btn btn-ghost" type="button">
+              <span>Refresh</span>
+            </button>
+            <button id="commit-btn" class="btn btn-primary" type="button">
+              <span>Commit</span>
+            </button>
+          </div>
+        </div>
+        <div class="preview-frame">
+          <iframe id="preview-frame"></iframe>
+          <div class="status-bar">
+            <div class="status-pill" id="github-identity">GitHub: not connected</div>
+            <div class="status-pill" id="commit-meta">No pending changes</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-        // --- INITIALIZATION ---
-        async function main() {
-            // 1. Initialize Supabase
-            supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            
-            // 2. Initialize Monaco Editor
-            require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
-            require(['vs/editor/editor.main'], () => {
-                monacoEditor = monaco.editor.create(document.getElementById('editor-container'), {
-                    theme: 'vs-dark',
-                    language: 'python',
-                    automaticLayout: true
-                });
+  <!-- Toast -->
+  <div id="toast" class="toast">
+    <div class="toast-close" id="toast-close">✕</div>
+    <div class="toast-title" id="toast-title"></div>
+    <div class="toast-body" id="toast-body"></div>
+  </div>
+
+  <script>
+    // --- State ---
+    let editorInstance = null;
+    let currentSession = null;
+    let githubToken = null;
+
+    let currentRepo = {
+      owner: null,
+      name: null,
+      branch: "main"
+    };
+
+    // Map path -> { type, sha, content?, loaded }
+    const fileIndex = new Map();
+
+    // Open file state
+    let openFiles = []; // [{ path, dirty, language }]
+    let activeFilePath = null;
+
+    // --- Helpers ---
+
+    function showToast(title, body, isError = false) {
+      const toast = document.getElementById("toast");
+      const titleEl = document.getElementById("toast-title");
+      const bodyEl = document.getElementById("toast-body");
+      toast.classList.toggle("toast-error", isError);
+      titleEl.textContent = title;
+      bodyEl.textContent = body || "";
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 6000);
+    }
+
+    document.getElementById("toast-close").addEventListener("click", () => {
+      document.getElementById("toast").style.display = "none";
+    });
+
+    function setSessionStatus(text) {
+      document.getElementById("session-status").textContent = text;
+    }
+
+    function setRepoStatus(text) {
+      document.getElementById("repo-status").textContent = text;
+    }
+
+    function setFileStatus(text) {
+      document.getElementById("file-status").textContent = text;
+    }
+
+    function setCommitStatus(text) {
+      document.getElementById("commit-status").textContent = text;
+    }
+
+    function setCommitMeta(text) {
+      document.getElementById("commit-meta").textContent = text;
+    }
+
+    function setGithubIdentity(text) {
+      document.getElementById("github-identity").textContent = text;
+    }
+
+    function languageFromPath(path) {
+      if (!path) return "plaintext";
+      const ext = path.split(".").pop().toLowerCase();
+      switch (ext) {
+        case "js":
+        case "mjs":
+        case "cjs":
+          return "javascript";
+        case "ts":
+        case "tsx":
+          return "typescript";
+        case "jsx":
+          return "javascript";
+        case "json":
+          return "json";
+        case "css":
+          return "css";
+        case "html":
+        case "htm":
+          return "html";
+        case "md":
+          return "markdown";
+        case "yml":
+        case "yaml":
+          return "yaml";
+        default:
+          return "plaintext";
+      }
+    }
+
+    function updateLanguageBadge(lang) {
+      const badge = document.getElementById("language-badge");
+      badge.textContent = lang;
+    }
+
+    function updateDirtyBadge(show) {
+      const badge = document.getElementById("dirty-badge");
+      badge.style.display = show ? "inline-flex" : "none";
+    }
+
+    function base64Encode(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    // --- Supabase auth ---
+
+    async function refreshSession() {
+      if (!window.supabase) {
+        setSessionStatus("Supabase not configured");
+        return;
+      }
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error(error);
+        setSessionStatus("Auth error");
+        return;
+      }
+      currentSession = data.session;
+      if (currentSession) {
+        setSessionStatus("Signed in");
+        document.getElementById("auth-btn").textContent = "Sign out";
+        const user = currentSession.user;
+        const username = user?.user_metadata?.user_name || user?.user_metadata?.preferred_username || user?.email || "GitHub user";
+        setGithubIdentity("GitHub: " + username);
+        // GitHub access token (requires GitHub provider & appropriate config)
+        githubToken = currentSession.provider_token || currentSession.provider_token?.github || null;
+        if (!githubToken) {
+          setCommitMeta("No GitHub token in session (check Supabase provider config)");
+        }
+      } else {
+        setSessionStatus("Not signed in");
+        document.getElementById("auth-btn").textContent = "Sign in with GitHub";
+        setGithubIdentity("GitHub: not connected");
+        githubToken = null;
+      }
+    }
+
+    async function requireAuth() {
+      await refreshSession();
+      if (currentSession && githubToken) return true;
+
+      if (!window.supabase) {
+        showToast("Auth not configured", "Supabase client is not available on window.supabase.", true);
+        return false;
+      }
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          scopes: "repo",
+          redirectTo: window.location.href
+        }
+      });
+      if (error) {
+        console.error(error);
+        showToast("GitHub sign-in failed", error.message || "Check console for details.", true);
+        return false;
+      }
+      return false;
+    }
+
+    async function signOut() {
+      if (!window.supabase) return;
+      await supabase.auth.signOut();
+      currentSession = null;
+      githubToken = null;
+      await refreshSession();
+    }
+
+    // --- GitHub API ---
+
+    async function githubFetch(path, options = {}) {
+      if (!githubToken) {
+        throw new Error("Missing GitHub token. Sign in first.");
+      }
+      const headers = options.headers || {};
+      headers["Authorization"] = "Bearer " + githubToken;
+      headers["Accept"] = "application/vnd.github+json";
+      headers["X-GitHub-Api-Version"] = "2022-11-28";
+      return fetch("https://api.github.com" + path, {
+        ...options,
+        headers
+      });
+    }
+
+    async function loadRepo(owner, repo, branch) {
+      setRepoStatus("Loading…");
+      fileIndex.clear();
+      document.getElementById("files").innerHTML = "";
+      currentRepo = { owner, name: repo, branch: branch || "main" };
+      document.getElementById("repo-name-label").textContent = owner + "/" + repo;
+      document.getElementById("branch-label").textContent = currentRepo.branch;
+
+      try {
+        const res = await githubFetch(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(currentRepo.branch)}?recursive=1`);
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error("GitHub error: " + res.status + " " + text);
+        }
+        const data = await res.json();
+        if (!data.tree) {
+          throw new Error("No tree data returned.");
+        }
+
+        data.tree.forEach(node => {
+          fileIndex.set(node.path, {
+            type: node.type,
+            sha: node.sha,
+            loaded: false,
+            content: null
+          });
+        });
+
+        renderFileTree();
+        setRepoStatus("Loaded");
+        showToast("Repository loaded", `${owner}/${repo}@${currentRepo.branch}`);
+      } catch (err) {
+        console.error(err);
+        setRepoStatus("Error");
+        showToast("Failed to load repo", err.message || String(err), true);
+      }
+    }
+
+    function renderFileTree() {
+      const container = document.getElementById("files");
+      container.innerHTML = "";
+      const entries = Array.from(fileIndex.entries())
+        .filter(([path, meta]) => meta.type === "blob")
+        .sort((a, b) => a[0].localeCompare(b[0]));
+
+      if (!entries.length) {
+        container.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:4px;">No files found in this branch.</div>';
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      entries.forEach(([path]) => {
+        const parts = path.split("/");
+        const fileName = parts.pop();
+        const depth = parts.length;
+
+        const item = document.createElement("div");
+        item.className = "file-item";
+        item.dataset.path = path;
+
+        for (let i = 0; i < depth; i++) {
+          const indent = document.createElement("div");
+          indent.className = "file-indent";
+          item.appendChild(indent);
+        }
+
+        if (depth > 0) {
+          const folderSpan = document.createElement("span");
+          folderSpan.className = "file-folder";
+          folderSpan.textContent = parts[parts.length - 1] + "/";
+          folderSpan.style.opacity = "0.7";
+          item.appendChild(folderSpan);
+        }
+
+        const icon = document.createElement("span");
+        icon.className = "file-icon";
+        icon.textContent = "▸";
+        item.appendChild(icon);
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "file-name";
+        nameSpan.textContent = fileName;
+        item.appendChild(nameSpan);
+
+        item.addEventListener("click", () => openFile(path));
+        fragment.appendChild(item);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    async function openFile(path) {
+      const meta = fileIndex.get(path);
+      if (!meta || meta.type !== "blob") return;
+
+      // If not loaded, fetch content
+      if (!meta.loaded) {
+        setFileStatus("Loading " + path + "…");
+        try {
+          const res = await githubFetch(`/repos/${currentRepo.owner}/${currentRepo.name}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(currentRepo.branch)}`);
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error("GitHub error: " + res.status + " " + text);
+          }
+          const data = await res.json();
+          const content = data.content ? decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))) : "";
+          meta.content = content;
+          meta.sha = data.sha;
+          meta.loaded = true;
+          fileIndex.set(path, meta);
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load file", err.message || String(err), true);
+          setFileStatus("Error loading file");
+          return;
+        }
+      }
+
+      // Track open files
+      if (!openFiles.find(f => f.path === path)) {
+        openFiles.push({
+          path,
+          dirty: false,
+          language: languageFromPath(path)
+        });
+      }
+
+      activeFilePath = path;
+      updateTabs();
+      setEditorContent(meta.content, languageFromPath(path));
+      setFileStatus("Editing " + path);
+      document.getElementById("current-path").textContent = path;
+      updateDirtyBadge(false);
+
+      // Highlight active file in tree
+      document.querySelectorAll(".file-item").forEach(el => {
+        el.classList.toggle("active", el.dataset.path === path);
+      });
+
+      // If it's an HTML file, set as preview target
+      if (path.endsWith(".html") || path.endsWith(".htm")) {
+        document.getElementById("preview-file-label").textContent = path;
+        refreshPreview();
+      }
+    }
+
+    function updateTabs() {
+      const tabsEl = document.getElementById("tabs");
+      tabsEl.innerHTML = "";
+      openFiles.forEach(file => {
+        const tab = document.createElement("div");
+        tab.className = "tab" + (file.path === activeFilePath ? " active" : "");
+        const name = file.path.split("/").pop();
+        tab.innerHTML = `<span>${name}</span><span class="tab-close">×</span>`;
+        tab.addEventListener("click", (e) => {
+          if (e.target.classList.contains("tab-close")) {
+            closeTab(file.path);
+          } else {
+            activeFilePath = file.path;
+            const meta = fileIndex.get(file.path);
+            if (meta && meta.loaded) {
+              setEditorContent(meta.content, file.language);
+              document.getElementById("current-path").textContent = file.path;
+              updateDirtyBadge(file.dirty);
+              setFileStatus("Editing " + file.path);
+            }
+            updateTabs();
+            document.querySelectorAll(".file-item").forEach(el => {
+              el.classList.toggle("active", el.dataset.path === file.path);
             });
+          }
+        });
+        tabsEl.appendChild(tab);
+      });
+    }
 
-            // 3. Initialize Pyodide
-            setStatus('Loading Python runtime...');
-            pyodide = await loadPyodide();
-            setStatus('Python runtime loaded.');
-            
-            // 4. Initialize AI
-            setStatus('Loading AI model...');
-            try {
-                ai_pipe = await pipeline('text-generation', 'codellama/CodeLlama-7b-hf', {
-                    quantized: true,
-                    progress_callback: (data) => {
-                       if (data.status === 'progress') {
-                           setStatus(`AI model loading: ${Math.round(data.progress)}%`);
-                       }
-                    }
-                });
-                setStatus('AI Ready. Select a file.');
-            } catch(e) {
-                setStatus('AI model failed to load. AI features disabled.');
-                console.error("AI Error:", e);
-                aiButton.disabled = true;
-            }
+    function closeTab(path) {
+      const idx = openFiles.findIndex(f => f.path === path);
+      if (idx === -1) return;
+      openFiles.splice(idx, 1);
+      if (activeFilePath === path) {
+        activeFilePath = openFiles.length ? openFiles[openFiles.length - 1].path : null;
+        if (activeFilePath) {
+          const meta = fileIndex.get(activeFilePath);
+          if (meta && meta.loaded) {
+            setEditorContent(meta.content, languageFromPath(activeFilePath));
+            document.getElementById("current-path").textContent = activeFilePath;
+            setFileStatus("Editing " + activeFilePath);
+          }
+        } else {
+          setEditorContent("", "plaintext");
+          document.getElementById("current-path").textContent = "—";
+          setFileStatus("No file open");
+          updateDirtyBadge(false);
+        }
+      }
+      updateTabs();
+    }
 
-            // 5. Handle Auth
-            const { data } = await supabase.auth.getSession();
-            session = data.session;
-            updateUI();
+    function setEditorContent(content, language) {
+      if (!editorInstance) return;
+      const model = editorInstance.getModel();
+      if (model) {
+        monaco.editor.setModelLanguage(model, language);
+        model.setValue(content || "");
+      }
+      updateLanguageBadge(language);
+    }
 
-            supabase.auth.onAuthStateChange((_event, newSession) => {
-                session = newSession;
-                updateUI();
-            });
+    function getEditorContent() {
+      if (!editorInstance) return "";
+      return editorInstance.getValue();
+    }
 
-            // 6. Bind Events
-            loginButton.onclick = handleLogin;
-            logoutButton.onclick = handleLogout;
-            repoSelect.onchange = handleRepoSelect;
-            saveButton.onclick = saveCurrentFile;
-            runButton.onclick = runCode;
-            aiButton.onclick = runAI;
+    function markActiveFileDirty(dirty) {
+      if (!activeFilePath) return;
+      const file = openFiles.find(f => f.path === activeFilePath);
+      if (!file) return;
+      file.dirty = dirty;
+      updateDirtyBadge(dirty);
+      setCommitMeta(dirty ? "Unsaved changes in " + activeFilePath : "No pending changes");
+      updateTabs();
+    }
+
+    // --- Preview ---
+
+    function refreshPreview() {
+      const previewPath = document.getElementById("preview-file-label").textContent;
+      if (!previewPath || previewPath === "No preview file") {
+        showToast("No preview file", "Open an HTML file to preview.", false);
+        return;
+      }
+      const meta = fileIndex.get(previewPath);
+      if (!meta || !meta.loaded) {
+        showToast("Preview not ready", "File content not loaded yet.", false);
+        return;
+      }
+      const iframe = document.getElementById("preview-frame");
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(meta.content || "");
+      doc.close();
+    }
+
+    // --- Commit ---
+
+    async function commitActiveFile() {
+      if (!activeFilePath) {
+        showToast("No file to commit", "Open a file and make changes first.", false);
+        return;
+      }
+      const meta = fileIndex.get(activeFilePath);
+      if (!meta || meta.type !== "blob") {
+        showToast("Cannot commit", "Only regular files can be committed.", false);
+        return;
+      }
+      const file = openFiles.find(f => f.path === activeFilePath);
+      if (!file || !file.dirty) {
+        showToast("No changes", "There are no unsaved changes in the active file.", false);
+        return;
+      }
+
+      const message = prompt("Commit message for " + activeFilePath + ":", "Update " + activeFilePath);
+      if (!message) return;
+
+      const content = getEditorContent();
+      const encoded = base64Encode(content);
+
+      setCommitStatus("Committing…");
+      setCommitMeta("Pushing " + activeFilePath + "…");
+
+      try {
+        const res = await githubFetch(`/repos/${currentRepo.owner}/${currentRepo.name}/contents/${encodeURIComponent(activeFilePath)}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message,
+            content: encoded,
+            sha: meta.sha,
+            branch: currentRepo.branch
+          })
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error("GitHub error: " + res.status + " " + text);
         }
 
-        // --- UI & AUTH LOGIC ---
-        function updateUI() {
-            if (session) {
-                loginScreen.style.display = 'none';
-                appContainer.style.display = 'flex';
-                loadUserRepos();
-            } else {
-                loginScreen.style.display = 'flex';
-                appContainer.style.display = 'none';
-                currentFile = null;
-            }
+        const data = await res.json();
+        meta.sha = data.content.sha;
+        meta.content = content;
+        meta.loaded = true;
+        fileIndex.set(activeFilePath, meta);
+        markActiveFileDirty(false);
+        setCommitStatus("Committed");
+        setCommitMeta("Last commit: " + message);
+        showToast("Commit pushed", message);
+      } catch (err) {
+        console.error(err);
+        setCommitStatus("Commit failed");
+        setCommitMeta("Commit failed");
+        showToast("Commit failed", err.message || String(err), true);
+      }
+    }
+
+    // --- Monaco bootstrap ---
+
+    function initMonaco() {
+      require.config({ paths: { "vs": "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs" } });
+      require(["vs/editor/editor.main"], function () {
+        editorInstance = monaco.editor.create(document.getElementById("editor"), {
+          value: "",
+          language: "plaintext",
+          theme: "vs-dark",
+          automaticLayout: true,
+          fontFamily: "JetBrains Mono, Fira Code, var(--font-mono)",
+          fontSize: 13,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          smoothScrolling: true,
+          roundedSelection: true,
+          cursorBlinking: "smooth",
+          renderWhitespace: "selection",
+          wordWrap: "on"
+        });
+
+        editorInstance.onDidChangeModelContent(() => {
+          if (!activeFilePath) return;
+          const meta = fileIndex.get(activeFilePath);
+          if (!meta || !meta.loaded) return;
+          const current = getEditorContent();
+          const dirty = current !== meta.content;
+          markActiveFileDirty(dirty);
+        });
+      });
+    }
+
+    // --- Event wiring ---
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      initMonaco();
+      await refreshSession();
+
+      document.getElementById("auth-btn").addEventListener("click", async () => {
+        if (currentSession) {
+          await signOut();
+        } else {
+          await requireAuth();
         }
+      });
 
-        function handleLogin() {
-            supabase.auth.signInWithOAuth({ provider: 'github', options: { scopes: 'repo' } });
+      document.getElementById("repo-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const owner = document.getElementById("owner-input").value.trim();
+        const repo = document.getElementById("repo-input").value.trim();
+        const branch = document.getElementById("branch-input").value.trim() || "main";
+        if (!owner || !repo) {
+          showToast("Missing fields", "Owner and repo are required.", false);
+          return;
         }
+        const ok = await requireAuth();
+        if (!currentSession || !githubToken) return;
+        await loadRepo(owner, repo, branch);
+      });
 
-        function handleLogout() {
-            supabase.auth.signOut();
-        }
-        
-        function setStatus(text) {
-            statusEl.textContent = text;
-        }
+      document.getElementById("preview-btn").addEventListener("click", () => {
+        refreshPreview();
+      });
 
-        function logToConsole(text, type = 'log') {
-             if (type === 'ai') {
-                const aiOutput = document.createElement('pre');
-                aiOutput.id = 'ai-output';
-                aiOutput.textContent = `🤖 AI Assistant:\n${text}`;
-                outputEl.appendChild(aiOutput);
-             } else {
-                 outputEl.textContent = text;
-             }
-             outputEl.scrollTop = outputEl.scrollHeight;
-        }
-
-        // --- GITHUB API LOGIC ---
-        async function githubApiFetch(endpoint) {
-            if (!session) throw new Error("Not authenticated");
-            const GITHUB_API = 'https://api.github.com';
-            const response = await fetch(`${GITHUB_API}${endpoint}`, {
-                headers: { 'Authorization': `Bearer ${session.provider_token}` }
-            });
-            if (!response.ok) {
-                 const err = await response.json();
-                 throw new Error(`GitHub API Error: ${err.message}`);
-            }
-            return response.json();
-        }
-
-        async function loadUserRepos() {
-            try {
-                setStatus('Loading repositories...');
-                const repos = await githubApiFetch('/user/repos?sort=pushed&per_page=100');
-                repoSelect.innerHTML = '<option>Select a repository...</option>';
-                repos.forEach(repo => {
-                    const option = document.createElement('option');
-                    option.value = repo.full_name;
-                    option.textContent = repo.full_name;
-                    repoSelect.appendChild(option);
-                });
-                setStatus('Ready. Select a repository.');
-            } catch (error) {
-                setStatus(`Error: ${error.message}`);
-            }
-        }
-
-        async function handleRepoSelect() {
-            const repoName = repoSelect.value;
-            if (!repoName || repoName === 'Select a repository...') return;
-            try {
-                setStatus(`Fetching files for ${repoName}...`);
-                const files = await githubApiFetch(`/repos/${repoName}/contents/`);
-                fileList.innerHTML = '';
-                files.forEach(file => {
-                     const li = document.createElement('li');
-                     li.textContent = file.name;
-                     li.dataset.path = file.path;
-                     li.dataset.sha = file.sha;
-                     li.dataset.repo = repoName;
-                     li.onclick = () => handleFileSelect(li);
-                     fileList.appendChild(li);
-                });
-                setStatus(`Ready. Select a file from ${repoName}.`);
-            } catch (error) {
-                 setStatus(`Error: ${error.message}`);
-            }
-        }
-
-        async function handleFileSelect(liElement) {
-             try {
-                currentFile = {
-                    path: liElement.dataset.path,
-                    sha: liElement.dataset.sha,
-                    repo: liElement.dataset.repo
-                };
-                
-                document.querySelectorAll('#file-list li').forEach(li => li.classList.remove('active'));
-                liElement.classList.add('active');
-
-                setStatus(`Loading ${currentFile.path}...`);
-                const fileData = await githubApiFetch(`/repos/${currentFile.repo}/git/blobs/${currentFile.sha}`);
-                const fileContent = atob(fileData.content);
-                monacoEditor.setValue(fileContent);
-                setStatus(`Editing ${currentFile.path}.`);
-             } catch(error) {
-                 setStatus(`Error: ${error.message}`);
-             }
-        }
-
-        async function saveCurrentFile() {
-            if (!currentFile) {
-                setStatus("No file selected to save.");
-                return;
-            }
-            try {
-                setStatus(`Saving ${currentFile.path}...`);
-                const content = monacoEditor.getValue();
-                const encodedContent = btoa(content);
-
-                const GITHUB_API = 'https://api.github.com';
-                const endpoint = `${GITHUB_API}/repos/${currentFile.repo}/contents/${currentFile.path}`;
-                
-                const response = await fetch(endpoint, {
-                    method: 'PUT',
-                    headers: {
-                         'Authorization': `Bearer ${session.provider_token}`,
-                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: `feat: update ${currentFile.path} via web editor`,
-                        content: encodedContent,
-                        sha: currentFile.sha // Important: SHA is required to update an existing file
-                    })
-                });
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result.message);
-                }
-
-                // Update the file's SHA to the new one from the commit
-                currentFile.sha = result.content.sha;
-                document.querySelector(`li[data-path="${currentFile.path}"]`).dataset.sha = result.content.sha;
-
-                setStatus(`Successfully saved ${currentFile.path}!`);
-            } catch(error) {
-                setStatus(`Save failed: ${error.message}`);
-            }
-        }
-        
-        // --- EXECUTION & AI ---
-        async function runCode() {
-            if (!pyodide) {
-                logToConsole("Pyodide is not loaded yet.");
-                return;
-            }
-             setStatus("Running Python code...");
-             logToConsole("Executing...");
-            try {
-                const code = monacoEditor.getValue();
-                // Capture stdout
-                pyodide.globals.set('__old_print__', console.log);
-                let stdout = "";
-                console.log = (msg) => stdout += msg + "\n";
-
-                await pyodide.loadPackagesFromImports(code);
-                let result = await pyodide.runPythonAsync(code);
-                
-                console.log = pyodide.globals.get('__old_print__'); // Restore
-                
-                let output = stdout;
-                if(result!== undefined) {
-                    output += `\nReturn value: ${result}`;
-                }
-                logToConsole(output || "[No output]");
-                setStatus("Execution finished.");
-            } catch (err) {
-                logToConsole(`Error: ${err}`);
-                setStatus("Execution failed.");
-            }
-        }
-
-        async function runAI() {
-            if (!ai_pipe) {
-                logToConsole("AI is not available.");
-                return;
-            }
-            if (!monacoEditor.getValue()) {
-                 logToConsole("There is no code to analyze.");
-                 return;
-            }
-            
-            setStatus('AI is thinking...');
-            try {
-                 const code = monacoEditor.getValue();
-                 const prompt = `You are a helpful coding assistant. Please explain the following Python code, identify potential bugs, or suggest improvements.\n\n---\n\n${code}\n\n---\n\nAssistant:`;
-                 
-                 const result = await ai_pipe(prompt, {
-                     max_new_tokens: 150,
-                     no_repeat_ngram_size: 3
-                 });
-                 const aiResponse = result[0].generated_text.split('Assistant:')[1].trim();
-                 logToConsole(aiResponse, 'ai');
-                 setStatus('AI analysis complete.');
-
-            } catch (error) {
-                setStatus('AI task failed.');
-                console.error("AI execution error:", error);
-            }
-        }
-        
-        main();
-    </script>
+      document.getElementById("commit-btn").addEventListener("click", async () => {
+        const ok = await requireAuth();
+        if (!currentSession || !githubToken) return;
+        await commitActiveFile();
+      });
+    });
+  </script>
 </body>
 </html>
+```

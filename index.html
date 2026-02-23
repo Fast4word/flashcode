@@ -2,491 +2,492 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FlashCode</title>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Web Editor</title>
     <style>
-        /* All CSS remains the same */
         :root {
-            --bg: #1e1e1e; --sidebar: #252526; --header: #333; --accent: #28a745;
-            --text-color: #d4d4d4; --border-color: #444; --input-bg: #3c3c3c;
-            --input-border: #555; --file-box-bg: #333; --settings-overlay-bg: rgba(0,0,0,0.7);
-            --file-hover-bg: #404040; --file-active-bg: var(--accent); --error-text: #ff6347;
-            --danger-color: #dc3545; --warning-color: #ffc107;
+            --bg-dark: #1e1e1e;
+            --bg-light: #252526;
+            --border-color: #333;
+            --accent-color: #007acc;
+            --text-color: #ccc;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-    .theme-light {
-            --bg: #f3f3f3; --sidebar: #e0e0e0; --header: #ccc; --accent: #007bff;
-            --text-color: #333; --border-color: #bbb; --input-bg: #eee;
-            --input-border: #999; --file-box-bg: #e9e9e9; --settings-overlay-bg: rgba(0,0,0,0.5);
-            --file-hover-bg: #d0d0d0; --file-active-bg: var(--accent); --error-text: #dc3545;
-            --danger-color: #c82333; --warning-color: #ffc107;
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text-color); font-family: sans-serif; overflow: hidden; }
-    .app-container { display: flex; flex-direction: column; height: 100vh; }
-        header { background: var(--header); padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border-bottom: 1px solid var(--border-color); }
-        header > input { flex-grow: 1; }
-        main { display: flex; flex: 1; overflow: hidden; }
-        #sidebar { width: 250px; background: var(--sidebar); border-right: 1px solid var(--border-color); padding: 15px; display: flex; flex-direction: column;}
-        #sidebar-header { margin-bottom: 10px; }
-        #sidebar-header div { font-size: 11px; color: #888; margin-bottom: 5px; }
-        #file-list-container { flex-grow: 1; overflow-y: auto; }
-    .file-box { background: var(--file-box-bg); padding: 8px; border-left: 3px solid transparent; font-size: 13px; margin-bottom: 5px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .file-box:hover { background: var(--file-hover-bg); }
-    .file-box.active { background: var(--file-active-bg); color: white; border-left-color: var(--accent); }
-        #editor-container { flex: 1; position: relative; background: var(--bg); }
-        #real-input { width: 100%; height: 100%; background: var(--bg); color: var(--text-color); border: none; padding: 20px; font-family: 'Courier New', monospace; font-size: 16px; resize: none; outline: none; box-sizing: border-box; }
-        #output-panel { width: 40%; background: white; border-left: 2px solid var(--border-color); display: flex; flex-direction: column;}
-        #preview { flex-grow: 1; width: 100%; height: auto; border: none; }
-        #preview-errors { background: #333; color: var(--error-text); padding: 5px; font-size: 12px; max-height: 100px; overflow-y: auto; border-top: 1px solid var(--border-color); }
-        #preview-errors:empty { display: none; }
-        input, select { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-color); padding: 6px; border-radius: 4px; }
-        input[type="password"] { font-family: sans-serif; }
-    .btn { cursor: pointer; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; color: white; }
-    .btn-run { background: var(--accent); }
-    .btn-push { background: #007acc; }
-    .btn-neutral { background: #6c757d; }
-    .btn-create-repo { background: #f67b00; }
-    .btn-danger { background: var(--danger-color); }
-    .btn-warning { background: var(--warning-color); color: #212529; }
-        #settings-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--settings-overlay-bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
-        #settings-overlay-content { background: var(--bg); padding: 20px; width: 80%; max-width: 500px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 8px rgba(0,0,0,0.2); position: relative; }
-        #settings-overlay-content h2 { margin-top: 0; } #settings-overlay-content label { display: block; margin-bottom: 5px; } #settings-overlay-content p { font-size: 12px; color: #aaa; margin-top: 5px; } #settings-overlay-content input, #settings-overlay-content select { width: calc(100% - 12px); box-sizing: border-box; }
-    .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text-color); }
+       .main-container {
+            display: flex;
+            flex-grow: 1;
+        }
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+        }
+        #login-screen h1 {
+            font-size: 2.5em;
+            color: #fff;
+        }
+        #login-button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        #login-button:hover {
+            background-color: #005a9e;
+        }
+        #app-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            background-color: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+        }
+        header h2 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+       .header-controls button,.header-controls select {
+            background-color: #3c3c3c;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            margin-left: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+       .header-controls button:hover {
+            background-color: #4f4f4f;
+        }
+        #status {
+            font-size: 0.9em;
+            margin-left: 15px;
+        }
+       .content-wrapper {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100% - 50px);
+        }
+        #file-explorer {
+            width: 250px;
+            background-color: var(--bg-light);
+            padding: 10px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+        #file-explorer ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #file-explorer li {
+            padding: 4px;
+            cursor: pointer;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #file-explorer li:hover {
+            background-color: #37373d;
+        }
+        #file-explorer li.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+       .editor-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        #editor-container {
+            flex-grow: 1;
+        }
+        #output-console {
+            height: 200px;
+            background-color: #1a1a1a;
+            border-top: 1px solid var(--border-color);
+            padding: 10px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+        }
+        #output-console pre {
+             margin: 0;
+             white-space: pre-wrap;
+             word-wrap: break-word;
+        }
+        #ai-output {
+            border-top: 1px dashed var(--border-color);
+            padding-top: 10px;
+            margin-top: 10px;
+            color: #a6e22e;
+        }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <header>
-        <div style="font-weight: bold; color: var(--accent);">FlashCode</div>
-        <input id="repo-name-input" type="text" placeholder="username/repo">
-        <button class="btn btn-neutral" onclick="loadSelectedRepo()">Load Repo</button>
-        <input id="current-file-path" type="text" value="index.html" style="width: 120px;" readonly>
-        <button class="btn btn-run" onclick="runCode()">Run</button>
-        <button class="btn btn-push" onclick="handlePush()">Push</button>
-        <button class="btn btn-neutral" onclick="createNewFile()">New File</button>
-        <button class="btn btn-warning" onclick="renameCurrentFile()">Rename</button>
-        <button class="btn btn-danger" onclick="deleteCurrentFile()">Delete</button>
-        <button class="btn btn-neutral" onclick="toggleSettings()" style="margin-left: auto;">Settings</button>
-    </header>
-    <main>
-        <div id="sidebar">
-            <div id="sidebar-header">
-                <div>REPO: <span id="current-repo-display">None</span></div>
-                <div>FILE: <span id="sidebar-filename">index.html</span></div>
-            </div>
-            <div id="file-list-container"></div>
-        </div>
-        <div id="editor-container">
-            <textarea id="real-input" spellcheck="false"><h1>Welcome to FlashCode!</h1></textarea>
-        </div>
-        <div id="output-panel">
-            <iframe id="preview" srcdoc="Loading preview..."></iframe>
-            <div id="preview-errors"></div>
-        </div>
-    </main>
-</div>
-<div id="settings-overlay">
-    <div id="settings-overlay-content">
-        <span class="close-btn" onclick="toggleSettings()">&times;</span>
-        <h2>FlashCode Settings</h2>
-        <div style="margin-bottom:15px;">
-            <label for="gh-token-input">GitHub Personal Access Token:</label>
-            <input type="password" id="gh-token-input" placeholder="ghp_...">
-            <p>Your token is saved locally. Requires `repo` scope.</p>
-        </div>
-        <div style="margin-bottom:15px;">
-            <label for="theme-select">Theme:</label>
-            <select id="theme-select" onchange="applyTheme(this.value)">
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
-            </select>
-        </div>
-        <button class="btn btn-neutral" onclick="toggleSettings()">Close Settings</button>
+    <div id="login-screen">
+        <h1>Cloud Web Editor</h1>
+        <p>Edit your GitHub repos with a powerful in-browser IDE.</p>
+        <button id="login-button">Login with GitHub</button>
     </div>
-</div>
 
-<script>
-    let currentRepo = '';
-    let currentFilePath = 'index.html';
-    let repoFiles = {};
-    let fileSHAs = {};
+    <div id="app-container">
+        <header>
+            <div style="display: flex; align-items: center;">
+                 <h2>Editor</h2>
+                 <span id="status">Ready.</span>
+            </div>
+            <div class="header-controls">
+                <span>Repo:</span>
+                <select id="repo-select"></select>
+                <button id="save-button">Save File</button>
+                <button id="run-button">Run Python</button>
+                <button id="ai-button">Ask AI</button>
+                <button id="logout-button">Logout</button>
+            </div>
+        </header>
+        <div class="content-wrapper">
+            <div id="file-explorer">
+                <ul id="file-list"></ul>
+            </div>
+            <div class="editor-area">
+                <div id="editor-container"></div>
+                <div id="output-console">
+                    <pre id="output-pre">Console output will appear here...</pre>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('editor_theme') || 'dark';
-        applyTheme(savedTheme);
-        document.getElementById('gh-token-input').value = localStorage.getItem('gh_token') || '';
-        document.getElementById('gh-token-input').addEventListener('change', (e) => saveGitHubToken(e.target.value));
-        updateDisplay();
-    });
-
-    function updateDisplay() {
-        document.getElementById('current-repo-display').innerText = currentRepo || 'None';
-        document.getElementById('sidebar-filename').innerText = currentFilePath;
-        document.getElementById('current-file-path').value = currentFilePath;
-        if (currentRepo && document.getElementById('repo-name-input').value!== currentRepo) {
-             document.getElementById('repo-name-input').value = currentRepo;
-        }
-    }
-
-    function getGitHubToken() {
-        const token = localStorage.getItem('gh_token');
-        if (!token) {
-            alert("Please set your GitHub Personal Access Token in Settings.");
-            toggleSettings();
-            return null;
-        }
-        return token;
-    }
-    
-    function saveGitHubToken(token) {
-        localStorage.setItem('gh_token', token);
-    }
-
-    function applyTheme(theme) {
-        document.body.className = `theme-${theme}`;
-        localStorage.setItem('editor_theme', theme);
-        const themeSelect = document.getElementById('theme-select');
-        if (themeSelect) themeSelect.value = theme;
-    }
-
-    function toggleSettings() {
-        const settingsOverlay = document.getElementById('settings-overlay');
-        settingsOverlay.style.display = settingsOverlay.style.display === 'flex'? 'none' : 'flex';
-    }
-
-    async function runCode() {
-        const previewFrame = document.getElementById('preview');
-        const errorDiv = document.getElementById('preview-errors');
-        errorDiv.innerHTML = '';
-
-        if (!currentRepo ||!repoFiles['index.html']?.content) {
-            previewFrame.srcdoc = `<h1>Error: No repository loaded or index.html is missing.</h1>`;
-            return;
-        }
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <script type="module">
+        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+        env.allowLocalModels = false;
         
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(repoFiles['index.html'].content, 'text/html');
-        const babelScript = doc.createElement('script');
-        babelScript.src = "https://unpkg.com/@babel/standalone/babel.min.js";
-        doc.head.prepend(babelScript);
+        // --- CONFIGURATION ---
+        const SUPABASE_URL = 'https://uvslkqxtkortoiacmknw.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2c2xrcXh0a29ydG9pYWNta253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk4NzI0NTIsImV4cCI6MjAyNTQ0ODQ1Mn0.Rt0s4x2i4Y_N-J6xL4AZ361vEK075p7L9y1h2iM5aXo';
 
-        const assetPromises = Array.from(doc.querySelectorAll('link[rel="stylesheet"], script[src], img[src]')).map(async el => {
-            const isLink = el.tagName === 'LINK';
-            const isScript = el.tagName === 'SCRIPT';
-            const isImg = el.tagName === 'IMG';
-            const attr = isLink? 'href' : 'src';
-            const path = el.getAttribute(attr);
+        // --- DOM ELEMENTS ---
+        const loginScreen = document.getElementById('login-screen');
+        const appContainer = document.getElementById('app-container');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const repoSelect = document.getElementById('repo-select');
+        const fileList = document.getElementById('file-list');
+        const saveButton = document.getElementById('save-button');
+        const runButton = document.getElementById('run-button');
+        const aiButton = document.getElementById('ai-button');
+        const statusEl = document.getElementById('status');
+        const outputEl = document.getElementById('output-pre');
 
-            if (path &&!path.startsWith('http') &&!path.startsWith('data:')) {
-                const fullPath = getFullPath('index.html', path);
-                const isTS = fullPath.endsWith('.ts') || fullPath.endsWith('.tsx');
+        // --- STATE ---
+        let supabase;
+        let monacoEditor;
+        let pyodide;
+        let session = null;
+        let currentFile = null;
+        let ai_pipe = null;
 
-                if (repoFiles[fullPath]) {
-                    if (isImg) {
-                        const binaryContent = await fetchFileContentFromGitHub(fullPath, true);
-                        if (binaryContent) {
-                            const mimeType = getMimeType(fullPath);
-                            el.setAttribute(attr, `data:${mimeType};base64,${binaryContent}`);
-                        }
-                    } else if (repoFiles[fullPath].content!== null) {
-                        const content = repoFiles[fullPath].content;
-                        const newEl = doc.createElement(isLink? 'style' : 'script');
-                        if (isTS) {
-                            newEl.setAttribute('type', 'text/babel');
-                            newEl.setAttribute('data-presets', 'react,typescript');
-                        }
-                        newEl.textContent = content;
-                        el.replaceWith(newEl);
-                    }
-                } else {
-                    errorDiv.innerHTML += `<p><strong>Warning: Asset not found: ${fullPath}</strong></p>`;
-                }
-            }
-        });
-        
-        await Promise.allSettled(assetPromises);
-        previewFrame.srcdoc = '<!DOCTYPE html>' + doc.documentElement.outerHTML;
-    }
-
-    function getFullPath(baseFilePath, relativePath) {
-        try {
-            const baseUrl = `file:///${baseFilePath.substring(0, baseFilePath.lastIndexOf('/') + 1)}`;
-            const resolvedUrl = new URL(relativePath, baseUrl);
-            const path = resolvedUrl.pathname;
-            return path.startsWith('/')? path.substring(1) : path;
-        } catch (e) {
-            console.error("Path resolution error:", e);
-            return relativePath;
-        }
-    }
-
-    function getMimeType(filePath) {
-        const ext = filePath.split('.').pop().toLowerCase();
-        const mimeTypes = {
-            png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif',
-            svg: 'image/svg+xml', webp: 'image/webp', ico: 'image/x-icon',
-            css: 'text/css', js: 'application/javascript', html: 'text/html',
-            ts: 'application/typescript', tsx: 'application/typescript',
-            json: 'application/json', txt: 'text/plain',
-        };
-        return mimeTypes[ext] || 'application/octet-stream';
-    }
-    
-    async function loadSelectedRepo(focusFile) {
-        const repoInput = document.getElementById('repo-name-input').value;
-        if (!repoInput) return alert("Please enter a repository name.");
-        const token = getGitHubToken();
-        if (!token) return;
-
-        currentRepo = repoInput;
-        repoFiles = {};
-        fileSHAs = {};
-        document.getElementById('real-input').value = 'Loading repository...';
-        updateDisplay();
-
-        try {
-            const repoData = await (await fetch(`https://api.github.com/repos/${currentRepo}`, { headers: { 'Authorization': `Bearer ${token}` }})).json();
-            const mainBranch = repoData.default_branch;
-            const branchData = await (await fetch(`https://api.github.com/repos/${currentRepo}/branches/${mainBranch}`, { headers: { 'Authorization': `Bearer ${token}` }})).json();
-            const treeSha = branchData.commit.commit.tree.sha;
+        // --- INITIALIZATION ---
+        async function main() {
+            // 1. Initialize Supabase
+            supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             
-            const treeResponse = await fetch(`https://api.github.com/repos/${currentRepo}/git/trees/${treeSha}?recursive=1`, { headers: { 'Authorization': `Bearer ${token}` }});
-            const treeData = await treeResponse.json();
-            
-            const allFiles = treeData.tree.filter(node => node.type === 'blob');
-
-            const preloadPromises = allFiles.map(async file => {
-                const isBinary = getMimeType(file.path).startsWith('image/');
-                if (!isBinary) {
-                    const content = await fetchFileContentFromGitHub(file.path, false);
-                    if (content!== null) {
-                        repoFiles[file.path] = { content, sha: file.sha };
-                        fileSHAs[file.path] = file.sha;
-                    }
-                } else {
-                     repoFiles[file.path] = { content: null, sha: file.sha, isBinary: true };
-                     fileSHAs[file.path] = file.sha;
-                }
+            // 2. Initialize Monaco Editor
+            require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
+            require(['vs/editor/editor.main'], () => {
+                monacoEditor = monaco.editor.create(document.getElementById('editor-container'), {
+                    theme: 'vs-dark',
+                    language: 'python',
+                    automaticLayout: true
+                });
             });
-            await Promise.all(preloadPromises);
 
-            renderSidebar();
+            // 3. Initialize Pyodide
+            setStatus('Loading Python runtime...');
+            pyodide = await loadPyodide();
+            setStatus('Python runtime loaded.');
             
-            const entryFile = focusFile && repoFiles[focusFile]? focusFile : (repoFiles['index.html']? 'index.html' : Object.keys(repoFiles).sort()[0]);
-            if (entryFile) {
-                await loadFileContent(entryFile);
-                if (repoFiles['index.html']) await runCode();
+            // 4. Initialize AI
+            setStatus('Loading AI model...');
+            try {
+                ai_pipe = await pipeline('text-generation', 'codellama/CodeLlama-7b-hf', {
+                    quantized: true,
+                    progress_callback: (data) => {
+                       if (data.status === 'progress') {
+                           setStatus(`AI model loading: ${Math.round(data.progress)}%`);
+                       }
+                    }
+                });
+                setStatus('AI Ready. Select a file.');
+            } catch(e) {
+                setStatus('AI model failed to load. AI features disabled.');
+                console.error("AI Error:", e);
+                aiButton.disabled = true;
+            }
+
+            // 5. Handle Auth
+            const { data } = await supabase.auth.getSession();
+            session = data.session;
+            updateUI();
+
+            supabase.auth.onAuthStateChange((_event, newSession) => {
+                session = newSession;
+                updateUI();
+            });
+
+            // 6. Bind Events
+            loginButton.onclick = handleLogin;
+            logoutButton.onclick = handleLogout;
+            repoSelect.onchange = handleRepoSelect;
+            saveButton.onclick = saveCurrentFile;
+            runButton.onclick = runCode;
+            aiButton.onclick = runAI;
+        }
+
+        // --- UI & AUTH LOGIC ---
+        function updateUI() {
+            if (session) {
+                loginScreen.style.display = 'none';
+                appContainer.style.display = 'flex';
+                loadUserRepos();
             } else {
-                document.getElementById('real-input').value = "Repository is empty.";
+                loginScreen.style.display = 'flex';
+                appContainer.style.display = 'none';
+                currentFile = null;
             }
-
-        } catch (e) {
-            alert(`Error loading repo: ${e.message}`);
         }
-    }
-    
-    function renderSidebar() {
-        const fileListContainer = document.getElementById('file-list-container');
-        fileListContainer.innerHTML = '';
-        const sortedFilePaths = Object.keys(repoFiles).sort();
-        for (const path of sortedFilePaths) {
-            const fileBox = document.createElement('div');
-            fileBox.classList.add('file-box');
-            fileBox.textContent = path;
-            fileBox.dataset.path = path;
-            fileBox.addEventListener('click', () => loadFileContent(path));
-            fileListContainer.appendChild(fileBox);
-        }
-    }
 
-    async function fetchFileContentFromGitHub(filePath, isBinary = false) {
-        const token = getGitHubToken();
-        if (!token) return null;
-        try {
-            const response = await fetch(`https://api.github.com/repos/${currentRepo}/contents/${filePath}`, { headers: { 'Authorization': `Bearer ${token}` }});
-            if (!response.ok) return null;
-            const fileData = await response.json();
-            return isBinary? fileData.content : decodeURIComponent(escape(atob(fileData.content)));
-        } catch (e) {
-            return null;
+        function handleLogin() {
+            supabase.auth.signInWithOAuth({ provider: 'github', options: { scopes: 'repo' } });
         }
-    }
 
-    function loadFileContent(filePath) {
-        if (!repoFiles[filePath]) return;
-        if (repoFiles[filePath].isBinary) {
-            document.getElementById('real-input').value = `// Binary file, cannot be edited. Path: ${filePath}`;
-        } else {
-            document.getElementById('real-input').value = repoFiles[filePath].content;
+        function handleLogout() {
+            supabase.auth.signOut();
         }
-        currentFilePath = filePath;
-        updateDisplay();
-        document.querySelectorAll('.file-box.active').forEach(el => el.classList.remove('active'));
-        document.querySelector(`.file-box[data-path="${filePath}"]`)?.classList.add('active');
-    }
-
-    // ** NEW: Wrapper function for the push button **
-    async function handlePush() {
-        const path = currentFilePath;
-        const sha = fileSHAs[path];
-        const defaultMessage = `FlashCode: ${sha? 'Update' : 'Create'} ${path}`;
         
-        const message = prompt("Enter commit message:", defaultMessage);
-        
-        // If user cancels the prompt, message will be null
-        if (message === null) {
-            console.log("Push cancelled by user.");
-            return;
+        function setStatus(text) {
+            statusEl.textContent = text;
         }
 
-        try {
-            await _pushToGitHub(message);
-            alert("Commit successful!"); // Provide success feedback
-        } catch(e) {
-            // Error is already alerted by _pushToGitHub
-            console.error("Push failed.", e);
+        function logToConsole(text, type = 'log') {
+             if (type === 'ai') {
+                const aiOutput = document.createElement('pre');
+                aiOutput.id = 'ai-output';
+                aiOutput.textContent = `🤖 AI Assistant:\n${text}`;
+                outputEl.appendChild(aiOutput);
+             } else {
+                 outputEl.textContent = text;
+             }
+             outputEl.scrollTop = outputEl.scrollHeight;
         }
-    }
 
-    // Renamed internal push function
-    async function _pushToGitHub(message, content, path) {
-        const token = getGitHubToken();
-        if (!token ||!currentRepo) throw new Error("Load a repository first.");
-        
-        path = path || currentFilePath;
-        content = content || document.getElementById('real-input').value;
-        const sha = fileSHAs[path];
-        
-        if (!message) throw new Error("Commit message cannot be empty.");
-
-        try {
-            const res = await fetch(`https://api.github.com/repos/${currentRepo}/contents/${path}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message, content: btoa(unescape(encodeURIComponent(content))), sha })
+        // --- GITHUB API LOGIC ---
+        async function githubApiFetch(endpoint) {
+            if (!session) throw new Error("Not authenticated");
+            const GITHUB_API = 'https://api.github.com';
+            const response = await fetch(`${GITHUB_API}${endpoint}`, {
+                headers: { 'Authorization': `Bearer ${session.provider_token}` }
             });
-            if (!res.ok) throw await res.json();
-            const responseData = await res.json();
-            
-            fileSHAs[path] = responseData.content.sha;
-            repoFiles[path] = { content, sha: responseData.content.sha };
-            
-            return responseData;
-        } catch (e) {
-            alert(`GitHub API error: ${e.message}`);
-            throw e;
+            if (!response.ok) {
+                 const err = await response.json();
+                 throw new Error(`GitHub API Error: ${err.message}`);
+            }
+            return response.json();
         }
-    }
 
-    async function createNewFile() {
-        const newPath = prompt("Enter the new file name (including full path):");
-        if (!newPath) return;
+        async function loadUserRepos() {
+            try {
+                setStatus('Loading repositories...');
+                const repos = await githubApiFetch('/user/repos?sort=pushed&per_page=100');
+                repoSelect.innerHTML = '<option>Select a repository...</option>';
+                repos.forEach(repo => {
+                    const option = document.createElement('option');
+                    option.value = repo.full_name;
+                    option.textContent = repo.full_name;
+                    repoSelect.appendChild(option);
+                });
+                setStatus('Ready. Select a repository.');
+            } catch (error) {
+                setStatus(`Error: ${error.message}`);
+            }
+        }
 
-        if (repoFiles[newPath]) {
-            alert("A file with this name already exists.");
-            return;
+        async function handleRepoSelect() {
+            const repoName = repoSelect.value;
+            if (!repoName || repoName === 'Select a repository...') return;
+            try {
+                setStatus(`Fetching files for ${repoName}...`);
+                const files = await githubApiFetch(`/repos/${repoName}/contents/`);
+                fileList.innerHTML = '';
+                files.forEach(file => {
+                     const li = document.createElement('li');
+                     li.textContent = file.name;
+                     li.dataset.path = file.path;
+                     li.dataset.sha = file.sha;
+                     li.dataset.repo = repoName;
+                     li.onclick = () => handleFileSelect(li);
+                     fileList.appendChild(li);
+                });
+                setStatus(`Ready. Select a file from ${repoName}.`);
+            } catch (error) {
+                 setStatus(`Error: ${error.message}`);
+            }
+        }
+
+        async function handleFileSelect(liElement) {
+             try {
+                currentFile = {
+                    path: liElement.dataset.path,
+                    sha: liElement.dataset.sha,
+                    repo: liElement.dataset.repo
+                };
+                
+                document.querySelectorAll('#file-list li').forEach(li => li.classList.remove('active'));
+                liElement.classList.add('active');
+
+                setStatus(`Loading ${currentFile.path}...`);
+                const fileData = await githubApiFetch(`/repos/${currentFile.repo}/git/blobs/${currentFile.sha}`);
+                const fileContent = atob(fileData.content);
+                monacoEditor.setValue(fileContent);
+                setStatus(`Editing ${currentFile.path}.`);
+             } catch(error) {
+                 setStatus(`Error: ${error.message}`);
+             }
+        }
+
+        async function saveCurrentFile() {
+            if (!currentFile) {
+                setStatus("No file selected to save.");
+                return;
+            }
+            try {
+                setStatus(`Saving ${currentFile.path}...`);
+                const content = monacoEditor.getValue();
+                const encodedContent = btoa(content);
+
+                const GITHUB_API = 'https://api.github.com';
+                const endpoint = `${GITHUB_API}/repos/${currentFile.repo}/contents/${currentFile.path}`;
+                
+                const response = await fetch(endpoint, {
+                    method: 'PUT',
+                    headers: {
+                         'Authorization': `Bearer ${session.provider_token}`,
+                         'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `feat: update ${currentFile.path} via web editor`,
+                        content: encodedContent,
+                        sha: currentFile.sha // Important: SHA is required to update an existing file
+                    })
+                });
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message);
+                }
+
+                // Update the file's SHA to the new one from the commit
+                currentFile.sha = result.content.sha;
+                document.querySelector(`li[data-path="${currentFile.path}"]`).dataset.sha = result.content.sha;
+
+                setStatus(`Successfully saved ${currentFile.path}!`);
+            } catch(error) {
+                setStatus(`Save failed: ${error.message}`);
+            }
         }
         
-        repoFiles[newPath] = { content: '', sha: undefined };
-        fileSHAs[newPath] = undefined;
-        renderSidebar();
-        loadFileContent(newPath);
-        alert(`File '${newPath}' created locally. Push to save it to GitHub.`);
-    }
+        // --- EXECUTION & AI ---
+        async function runCode() {
+            if (!pyodide) {
+                logToConsole("Pyodide is not loaded yet.");
+                return;
+            }
+             setStatus("Running Python code...");
+             logToConsole("Executing...");
+            try {
+                const code = monacoEditor.getValue();
+                // Capture stdout
+                pyodide.globals.set('__old_print__', console.log);
+                let stdout = "";
+                console.log = (msg) => stdout += msg + "\n";
 
-    async function deleteCurrentFile() {
-        const pathToDelete = currentFilePath;
-        if (!pathToDelete ||!fileSHAs[pathToDelete] ||!confirm(`Are you sure you want to delete ${pathToDelete} from GitHub? This is permanent.`)) {
-            if (!fileSHAs[pathToDelete]) alert("Cannot delete a file that hasn't been pushed to GitHub yet.");
-            return;
+                await pyodide.loadPackagesFromImports(code);
+                let result = await pyodide.runPythonAsync(code);
+                
+                console.log = pyodide.globals.get('__old_print__'); // Restore
+                
+                let output = stdout;
+                if(result!== undefined) {
+                    output += `\nReturn value: ${result}`;
+                }
+                logToConsole(output || "[No output]");
+                setStatus("Execution finished.");
+            } catch (err) {
+                logToConsole(`Error: ${err}`);
+                setStatus("Execution failed.");
+            }
         }
-        const token = getGitHubToken();
-        const sha = fileSHAs[pathToDelete];
 
-        try {
-            const res = await fetch(`https://api.github.com/repos/${currentRepo}/contents/${pathToDelete}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: `FlashCode: Delete ${pathToDelete}`, sha })
-            });
-            if (!res.ok) throw await res.json();
+        async function runAI() {
+            if (!ai_pipe) {
+                logToConsole("AI is not available.");
+                return;
+            }
+            if (!monacoEditor.getValue()) {
+                 logToConsole("There is no code to analyze.");
+                 return;
+            }
             
-            delete repoFiles[pathToDelete];
-            delete fileSHAs[pathToDelete];
-            renderSidebar();
-            document.getElementById('real-input').value = '';
-            alert(`File '${pathToDelete}' deleted successfully from GitHub.`);
-            const nextFile = Object.keys(repoFiles).sort()[0] || 'index.html';
-            loadFileContent(nextFile);
-            
-        } catch(e) {
-            alert(`Error deleting file: ${e.message}`);
-        }
-    }
+            setStatus('AI is thinking...');
+            try {
+                 const code = monacoEditor.getValue();
+                 const prompt = `You are a helpful coding assistant. Please explain the following Python code, identify potential bugs, or suggest improvements.\n\n---\n\n${code}\n\n---\n\nAssistant:`;
+                 
+                 const result = await ai_pipe(prompt, {
+                     max_new_tokens: 150,
+                     no_repeat_ngram_size: 3
+                 });
+                 const aiResponse = result[0].generated_text.split('Assistant:')[1].trim();
+                 logToConsole(aiResponse, 'ai');
+                 setStatus('AI analysis complete.');
 
-    async function renameCurrentFile() {
-        const oldPath = currentFilePath;
-        const newPath = prompt("Enter the new file name:", oldPath);
-        if (!newPath || newPath === oldPath) return;
-
-        if (repoFiles[newPath]) {
-            alert("A file with that name already exists.");
-            return;
+            } catch (error) {
+                setStatus('AI task failed.');
+                console.error("AI execution error:", error);
+            }
         }
         
-        const content = document.getElementById('real-input').value;
-        
-        try {
-            await _pushToGitHub(`FlashCode: Create ${newPath} (rename from ${oldPath})`, content, newPath);
-            await deleteFileFromGitHub(oldPath);
-            
-            alert(`Renamed '${oldPath}' to '${newPath}' successfully.`);
-            await loadSelectedRepo(newPath);
-
-        } catch (e) {
-            alert(`Error during rename: ${e.message}. You may need to resolve the state manually in GitHub.`);
-        }
-    }
-    
-    async function deleteFileFromGitHub(path) {
-        const token = getGitHubToken();
-        const sha = fileSHAs[path];
-        if (!sha) throw new Error("SHA not found for deletion.");
-        
-        const res = await fetch(`https://api.github.com/repos/${currentRepo}/contents/${path}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: `FlashCode: Delete ${path} (completing rename)`, sha })
-        });
-        if (!res.ok) throw await res.json();
-        
-        delete repoFiles[path];
-        delete fileSHAs[path];
-    }
-    
-    async function createNewRepo() {
-        const token = getGitHubToken();
-        if (!token) return;
-        const repoName = prompt("New repository name:");
-        if (!repoName) return;
-        const isPrivate = confirm("Make this repository private?");
-
-        try {
-            const response = await fetch('https://api.github.com/user/repos', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: repoName, private: isPrivate, auto_init: true })
-            });
-            if (!response.ok) throw await response.json();
-            const repoData = await response.json();
-            alert(`Repository '${repoData.full_name}' created!`);
-            document.getElementById('repo-name-input').value = repoData.full_name;
-            await loadSelectedRepo();
-        } catch (e) {
-            alert(`Error creating repository: ${e.message}`);
-        }
-    }
-
-</script>
+        main();
+    </script>
 </body>
 </html>

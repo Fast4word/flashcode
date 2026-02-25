@@ -1,1309 +1,1141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>FlashCode – Browser IDE</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Simple, stylish, no-framework layout -->
-  <style>
-    :root {
-      --bg: #050816;
-      --bg-alt: #0b1020;
-      --panel: #0f172a;
-      --panel-alt: #111827;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.15);
-      --border: #1f2937;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --danger: #f97373;
-      --radius-lg: 14px;
-      --radius-md: 10px;
-      --radius-sm: 6px;
-      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.7);
-      --shadow-subtle: 0 10px 30px rgba(15, 23, 42, 0.6);
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
-      color: var(--text);
-      font-family: var(--font-sans);
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Top bar */
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 18px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
-      backdrop-filter: blur(18px);
-      background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-logo {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      background: conic-gradient(from 210deg, #38bdf8, #a855f7, #f97316, #38bdf8);
-      padding: 2px;
-      box-shadow: 0 0 18px rgba(56, 189, 248, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .brand-logo-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: inherit;
-      background: radial-gradient(circle at 30% 0, #0f172a 0, #020617 60%, #000 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      color: #e0f2fe;
-      font-family: var(--font-mono);
-    }
-
-    .brand-title {
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      font-size: 15px;
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-    }
-
-    .brand-title span:last-child {
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .pill {
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      font-size: 11px;
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%);
-    }
-
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: radial-gradient(circle, #22c55e 0, #16a34a 40%, #166534 100%);
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
-    }
-
-    .btn {
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.9));
-      color: var(--text);
-      padding: 6px 14px;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all 0.16s ease-out;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.7);
-    }
-
-    .btn:hover {
-      border-color: rgba(56, 189, 248, 0.9);
-      box-shadow: 0 14px 35px rgba(15, 23, 42, 0.9);
-      transform: translateY(-1px);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      box-shadow: none;
-    }
-
-    .btn-ghost:hover {
-      background: rgba(15, 23, 42, 0.9);
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.7);
-    }
-
-    .btn-primary {
-      border-color: rgba(56, 189, 248, 0.9);
-      background: linear-gradient(135deg, #0ea5e9, #6366f1);
-      color: #e0f2fe;
-      box-shadow: 0 14px 35px rgba(37, 99, 235, 0.7);
-    }
-
-    .btn-primary:hover {
-      filter: brightness(1.05);
-      transform: translateY(-1px) translateZ(0);
-    }
-
-    .btn-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      padding: 0;
-    }
-
-    /* Layout */
-
-    .app {
-      flex: 1;
-      display: flex;
-      padding: 14px 14px 16px;
-      gap: 12px;
-      max-height: calc(100vh - 52px);
-    }
-
-    .panel {
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.98));
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(30, 64, 175, 0.7);
-      box-shadow: var(--shadow-soft);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .panel-header {
-      padding: 8px 12px;
-      border-bottom: 1px solid rgba(30, 64, 175, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--muted);
-      background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
-      z-index: 1;
-    }
-
-    .panel-header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .panel-header-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: radial-gradient(circle, #38bdf8 0, #0ea5e9 40%, #0369a1 100%);
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
-    }
-
-    .panel-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 8px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* Left: repo + files */
-
-    .sidebar {
-      width: 260px;
-      min-width: 220px;
-      max-width: 320px;
-    }
-
-    .repo-form {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 10px;
-      padding: 8px;
-      border-radius: var(--radius-md);
-      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(30, 64, 175, 0.7);
-    }
-
-    .repo-form-row {
-      display: flex;
-      gap: 6px;
-    }
-
-    .input {
-      flex: 1;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(55, 65, 81, 0.9);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text);
-      padding: 6px 8px;
-      font-size: 12px;
-      font-family: var(--font-mono);
-      outline: none;
-      transition: border-color 0.16s ease-out, box-shadow 0.16s ease-out, background 0.16s ease-out;
-    }
-
-    .input::placeholder {
-      color: rgba(148, 163, 184, 0.7);
-    }
-
-    .input:focus {
-      border-color: rgba(56, 189, 248, 0.9);
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
-      background: rgba(15, 23, 42, 0.98);
-    }
-
-    .repo-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .repo-meta span {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .repo-meta strong {
-      font-weight: 500;
-      color: #e5e7eb;
-    }
-
-    .files {
-      flex: 1;
-      overflow: auto;
-      margin-top: 4px;
-      padding: 4px;
-      border-radius: var(--radius-md);
-      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
-      border: 1px solid rgba(30, 64, 175, 0.7);
-      font-size: 12px;
-      font-family: var(--font-mono);
-    }
-
-    .file-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 6px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      color: var(--muted);
-      transition: background 0.12s ease-out, color 0.12s ease-out, transform 0.08s ease-out;
-    }
-
-    .file-item:hover {
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text);
-      transform: translateX(1px);
-    }
-
-    .file-item.active {
-      background: rgba(56, 189, 248, 0.16);
-      color: #e0f2fe;
-      border: 1px solid rgba(56, 189, 248, 0.7);
-    }
-
-    .file-icon {
-      width: 14px;
-      text-align: center;
-      opacity: 0.9;
-    }
-
-    .file-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .file-folder {
-      font-weight: 500;
-      color: #e5e7eb;
-    }
-
-    .file-indent {
-      width: 10px;
-      flex-shrink: 0;
-    }
-
-    /* Center: editor */
-
-    .editor-panel {
-      flex: 1.4;
-      min-width: 0;
-    }
-
-    .tabs {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 4px 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .tabs::-webkit-scrollbar {
-      display: none;
-    }
-
-    .tab {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      border: 1px solid transparent;
-      color: var(--muted);
-      cursor: pointer;
-      background: rgba(15, 23, 42, 0.9);
-      transition: all 0.14s ease-out;
-    }
-
-    .tab.active {
-      border-color: rgba(56, 189, 248, 0.9);
-      color: #e0f2fe;
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), rgba(15, 23, 42, 0.98));
-      box-shadow: var(--shadow-subtle);
-    }
-
-    .tab-close {
-      font-size: 11px;
-      opacity: 0.7;
-    }
-
-    .editor-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 8px;
-      font-size: 11px;
-      color: var(--muted);
-      border-bottom: 1px solid rgba(30, 64, 175, 0.7);
-      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
-    }
-
-    .editor-toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .editor-toolbar-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .badge {
-      padding: 2px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-    }
-
-    .badge-accent {
-      border-color: rgba(56, 189, 248, 0.9);
-      color: #e0f2fe;
-      background: rgba(56, 189, 248, 0.12);
-    }
-
-    .editor {
-      flex: 1;
-      position: relative;
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      margin-top: 6px;
-      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), #020617);
-      border: 1px solid rgba(30, 64, 175, 0.7);
-    }
-
-    #editor {
-      position: absolute;
-      inset: 0;
-    }
-
-    /* Right: preview + commit */
-
-    .preview-panel {
-      flex: 1;
-      min-width: 260px;
-      max-width: 420px;
-    }
-
-    .preview-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 8px;
-      font-size: 11px;
-      color: var(--muted);
-      border-bottom: 1px solid rgba(30, 64, 175, 0.7);
-      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
-    }
-
-    .preview-toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .preview-toolbar-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .preview-frame {
-      flex: 1;
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      margin-top: 6px;
-      background: #020617;
-      border: 1px solid rgba(30, 64, 175, 0.7);
-      position: relative;
-    }
-
-    .preview-frame iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-    }
-
-    .status-bar {
-      position: absolute;
-      bottom: 8px;
-      left: 10px;
-      right: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 10px;
-      color: var(--muted);
-      pointer-events: none;
-    }
-
-    .status-pill {
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(30, 64, 175, 0.7);
-      pointer-events: auto;
-    }
-
-    /* Toast / messages */
-
-    .toast {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      padding: 10px 12px;
-      border-radius: var(--radius-md);
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(30, 64, 175, 0.8);
-      color: var(--text);
-      font-size: 12px;
-      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
-      display: none;
-      max-width: 280px;
-      z-index: 50;
-    }
-
-    .toast-error {
-      border-color: rgba(248, 113, 113, 0.9);
-      color: #fecaca;
-    }
-
-    .toast-title {
-      font-weight: 500;
-      margin-bottom: 2px;
-    }
-
-    .toast-body {
-      color: var(--muted);
-    }
-
-    .toast-close {
-      position: absolute;
-      top: 4px;
-      right: 6px;
-      font-size: 12px;
-      cursor: pointer;
-      opacity: 0.7;
-    }
-
-    /* Small screens */
-
-    @media (max-width: 960px) {
-      .app {
-        flex-direction: column;
-        max-height: none;
-      }
-      .sidebar {
-        width: 100%;
-        max-width: none;
-      }
-      .preview-panel {
-        max-width: none;
-      }
-    }
-  </style>
-
-  <!-- Monaco editor (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/loader.min.js" integrity="sha512-+4d3p8pZ9+9b9p6u7pZpQ5X6Jt1q3p7v1uZV3p8vZp7uZp7uZp7uZp7uZp7uZp7u" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-  <!-- Supabase JS (assumes you already configured client OR expose `window.supabase`) -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2.48.0/dist/umd/supabase.min.js"></script>
-  <script>
-    
-    const SUPABASE_URL = "https://uvslkqxtkortoiacmknw.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_7kz7TnR6P4cwRVlr7C_0bA_iqtTVwiF";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    window.supabase = supabaseClient;
-  </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FlashCode IDE</title>
+
+<!-- Monaco Editor -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.min.css" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg0: #0d0d0d;
+    --bg1: #141414;
+    --bg2: #1a1a1a;
+    --bg3: #222222;
+    --bg4: #2a2a2a;
+    --border: #2e2e2e;
+    --text: #d4d4d4;
+    --text2: #888;
+    --text3: #555;
+    --accent: #3b82f6;
+    --accent2: #1d4ed8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+    --font-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --sidebar-w: 240px;
+    --panel-h: 220px;
+    --titlebar-h: 40px;
+    --tabbar-h: 36px;
+    --statusbar-h: 24px;
+  }
+
+  html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(--text); font-family: var(--font-ui); font-size: 13px; }
+
+  /* ── Auth Screen ── */
+  #auth-screen {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100vh; gap: 24px;
+  }
+  .auth-logo { display: flex; align-items: center; gap: 12px; }
+  .auth-logo svg { color: var(--accent); }
+  .auth-logo h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+  .auth-logo span { color: var(--accent); }
+  .auth-tagline { color: var(--text2); font-size: 14px; }
+  .auth-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 32px; display: flex; flex-direction: column; gap: 16px; width: 340px;
+  }
+  .auth-card h2 { font-size: 16px; font-weight: 600; color: #fff; }
+  .auth-card p { color: var(--text2); font-size: 13px; line-height: 1.5; }
+  .btn-github {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: #fff; color: #0d0d0d; border: none; border-radius: 8px;
+    padding: 11px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-github:hover { background: #e5e5e5; }
+
+  /* ── IDE Shell ── */
+  #ide { display: none; flex-direction: column; height: 100vh; }
+  #ide.visible { display: flex; }
+
+  /* Titlebar */
+  #titlebar {
+    height: var(--titlebar-h); background: var(--bg1); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 12px; gap: 12px; flex-shrink: 0;
+    user-select: none;
+  }
+  .titlebar-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+  .titlebar-logo span { color: var(--accent); }
+  .titlebar-sep { width: 1px; height: 18px; background: var(--border); }
+  .repo-selector {
+    display: flex; align-items: center; gap: 6px; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px;
+    cursor: pointer; font-size: 12px; color: var(--text); min-width: 180px;
+    position: relative;
+  }
+  .repo-selector:hover { border-color: var(--accent); }
+  #repo-label { flex: 1; }
+  .branch-badge {
+    background: var(--bg4); border: 1px solid var(--border); border-radius: 4px;
+    padding: 2px 7px; font-size: 11px; color: var(--accent); font-family: var(--font-mono);
+  }
+  .titlebar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .btn-icon {
+    background: none; border: none; color: var(--text2); cursor: pointer;
+    padding: 5px; border-radius: 5px; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-icon:hover { background: var(--bg4); color: var(--text); }
+  .btn-run {
+    display: flex; align-items: center; gap: 6px; background: var(--green);
+    color: #000; border: none; border-radius: 6px; padding: 5px 12px;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn-run:hover { opacity: 0.85; }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-save {
+    display: flex; align-items: center; gap: 6px; background: var(--accent);
+    color: #fff; border: none; border-radius: 6px; padding: 5px 12px;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn-save:hover { opacity: 0.85; }
+  .avatar {
+    width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border);
+    cursor: pointer; object-fit: cover;
+  }
+  .user-menu {
+    position: absolute; top: calc(var(--titlebar-h) + 4px); right: 12px;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 4px; min-width: 160px; z-index: 100; display: none;
+  }
+  .user-menu.open { display: block; }
+  .user-menu-item {
+    padding: 8px 12px; border-radius: 5px; cursor: pointer; color: var(--text2);
+    font-size: 12px; transition: background 0.1s;
+  }
+  .user-menu-item:hover { background: var(--bg4); color: var(--text); }
+  .user-menu-item.danger:hover { background: #3f1212; color: var(--red); }
+
+  /* Main area */
+  #main { display: flex; flex: 1; overflow: hidden; }
+
+  /* Sidebar */
+  #sidebar {
+    width: var(--sidebar-w); background: var(--bg1); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+  }
+  .sidebar-header {
+    height: 36px; display: flex; align-items: center; padding: 0 12px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text3); border-bottom: 1px solid var(--border); flex-shrink: 0;
+    justify-content: space-between;
+  }
+  #file-tree { flex: 1; overflow-y: auto; padding: 4px 0; }
+  #file-tree::-webkit-scrollbar { width: 4px; }
+  #file-tree::-webkit-scrollbar-track { background: transparent; }
+  #file-tree::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+  .tree-item {
+    display: flex; align-items: center; gap: 6px; padding: 3px 12px 3px 0;
+    cursor: pointer; font-size: 12px; color: var(--text2);
+    transition: background 0.1s, color 0.1s; white-space: nowrap; overflow: hidden;
+  }
+  .tree-item:hover { background: var(--bg3); color: var(--text); }
+  .tree-item.active { background: var(--bg4); color: #fff; }
+  .tree-item.dir { font-weight: 500; }
+  .tree-item svg { flex-shrink: 0; }
+  .tree-item-name { overflow: hidden; text-overflow: ellipsis; }
+  .tree-indent { display: inline-block; width: 12px; flex-shrink: 0; }
+  .sidebar-empty { padding: 16px 12px; color: var(--text3); font-size: 12px; line-height: 1.6; }
+
+  /* Activity bar on left of sidebar */
+  #activitybar {
+    width: 44px; background: var(--bg0); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 4px; flex-shrink: 0;
+  }
+  .activity-btn {
+    width: 34px; height: 34px; border-radius: 7px; background: none; border: none;
+    color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .activity-btn:hover, .activity-btn.active { background: var(--bg3); color: var(--text); }
+  .activity-btn.active { color: var(--accent); }
+
+  /* Editor area */
+  #editor-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Tab bar */
+  #tabbar {
+    height: var(--tabbar-h); background: var(--bg1); border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-end; overflow-x: auto; flex-shrink: 0;
+  }
+  #tabbar::-webkit-scrollbar { height: 0; }
+  .tab {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 14px; height: 100%; border-right: 1px solid var(--border);
+    font-size: 12px; cursor: pointer; color: var(--text2); white-space: nowrap;
+    background: var(--bg1); transition: background 0.1s, color 0.1s; flex-shrink: 0;
+    position: relative;
+  }
+  .tab:hover { background: var(--bg2); color: var(--text); }
+  .tab.active { background: var(--bg2); color: #fff; }
+  .tab.active::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px; background: var(--accent);
+  }
+  .tab.modified::before { content: '●'; color: var(--yellow); margin-right: -4px; font-size: 10px; }
+  .tab-close {
+    width: 16px; height: 16px; border-radius: 3px; border: none; background: none;
+    color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; line-height: 1; transition: background 0.1s, color 0.1s;
+  }
+  .tab-close:hover { background: var(--bg4); color: var(--text); }
+  #no-tabs { display: flex; align-items: center; padding: 0 16px; color: var(--text3); font-size: 12px; }
+
+  /* Editor + panel container */
+  #editor-panel-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #editor-container { flex: 1; overflow: hidden; position: relative; }
+  #monaco-editor { width: 100%; height: 100%; }
+  #welcome {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 16px; color: var(--text3);
+  }
+  #welcome h2 { font-size: 20px; color: var(--text2); }
+  #welcome p { font-size: 13px; line-height: 1.6; text-align: center; max-width: 360px; }
+  #welcome kbd {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 4px;
+    padding: 1px 6px; font-family: var(--font-mono); font-size: 11px; color: var(--text2);
+  }
+
+  /* Bottom panel (terminal + AI) */
+  #bottom-panel {
+    height: var(--panel-h); background: var(--bg1); border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .panel-tabs {
+    display: flex; border-bottom: 1px solid var(--border); height: 32px; flex-shrink: 0;
+  }
+  .panel-tab {
+    display: flex; align-items: center; gap: 6px; padding: 0 14px;
+    font-size: 12px; color: var(--text3); cursor: pointer; border-right: 1px solid var(--border);
+    transition: background 0.1s, color 0.1s;
+  }
+  .panel-tab:hover { background: var(--bg2); color: var(--text2); }
+  .panel-tab.active { color: var(--text); background: var(--bg2); }
+  .panel-actions { margin-left: auto; display: flex; align-items: center; padding: 0 8px; gap: 4px; }
+  .panel-content { flex: 1; overflow: hidden; display: none; }
+  .panel-content.active { display: flex; flex-direction: column; }
+
+  /* Terminal */
+  #terminal {
+    flex: 1; overflow-y: auto; padding: 10px 14px; font-family: var(--font-mono);
+    font-size: 12px; line-height: 1.6; background: var(--bg0);
+  }
+  #terminal::-webkit-scrollbar { width: 4px; }
+  #terminal::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+  .term-line { white-space: pre-wrap; word-break: break-all; }
+  .term-info { color: var(--text2); }
+  .term-success { color: var(--green); }
+  .term-error { color: var(--red); }
+  .term-warn { color: var(--yellow); }
+  .term-prompt { color: var(--accent); }
+  .term-output { color: var(--text); }
+  #term-input-row { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-top: 1px solid var(--border); background: var(--bg0); }
+  #term-prompt-label { color: var(--accent); font-family: var(--font-mono); font-size: 12px; }
+  #term-input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: var(--font-mono); font-size: 12px; }
+
+  /* AI Panel */
+  #ai-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg0); }
+  #ai-messages { flex: 1; overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 10px; }
+  #ai-messages::-webkit-scrollbar { width: 4px; }
+  #ai-messages::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+  .ai-msg { display: flex; gap: 8px; }
+  .ai-msg-avatar {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+  }
+  .ai-msg.user .ai-msg-avatar { background: var(--accent); color: #fff; }
+  .ai-msg.assistant .ai-msg-avatar { background: var(--purple); color: #fff; }
+  .ai-msg-body { flex: 1; }
+  .ai-msg-role { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--text3); margin-bottom: 2px; }
+  .ai-msg-text { font-size: 12px; line-height: 1.6; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .ai-msg-text code { font-family: var(--font-mono); background: var(--bg3); padding: 1px 4px; border-radius: 3px; font-size: 11px; }
+  #ai-input-row {
+    display: flex; gap: 8px; padding: 8px 14px; border-top: 1px solid var(--border);
+    background: var(--bg1);
+  }
+  #ai-input {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+    padding: 7px 10px; color: var(--text); font-size: 12px; outline: none; font-family: var(--font-ui);
+    resize: none; height: 34px; line-height: 1.4;
+  }
+  #ai-input:focus { border-color: var(--accent); }
+  .btn-send {
+    background: var(--accent); border: none; border-radius: 6px; color: #fff;
+    width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: opacity 0.15s;
+  }
+  .btn-send:hover { opacity: 0.85; }
+  .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Repo picker modal */
+  #repo-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+    display: none; align-items: center; justify-content: center;
+  }
+  #repo-modal.open { display: flex; }
+  .modal-box {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    width: 480px; max-height: 70vh; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+  }
+  .modal-header h3 { font-size: 15px; font-weight: 600; }
+  #repo-search {
+    margin: 12px 16px; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 7px; padding: 8px 12px; color: var(--text); font-size: 13px; outline: none; width: calc(100% - 32px);
+  }
+  #repo-search:focus { border-color: var(--accent); }
+  #repo-list { overflow-y: auto; padding: 4px 8px 8px; }
+  #repo-list::-webkit-scrollbar { width: 4px; }
+  #repo-list::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+  .repo-item {
+    display: flex; flex-direction: column; padding: 10px 12px; border-radius: 7px;
+    cursor: pointer; transition: background 0.1s;
+  }
+  .repo-item:hover { background: var(--bg3); }
+  .repo-item-name { font-size: 13px; color: #fff; font-weight: 500; }
+  .repo-item-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .repo-item-lang {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--text2);
+  }
+  .lang-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  /* Statusbar */
+  #statusbar {
+    height: var(--statusbar-h); background: var(--accent2); display: flex;
+    align-items: center; padding: 0 12px; gap: 16px; font-size: 11px; color: rgba(255,255,255,0.8);
+    flex-shrink: 0; user-select: none;
+  }
+  .status-item { display: flex; align-items: center; gap: 5px; }
+  .status-item.right { margin-left: auto; }
+  #pyodide-status { display: flex; align-items: center; gap: 5px; }
+
+  /* Commit modal */
+  #commit-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+    display: none; align-items: center; justify-content: center;
+  }
+  #commit-modal.open { display: flex; }
+  #commit-msg {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 7px; padding: 10px 12px; color: var(--text); font-size: 13px;
+    outline: none; font-family: var(--font-ui); resize: vertical; min-height: 80px;
+  }
+  #commit-msg:focus { border-color: var(--accent); }
+  .modal-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .modal-body p { color: var(--text2); font-size: 12px; }
+  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-cancel { background: var(--bg4); border: 1px solid var(--border); color: var(--text2); border-radius: 6px; padding: 7px 14px; cursor: pointer; font-size: 13px; }
+  .btn-cancel:hover { color: var(--text); }
+  .btn-commit { background: var(--accent); border: none; color: #fff; border-radius: 6px; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .btn-commit:hover { opacity: 0.85; }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { animation: spin 0.8s linear infinite; display: inline-block; }
+
+  /* Resize handle */
+  #resize-handle {
+    height: 4px; background: transparent; cursor: row-resize; flex-shrink: 0;
+    border-top: 1px solid var(--border);
+  }
+  #resize-handle:hover { background: var(--accent); }
+
+  /* Notifications */
+  #notif {
+    position: fixed; bottom: 32px; right: 16px; z-index: 300;
+    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .notif-item {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 12px; color: var(--text);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5); animation: slideIn 0.2s ease;
+    max-width: 280px;
+  }
+  .notif-item.success { border-color: var(--green); }
+  .notif-item.error { border-color: var(--red); }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-logo">
-        <div class="brand-logo-inner">⚡</div>
-      </div>
-      <div class="brand-title">
-        <span>FlashCode</span>
-        <span>browser ide</span>
-      </div>
+
+<!-- ── Auth Screen ─────────────────────────────────────────── -->
+<div id="auth-screen">
+  <div class="auth-logo">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="16 18 22 12 16 6"></polyline>
+      <polyline points="8 6 2 12 8 18"></polyline>
+    </svg>
+    <h1>Flash<span>Code</span></h1>
+  </div>
+  <p class="auth-tagline">Browser IDE · GitHub · WebAssembly · AI</p>
+  <div class="auth-card">
+    <h2>Sign in to continue</h2>
+    <p>Connect your GitHub account to browse repos, edit code, and run it instantly in your browser.</p>
+    <button class="btn-github" onclick="signInWithGitHub()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+      </svg>
+      Continue with GitHub
+    </button>
+  </div>
+</div>
+
+<!-- ── IDE Shell ───────────────────────────────────────────── -->
+<div id="ide">
+
+  <!-- Titlebar -->
+  <div id="titlebar">
+    <div class="titlebar-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="16 18 22 12 16 6"></polyline>
+        <polyline points="8 6 2 12 8 18"></polyline>
+      </svg>
+      Flash<span>Code</span>
     </div>
-    <div class="topbar-right">
-      <div class="pill">
-        <span class="pill-dot"></span>
-        <span id="session-status">Not signed in</span>
-      </div>
-      <button id="auth-btn" class="btn btn-ghost">
-        <span>Sign in with GitHub</span>
+    <div class="titlebar-sep"></div>
+    <div class="repo-selector" onclick="openRepoModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+      </svg>
+      <span id="repo-label">Open a repository…</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </div>
+    <span class="branch-badge" id="branch-badge" style="display:none">main</span>
+    <div class="titlebar-actions">
+      <button class="btn-run" id="run-btn" onclick="runCode()" disabled>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Run
       </button>
+      <button class="btn-save" id="save-btn" onclick="openCommitModal()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        Commit
+      </button>
+      <img class="avatar" id="user-avatar" src="" alt="user" onclick="toggleUserMenu()" />
     </div>
-  </header>
-
-  <main class="app">
-    <!-- Sidebar: repo + files -->
-    <section class="panel sidebar">
-      <div class="panel-header">
-        <div class="panel-header-left">
-          <span class="panel-header-dot"></span>
-          <span>Repository</span>
-        </div>
-        <span id="repo-status">Idle</span>
-      </div>
-      <div class="panel-body">
-        <form id="repo-form" class="repo-form">
-          <div class="repo-form-row">
-            <input id="owner-input" class="input" placeholder="owner (e.g. vercel)" />
-            <input id="repo-input" class="input" placeholder="repo (e.g. next.js)" />
-          </div>
-          <div class="repo-form-row">
-            <input id="branch-input" class="input" placeholder="branch (default: main)" />
-            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
-              <span>Load repo</span>
-            </button>
-          </div>
-          <div class="repo-meta">
-            <span>
-              <strong id="repo-name-label">No repo</strong>
-            </span>
-            <span>
-              <span style="width: 6px; height: 6px; border-radius: 999px; background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.8);"></span>
-              <span id="branch-label">-</span>
-            </span>
-          </div>
-        </form>
-
-        <div id="files" class="files">
-          <div style="font-size: 11px; color: var(--muted); padding: 4px 4px 6px;">
-            No repository loaded yet. Enter <strong>owner</strong>, <strong>repo</strong>, and optional <strong>branch</strong>, then click <strong>Load repo</strong>.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Editor -->
-    <section class="panel editor-panel">
-      <div class="panel-header">
-        <div class="panel-header-left">
-          <span class="panel-header-dot"></span>
-          <span>Editor</span>
-        </div>
-        <span id="file-status">No file open</span>
-      </div>
-      <div class="panel-body">
-        <div class="tabs" id="tabs"></div>
-        <div class="editor-toolbar">
-          <div class="editor-toolbar-left">
-            <span id="current-path" style="font-family: var(--font-mono); font-size: 11px; color: #e5e7eb;">—</span>
-          </div>
-          <div class="editor-toolbar-right">
-            <span class="badge" id="language-badge">plain text</span>
-            <span class="badge badge-accent" id="dirty-badge" style="display:none;">modified</span>
-          </div>
-        </div>
-        <div class="editor">
-          <div id="editor"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Preview + commit -->
-    <section class="panel preview-panel">
-      <div class="panel-header">
-        <div class="panel-header-left">
-          <span class="panel-header-dot"></span>
-          <span>Preview & Commit</span>
-        </div>
-        <span id="commit-status">Ready</span>
-      </div>
-      <div class="panel-body">
-        <div class="preview-toolbar">
-          <div class="preview-toolbar-left">
-            <span class="badge">live preview</span>
-            <span id="preview-file-label">No preview file</span>
-          </div>
-          <div class="preview-toolbar-right">
-            <button id="preview-btn" class="btn btn-ghost" type="button">
-              <span>Refresh</span>
-            </button>
-            <button id="commit-btn" class="btn btn-primary" type="button">
-              <span>Commit</span>
-            </button>
-          </div>
-        </div>
-        <div class="preview-frame">
-          <iframe id="preview-frame"></iframe>
-          <div class="status-bar">
-            <div class="status-pill" id="github-identity">GitHub: not connected</div>
-            <div class="status-pill" id="commit-meta">No pending changes</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Toast -->
-  <div id="toast" class="toast">
-    <div class="toast-close" id="toast-close">✕</div>
-    <div class="toast-title" id="toast-title"></div>
-    <div class="toast-body" id="toast-body"></div>
+  </div>
+  <div class="user-menu" id="user-menu">
+    <div class="user-menu-item" id="user-name-item"></div>
+    <div class="user-menu-item danger" onclick="signOut()">Sign out</div>
   </div>
 
-  <script>
-    // --- State ---
-    let editorInstance = null;
-    let currentSession = null;
-    let githubToken = null;
+  <div id="main">
+    <!-- Activity Bar -->
+    <div id="activitybar">
+      <button class="activity-btn active" title="Explorer" onclick="setActivity('explorer')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </button>
+      <button class="activity-btn" title="AI Assistant" onclick="setActivity('ai')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </button>
+    </div>
 
-    let currentRepo = {
-      owner: null,
-      name: null,
-      branch: "main"
-    };
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div class="sidebar-header">
+        <span id="sidebar-title">Explorer</span>
+        <button class="btn-icon" onclick="refreshTree()" title="Refresh" style="padding:2px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+        </button>
+      </div>
+      <div id="file-tree">
+        <div class="sidebar-empty">Open a repository to browse files.</div>
+      </div>
+    </div>
 
-    // Map path -> { type, sha, content?, loaded }
-    const fileIndex = new Map();
+    <!-- Editor Area -->
+    <div id="editor-area">
+      <!-- Tab Bar -->
+      <div id="tabbar">
+        <span id="no-tabs" style="color:var(--text3);font-size:12px;padding:0 16px">No files open</span>
+      </div>
 
-    // Open file state
-    let openFiles = []; // [{ path, dirty, language }]
-    let activeFilePath = null;
+      <!-- Editor + Panel -->
+      <div id="editor-panel-container">
+        <div id="editor-container">
+          <div id="welcome">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text3)">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <h2>FlashCode</h2>
+            <p>Open a repository from the top bar, then click a file to start editing.<br/>Press <kbd>▶ Run</kbd> to execute Python in your browser via WebAssembly.</p>
+          </div>
+          <div id="monaco-editor" style="display:none;height:100%"></div>
+        </div>
 
-    // --- Helpers ---
+        <div id="resize-handle"></div>
 
-    function showToast(title, body, isError = false) {
-      const toast = document.getElementById("toast");
-      const titleEl = document.getElementById("toast-title");
-      const bodyEl = document.getElementById("toast-body");
-      toast.classList.toggle("toast-error", isError);
-      titleEl.textContent = title;
-      bodyEl.textContent = body || "";
-      toast.style.display = "block";
-      setTimeout(() => {
-        toast.style.display = "none";
-      }, 6000);
+        <div id="bottom-panel">
+          <div class="panel-tabs">
+            <div class="panel-tab active" onclick="switchPanel('terminal')" id="panel-tab-terminal">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+              Terminal
+            </div>
+            <div class="panel-tab" onclick="switchPanel('ai')" id="panel-tab-ai">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              AI Assistant
+            </div>
+            <div class="panel-actions">
+              <button class="btn-icon" onclick="clearTerminal()" title="Clear">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="panel-content active" id="panel-terminal">
+            <div id="terminal"></div>
+            <div id="term-input-row">
+              <span id="term-prompt-label">❯</span>
+              <input id="term-input" placeholder="Python REPL…" onkeydown="termKeyDown(event)" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+          <div class="panel-content" id="panel-ai">
+            <div id="ai-panel">
+              <div id="ai-messages">
+                <div class="ai-msg assistant">
+                  <div class="ai-msg-avatar">AI</div>
+                  <div class="ai-msg-body">
+                    <div class="ai-msg-role">Claude</div>
+                    <div class="ai-msg-text">Hi! I'm your AI coding assistant. I can help you understand code, fix bugs, explain errors, or generate new code. Open a file and ask me anything!</div>
+                  </div>
+                </div>
+              </div>
+              <div id="ai-input-row">
+                <textarea id="ai-input" placeholder="Ask about your code…" onkeydown="aiKeyDown(event)"></textarea>
+                <button class="btn-send" onclick="sendAiMessage()" id="ai-send-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statusbar -->
+  <div id="statusbar">
+    <div class="status-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      <span id="status-repo">No repo</span>
+    </div>
+    <div class="status-item">
+      <span id="status-file" style="color:var(--text3)">No file open</span>
+    </div>
+    <div class="status-item right" id="pyodide-status">
+      <span class="spinner">⟳</span> Loading Python runtime…
+    </div>
+  </div>
+</div>
+
+<!-- ── Repo Modal ──────────────────────────────────────────── -->
+<div id="repo-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Open Repository</h3>
+      <button class="btn-icon" onclick="closeRepoModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <input id="repo-search" placeholder="Search repositories…" oninput="filterRepos()" />
+    <div id="repo-list"><div style="padding:16px;color:var(--text3);font-size:12px">Loading repositories…</div></div>
+  </div>
+</div>
+
+<!-- ── Commit Modal ───────────────────────────────────────── -->
+<div id="commit-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Commit Changes</h3>
+      <button class="btn-icon" onclick="closeCommitModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Committing <strong id="commit-file-label" style="color:var(--text)"></strong></p>
+      <textarea id="commit-msg" placeholder="Commit message…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeCommitModal()">Cancel</button>
+      <button class="btn-commit" onclick="commitFile()">Commit & Push</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Notifications ──────────────────────────────────────── -->
+<div id="notif"></div>
+
+<!-- Monaco loader -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<script>
+// ────────────────────────────────────────────────────────────
+// CONFIG
+// ────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://uvslkqxtkortoiacmknw.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_7kz7TnR6P4cwRVlr7C_0bA_iqtTVwiF';
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+
+// ────────────────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────────────────
+let session = null;
+let ghToken = null;
+let currentRepo = null;
+let currentBranch = 'main';
+let openTabs = [];       // [{path, content, sha, modified, lang}]
+let activeTab = null;
+let monacoEditor = null;
+let pyodide = null;
+let pyReady = false;
+let allRepos = [];
+let aiHistory = [];
+
+// ────────────────────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────────────────────
+async function init() {
+  // Check for hash fragment (Supabase OAuth callback)
+  const hash = window.location.hash;
+  if (hash) {
+    const params = new URLSearchParams(hash.slice(1));
+    const accessToken = params.get('access_token');
+    const providerToken = params.get('provider_token');
+    if (accessToken) {
+      session = { access_token: accessToken };
+      ghToken = providerToken;
+      history.replaceState(null, '', window.location.pathname);
+      await loadUser();
+      return;
     }
+  }
+  // Try stored session
+  const stored = sessionStorage.getItem('fc_session');
+  if (stored) {
+    try {
+      const s = JSON.parse(stored);
+      session = s.session;
+      ghToken = s.ghToken;
+      await loadUser();
+      return;
+    } catch {}
+  }
+  showAuth();
+}
 
-    document.getElementById("toast-close").addEventListener("click", () => {
-      document.getElementById("toast").style.display = "none";
+async function loadUser() {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${session.access_token}` }
+  }).catch(() => null);
+  if (!r || !r.ok) { showAuth(); return; }
+  const user = await r.json();
+  sessionStorage.setItem('fc_session', JSON.stringify({ session, ghToken }));
+  document.getElementById('user-avatar').src = user.user_metadata?.avatar_url || '';
+  document.getElementById('user-name-item').textContent = user.user_metadata?.full_name || user.email;
+  showIDE();
+  initMonaco();
+  loadPyodide();
+}
+
+function showAuth() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('ide').classList.remove('visible');
+}
+
+function showIDE() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('ide').classList.add('visible');
+}
+
+function signInWithGitHub() {
+  const redirect = encodeURIComponent(window.location.href.split('#')[0]);
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=github&redirect_to=${redirect}&scopes=repo`;
+}
+
+async function signOut() {
+  await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${session.access_token}` }
+  }).catch(() => {});
+  sessionStorage.removeItem('fc_session');
+  session = null; ghToken = null;
+  toggleUserMenu();
+  showAuth();
+}
+
+// ────────────────────────────────────────────────────────────
+// MONACO
+// ────────────────────────────────────────────────────────────
+function initMonaco() {
+  require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+  require(['vs/editor/editor.main'], () => {
+    monaco.editor.defineTheme('flashcode', {
+      base: 'vs-dark', inherit: true,
+      rules: [
+        { token: 'comment', foreground: '6a9955' },
+        { token: 'keyword', foreground: '569cd6', fontStyle: 'bold' },
+        { token: 'string', foreground: 'ce9178' },
+        { token: 'number', foreground: 'b5cea8' },
+      ],
+      colors: {
+        'editor.background': '#141414',
+        'editor.lineHighlightBackground': '#1a1a1a',
+        'editorLineNumber.foreground': '#444',
+        'editorLineNumber.activeForeground': '#888',
+        'editor.selectionBackground': '#264f78',
+        'editorIndentGuide.background': '#2a2a2a',
+      }
     });
-
-    function setSessionStatus(text) {
-      document.getElementById("session-status").textContent = text;
-    }
-
-    function setRepoStatus(text) {
-      document.getElementById("repo-status").textContent = text;
-    }
-
-    function setFileStatus(text) {
-      document.getElementById("file-status").textContent = text;
-    }
-
-    function setCommitStatus(text) {
-      document.getElementById("commit-status").textContent = text;
-    }
-
-    function setCommitMeta(text) {
-      document.getElementById("commit-meta").textContent = text;
-    }
-
-    function setGithubIdentity(text) {
-      document.getElementById("github-identity").textContent = text;
-    }
-
-    function languageFromPath(path) {
-      if (!path) return "plaintext";
-      const ext = path.split(".").pop().toLowerCase();
-      switch (ext) {
-        case "js":
-        case "mjs":
-        case "cjs":
-          return "javascript";
-        case "ts":
-        case "tsx":
-          return "typescript";
-        case "jsx":
-          return "javascript";
-        case "json":
-          return "json";
-        case "css":
-          return "css";
-        case "html":
-        case "htm":
-          return "html";
-        case "md":
-          return "markdown";
-        case "yml":
-        case "yaml":
-          return "yaml";
-        default:
-          return "plaintext";
-      }
-    }
-
-    function updateLanguageBadge(lang) {
-      const badge = document.getElementById("language-badge");
-      badge.textContent = lang;
-    }
-
-    function updateDirtyBadge(show) {
-      const badge = document.getElementById("dirty-badge");
-      badge.style.display = show ? "inline-flex" : "none";
-    }
-
-    function base64Encode(str) {
-      return btoa(unescape(encodeURIComponent(str)));
-    }
-
-    // --- Supabase auth ---
-
-    async function refreshSession() {
-      if (!window.supabase) {
-        setSessionStatus("Supabase not configured");
-        return;
-      }
-      const { data, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error(error);
-        setSessionStatus("Auth error");
-        return;
-      }
-      currentSession = data.session;
-      if (currentSession) {
-        setSessionStatus("Signed in");
-        document.getElementById("auth-btn").textContent = "Sign out";
-        const user = currentSession.user;
-        const username = user?.user_metadata?.user_name || user?.user_metadata?.preferred_username || user?.email || "GitHub user";
-        setGithubIdentity("GitHub: " + username);
-        // GitHub access token (requires GitHub provider & appropriate config)
-        githubToken = currentSession.provider_token || currentSession.provider_token?.github || null;
-        if (!githubToken) {
-          setCommitMeta("No GitHub token in session (check Supabase provider config)");
-        }
-      } else {
-        setSessionStatus("Not signed in");
-        document.getElementById("auth-btn").textContent = "Sign in with GitHub";
-        setGithubIdentity("GitHub: not connected");
-        githubToken = null;
-      }
-    }
-
-    async function requireAuth() {
-      await refreshSession();
-      if (currentSession && githubToken) return true;
-
-      if (!window.supabase) {
-        showToast("Auth not configured", "Supabase client is not available on window.supabase.", true);
-        return false;
-      }
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "github",
-        options: {
-          scopes: "repo",
-          redirectTo: window.location.href
-        }
-      });
-      if (error) {
-        console.error(error);
-        showToast("GitHub sign-in failed", error.message || "Check console for details.", true);
-        return false;
-      }
-      return false;
-    }
-
-    async function signOut() {
-      if (!window.supabase) return;
-      await supabase.auth.signOut();
-      currentSession = null;
-      githubToken = null;
-      await refreshSession();
-    }
-
-    // --- GitHub API ---
-
-    async function githubFetch(path, options = {}) {
-      if (!githubToken) {
-        throw new Error("Missing GitHub token. Sign in first.");
-      }
-      const headers = options.headers || {};
-      headers["Authorization"] = "Bearer " + githubToken;
-      headers["Accept"] = "application/vnd.github+json";
-      headers["X-GitHub-Api-Version"] = "2022-11-28";
-      return fetch("https://api.github.com" + path, {
-        ...options,
-        headers
-      });
-    }
-
-    async function loadRepo(owner, repo, branch) {
-      setRepoStatus("Loading…");
-      fileIndex.clear();
-      document.getElementById("files").innerHTML = "";
-      currentRepo = { owner, name: repo, branch: branch || "main" };
-      document.getElementById("repo-name-label").textContent = owner + "/" + repo;
-      document.getElementById("branch-label").textContent = currentRepo.branch;
-
-      try {
-        const res = await githubFetch(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(currentRepo.branch)}?recursive=1`);
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error("GitHub error: " + res.status + " " + text);
-        }
-        const data = await res.json();
-        if (!data.tree) {
-          throw new Error("No tree data returned.");
-        }
-
-        data.tree.forEach(node => {
-          fileIndex.set(node.path, {
-            type: node.type,
-            sha: node.sha,
-            loaded: false,
-            content: null
-          });
-        });
-
-        renderFileTree();
-        setRepoStatus("Loaded");
-        showToast("Repository loaded", `${owner}/${repo}@${currentRepo.branch}`);
-      } catch (err) {
-        console.error(err);
-        setRepoStatus("Error");
-        showToast("Failed to load repo", err.message || String(err), true);
-      }
-    }
-
-    function renderFileTree() {
-      const container = document.getElementById("files");
-      container.innerHTML = "";
-      const entries = Array.from(fileIndex.entries())
-        .filter(([path, meta]) => meta.type === "blob")
-        .sort((a, b) => a[0].localeCompare(b[0]));
-
-      if (!entries.length) {
-        container.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:4px;">No files found in this branch.</div>';
-        return;
-      }
-
-      const fragment = document.createDocumentFragment();
-      entries.forEach(([path]) => {
-        const parts = path.split("/");
-        const fileName = parts.pop();
-        const depth = parts.length;
-
-        const item = document.createElement("div");
-        item.className = "file-item";
-        item.dataset.path = path;
-
-        for (let i = 0; i < depth; i++) {
-          const indent = document.createElement("div");
-          indent.className = "file-indent";
-          item.appendChild(indent);
-        }
-
-        if (depth > 0) {
-          const folderSpan = document.createElement("span");
-          folderSpan.className = "file-folder";
-          folderSpan.textContent = parts[parts.length - 1] + "/";
-          folderSpan.style.opacity = "0.7";
-          item.appendChild(folderSpan);
-        }
-
-        const icon = document.createElement("span");
-        icon.className = "file-icon";
-        icon.textContent = "▸";
-        item.appendChild(icon);
-
-        const nameSpan = document.createElement("span");
-        nameSpan.className = "file-name";
-        nameSpan.textContent = fileName;
-        item.appendChild(nameSpan);
-
-        item.addEventListener("click", () => openFile(path));
-        fragment.appendChild(item);
-      });
-
-      container.appendChild(fragment);
-    }
-
-    async function openFile(path) {
-      const meta = fileIndex.get(path);
-      if (!meta || meta.type !== "blob") return;
-
-      // If not loaded, fetch content
-      if (!meta.loaded) {
-        setFileStatus("Loading " + path + "…");
-        try {
-          const res = await githubFetch(`/repos/${currentRepo.owner}/${currentRepo.name}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(currentRepo.branch)}`);
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error("GitHub error: " + res.status + " " + text);
-          }
-          const data = await res.json();
-          const content = data.content ? decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))) : "";
-          meta.content = content;
-          meta.sha = data.sha;
-          meta.loaded = true;
-          fileIndex.set(path, meta);
-        } catch (err) {
-          console.error(err);
-          showToast("Failed to load file", err.message || String(err), true);
-          setFileStatus("Error loading file");
-          return;
-        }
-      }
-
-      // Track open files
-      if (!openFiles.find(f => f.path === path)) {
-        openFiles.push({
-          path,
-          dirty: false,
-          language: languageFromPath(path)
-        });
-      }
-
-      activeFilePath = path;
-      updateTabs();
-      setEditorContent(meta.content, languageFromPath(path));
-      setFileStatus("Editing " + path);
-      document.getElementById("current-path").textContent = path;
-      updateDirtyBadge(false);
-
-      // Highlight active file in tree
-      document.querySelectorAll(".file-item").forEach(el => {
-        el.classList.toggle("active", el.dataset.path === path);
-      });
-
-      // If it's an HTML file, set as preview target
-      if (path.endsWith(".html") || path.endsWith(".htm")) {
-        document.getElementById("preview-file-label").textContent = path;
-        refreshPreview();
-      }
-    }
-
-    function updateTabs() {
-      const tabsEl = document.getElementById("tabs");
-      tabsEl.innerHTML = "";
-      openFiles.forEach(file => {
-        const tab = document.createElement("div");
-        tab.className = "tab" + (file.path === activeFilePath ? " active" : "");
-        const name = file.path.split("/").pop();
-        tab.innerHTML = `<span>${name}</span><span class="tab-close">×</span>`;
-        tab.addEventListener("click", (e) => {
-          if (e.target.classList.contains("tab-close")) {
-            closeTab(file.path);
-          } else {
-            activeFilePath = file.path;
-            const meta = fileIndex.get(file.path);
-            if (meta && meta.loaded) {
-              setEditorContent(meta.content, file.language);
-              document.getElementById("current-path").textContent = file.path;
-              updateDirtyBadge(file.dirty);
-              setFileStatus("Editing " + file.path);
-            }
-            updateTabs();
-            document.querySelectorAll(".file-item").forEach(el => {
-              el.classList.toggle("active", el.dataset.path === file.path);
-            });
-          }
-        });
-        tabsEl.appendChild(tab);
-      });
-    }
-
-    function closeTab(path) {
-      const idx = openFiles.findIndex(f => f.path === path);
-      if (idx === -1) return;
-      openFiles.splice(idx, 1);
-      if (activeFilePath === path) {
-        activeFilePath = openFiles.length ? openFiles[openFiles.length - 1].path : null;
-        if (activeFilePath) {
-          const meta = fileIndex.get(activeFilePath);
-          if (meta && meta.loaded) {
-            setEditorContent(meta.content, languageFromPath(activeFilePath));
-            document.getElementById("current-path").textContent = activeFilePath;
-            setFileStatus("Editing " + activeFilePath);
-          }
-        } else {
-          setEditorContent("", "plaintext");
-          document.getElementById("current-path").textContent = "—";
-          setFileStatus("No file open");
-          updateDirtyBadge(false);
-        }
-      }
-      updateTabs();
-    }
-
-    function setEditorContent(content, language) {
-      if (!editorInstance) return;
-      const model = editorInstance.getModel();
-      if (model) {
-        monaco.editor.setModelLanguage(model, language);
-        model.setValue(content || "");
-      }
-      updateLanguageBadge(language);
-    }
-
-    function getEditorContent() {
-      if (!editorInstance) return "";
-      return editorInstance.getValue();
-    }
-
-    function markActiveFileDirty(dirty) {
-      if (!activeFilePath) return;
-      const file = openFiles.find(f => f.path === activeFilePath);
-      if (!file) return;
-      file.dirty = dirty;
-      updateDirtyBadge(dirty);
-      setCommitMeta(dirty ? "Unsaved changes in " + activeFilePath : "No pending changes");
-      updateTabs();
-    }
-
-    // --- Preview ---
-
-    function refreshPreview() {
-      const previewPath = document.getElementById("preview-file-label").textContent;
-      if (!previewPath || previewPath === "No preview file") {
-        showToast("No preview file", "Open an HTML file to preview.", false);
-        return;
-      }
-      const meta = fileIndex.get(previewPath);
-      if (!meta || !meta.loaded) {
-        showToast("Preview not ready", "File content not loaded yet.", false);
-        return;
-      }
-      const iframe = document.getElementById("preview-frame");
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
-      doc.open();
-      doc.write(meta.content || "");
-      doc.close();
-    }
-
-    // --- Commit ---
-
-    async function commitActiveFile() {
-      if (!activeFilePath) {
-        showToast("No file to commit", "Open a file and make changes first.", false);
-        return;
-      }
-      const meta = fileIndex.get(activeFilePath);
-      if (!meta || meta.type !== "blob") {
-        showToast("Cannot commit", "Only regular files can be committed.", false);
-        return;
-      }
-      const file = openFiles.find(f => f.path === activeFilePath);
-      if (!file || !file.dirty) {
-        showToast("No changes", "There are no unsaved changes in the active file.", false);
-        return;
-      }
-
-      const message = prompt("Commit message for " + activeFilePath + ":", "Update " + activeFilePath);
-      if (!message) return;
-
-      const content = getEditorContent();
-      const encoded = base64Encode(content);
-
-      setCommitStatus("Committing…");
-      setCommitMeta("Pushing " + activeFilePath + "…");
-
-      try {
-        const res = await githubFetch(`/repos/${currentRepo.owner}/${currentRepo.name}/contents/${encodeURIComponent(activeFilePath)}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message,
-            content: encoded,
-            sha: meta.sha,
-            branch: currentRepo.branch
-          })
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error("GitHub error: " + res.status + " " + text);
-        }
-
-        const data = await res.json();
-        meta.sha = data.content.sha;
-        meta.content = content;
-        meta.loaded = true;
-        fileIndex.set(activeFilePath, meta);
-        markActiveFileDirty(false);
-        setCommitStatus("Committed");
-        setCommitMeta("Last commit: " + message);
-        showToast("Commit pushed", message);
-      } catch (err) {
-        console.error(err);
-        setCommitStatus("Commit failed");
-        setCommitMeta("Commit failed");
-        showToast("Commit failed", err.message || String(err), true);
-      }
-    }
-
-    // --- Monaco bootstrap ---
-
-    function initMonaco() {
-      require.config({ paths: { "vs": "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs" } });
-      require(["vs/editor/editor.main"], function () {
-        editorInstance = monaco.editor.create(document.getElementById("editor"), {
-          value: "",
-          language: "plaintext",
-          theme: "vs-dark",
-          automaticLayout: true,
-          fontFamily: "JetBrains Mono, Fira Code, var(--font-mono)",
-          fontSize: 13,
-          minimap: { enabled: false },
-          scrollBeyondLastLine: false,
-          smoothScrolling: true,
-          roundedSelection: true,
-          cursorBlinking: "smooth",
-          renderWhitespace: "selection",
-          wordWrap: "on"
-        });
-
-        editorInstance.onDidChangeModelContent(() => {
-          if (!activeFilePath) return;
-          const meta = fileIndex.get(activeFilePath);
-          if (!meta || !meta.loaded) return;
-          const current = getEditorContent();
-          const dirty = current !== meta.content;
-          markActiveFileDirty(dirty);
-        });
-      });
-    }
-
-    // --- Event wiring ---
-
-    window.addEventListener("DOMContentLoaded", async () => {
-      initMonaco();
-      await refreshSession();
-
-      document.getElementById("auth-btn").addEventListener("click", async () => {
-        if (currentSession) {
-          await signOut();
-        } else {
-          await requireAuth();
-        }
-      });
-
-      document.getElementById("repo-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const owner = document.getElementById("owner-input").value.trim();
-        const repo = document.getElementById("repo-input").value.trim();
-        const branch = document.getElementById("branch-input").value.trim() || "main";
-        if (!owner || !repo) {
-          showToast("Missing fields", "Owner and repo are required.", false);
-          return;
-        }
-        const ok = await requireAuth();
-        if (!currentSession || !githubToken) return;
-        await loadRepo(owner, repo, branch);
-      });
-
-      document.getElementById("preview-btn").addEventListener("click", () => {
-        refreshPreview();
-      });
-
-      document.getElementById("commit-btn").addEventListener("click", async () => {
-        const ok = await requireAuth();
-        if (!currentSession || !githubToken) return;
-        await commitActiveFile();
-      });
+    monacoEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
+      theme: 'flashcode',
+      language: 'python',
+      fontSize: 13,
+      fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
+      fontLigatures: true,
+      lineHeight: 20,
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      renderWhitespace: 'selection',
+      smoothScrolling: true,
+      cursorBlinking: 'smooth',
+      wordWrap: 'on',
+      automaticLayout: true,
     });
-  </script>
+    monacoEditor.onDidChangeModelContent(() => {
+      if (activeTab) {
+        activeTab.content = monacoEditor.getValue();
+        activeTab.modified = true;
+        renderTabs();
+        document.getElementById('save-btn').style.display = 'flex';
+      }
+    });
+    monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, openCommitModal);
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// PYODIDE
+// ────────────────────────────────────────────────────────────
+async function loadPyodide() {
+  termLine('Loading Python 3 (WebAssembly)…', 'info');
+  try {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+    document.head.appendChild(script);
+    await new Promise((res, rej) => { script.onload = res; script.onerror = rej; });
+    pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/' });
+    pyReady = true;
+    document.getElementById('pyodide-status').innerHTML = '<span style="color:var(--green)">●</span> Python 3.11 (WASM) ready';
+    termLine('Python 3.11 ready. Type Python or click ▶ Run.', 'success');
+    document.getElementById('run-btn').disabled = false;
+  } catch (e) {
+    document.getElementById('pyodide-status').innerHTML = '<span style="color:var(--red)">●</span> Python unavailable';
+    termLine('Failed to load Python runtime: ' + e.message, 'error');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// TERMINAL
+// ────────────────────────────────────────────────────────────
+function termLine(text, cls = 'output') {
+  const div = document.createElement('div');
+  div.className = `term-line term-${cls}`;
+  div.textContent = text;
+  document.getElementById('terminal').appendChild(div);
+  document.getElementById('terminal').scrollTop = 9999;
+}
+
+function clearTerminal() {
+  document.getElementById('terminal').innerHTML = '';
+}
+
+function termKeyDown(e) {
+  if (e.key === 'Enter') {
+    const val = e.target.value.trim();
+    if (!val) return;
+    termLine('❯ ' + val, 'prompt');
+    e.target.value = '';
+    execPython(val);
+  }
+}
+
+async function execPython(code) {
+  if (!pyReady) { termLine('Python runtime not ready.', 'warn'); return; }
+  try {
+    pyodide.runPython(`
+import sys, io
+_old_out, _old_err = sys.stdout, sys.stderr
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+`);
+    try {
+      pyodide.runPython(code);
+    } catch (err) {
+      pyodide.runPython(`sys.stdout = _old_out; sys.stderr = _old_err`);
+      termLine(err.message, 'error'); return;
+    }
+    const out = pyodide.runPython(`_s = sys.stdout.getvalue(); sys.stdout = _old_out; sys.stderr = _old_err; _s`);
+    if (out) termLine(out.trimEnd(), 'output');
+    else termLine('✓', 'success');
+  } catch (err) {
+    termLine(err.message, 'error');
+  }
+}
+
+async function runCode() {
+  if (!activeTab) { termLine('No file open.', 'warn'); return; }
+  switchPanel('terminal');
+  termLine(`\n▶ Running ${activeTab.path}…`, 'info');
+  await execPython(activeTab.content);
+}
+
+// ────────────────────────────────────────────────────────────
+// GITHUB
+// ────────────────────────────────────────────────────────────
+function ghHeaders() {
+  return { Authorization: `Bearer ${ghToken}`, Accept: 'application/vnd.github+json' };
+}
+
+async function openRepoModal() {
+  document.getElementById('repo-modal').classList.add('open');
+  document.getElementById('repo-search').value = '';
+  if (!ghToken) { document.getElementById('repo-list').innerHTML = '<div style="padding:16px;color:var(--red);font-size:12px">No GitHub token. Please sign in again.</div>'; return; }
+  document.getElementById('repo-list').innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Loading…</div>';
+  const r = await fetch('https://api.github.com/user/repos?per_page=50&sort=updated', { headers: ghHeaders() });
+  allRepos = r.ok ? await r.json() : [];
+  renderRepoList(allRepos);
+}
+
+function closeRepoModal() { document.getElementById('repo-modal').classList.remove('open'); }
+
+function renderRepoList(repos) {
+  const el = document.getElementById('repo-list');
+  if (!repos.length) { el.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">No repositories found.</div>'; return; }
+  el.innerHTML = repos.map(r => `
+    <div class="repo-item" onclick="selectRepo('${r.full_name}', '${r.default_branch || 'main'}')">
+      <div class="repo-item-name">${r.name}</div>
+      <div class="repo-item-meta">${r.full_name} · ${r.private ? '🔒 Private' : '🌍 Public'} · ${r.language ? `<span class="repo-item-lang"><span class="lang-dot"></span>${r.language}</span>` : ''}</div>
+    </div>`).join('');
+}
+
+function filterRepos() {
+  const q = document.getElementById('repo-search').value.toLowerCase();
+  renderRepoList(allRepos.filter(r => r.full_name.toLowerCase().includes(q)));
+}
+
+async function selectRepo(fullName, branch) {
+  closeRepoModal();
+  currentRepo = fullName;
+  currentBranch = branch || 'main';
+  document.getElementById('repo-label').textContent = fullName;
+  document.getElementById('branch-badge').style.display = 'flex';
+  document.getElementById('branch-badge').textContent = currentBranch;
+  document.getElementById('status-repo').textContent = fullName;
+  await refreshTree();
+}
+
+async function refreshTree() {
+  if (!currentRepo) return;
+  const [owner, repo] = currentRepo.split('/');
+  document.getElementById('file-tree').innerHTML = '<div class="sidebar-empty">Loading…</div>';
+  const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${currentBranch}?recursive=1`, { headers: ghHeaders() });
+  if (!r.ok) { document.getElementById('file-tree').innerHTML = '<div class="sidebar-empty" style="color:var(--red)">Failed to load tree.</div>'; return; }
+  const data = await r.json();
+  renderTree(data.tree || []);
+}
+
+function renderTree(items) {
+  const el = document.getElementById('file-tree');
+  const files = items.filter(i => i.type === 'blob').sort((a, b) => {
+    const da = a.path.split('/').length, db = b.path.split('/').length;
+    if (da !== db) return da - db;
+    return a.path.localeCompare(b.path);
+  });
+  if (!files.length) { el.innerHTML = '<div class="sidebar-empty">No files found.</div>'; return; }
+  const extIcon = p => {
+    const e = p.split('.').pop()?.toLowerCase();
+    const m = { py:'🐍', js:'⚡', ts:'🔷', jsx:'⚛', tsx:'⚛', json:'{}', md:'📝', css:'🎨', html:'🌐', yml:'⚙', yaml:'⚙', sh:'💻', txt:'📄' };
+    return m[e] || '📄';
+  };
+  el.innerHTML = files.map(f => {
+    const depth = f.path.split('/').length - 1;
+    const name = f.path.split('/').pop();
+    const indent = '&nbsp;'.repeat(depth * 3);
+    return `<div class="tree-item" onclick="openFile('${f.path}')" title="${f.path}">
+      <span>${indent}${extIcon(f.path)}</span>
+      <span class="tree-item-name">${name}</span>
+    </div>`;
+  }).join('');
+}
+
+async function openFile(path) {
+  // Check if already open
+  let tab = openTabs.find(t => t.path === path);
+  if (!tab) {
+    const [owner, repo] = currentRepo.split('/');
+    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${currentBranch}`, { headers: ghHeaders() });
+    if (!r.ok) { notify('Failed to load file', 'error'); return; }
+    const data = await r.json();
+    const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+    tab = { path, content, sha: data.sha, modified: false, lang: langFromPath(path) };
+    openTabs.push(tab);
+  }
+  setActiveTab(tab);
+}
+
+function setActiveTab(tab) {
+  activeTab = tab;
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('monaco-editor').style.display = 'block';
+  if (monacoEditor) {
+    const model = monaco.editor.createModel(tab.content, tab.lang);
+    monacoEditor.setModel(model);
+  }
+  document.getElementById('status-file').textContent = tab.path;
+  if (document.getElementById('save-btn')) document.getElementById('save-btn').style.display = tab.modified ? 'flex' : 'none';
+  renderTabs();
+  // Highlight active in tree
+  document.querySelectorAll('.tree-item').forEach(el => {
+    el.classList.toggle('active', el.title === tab.path);
+  });
+}
+
+function closeTab(path, e) {
+  e?.stopPropagation();
+  const idx = openTabs.findIndex(t => t.path === path);
+  if (idx === -1) return;
+  openTabs.splice(idx, 1);
+  if (activeTab?.path === path) {
+    activeTab = openTabs[Math.min(idx, openTabs.length - 1)] || null;
+    if (activeTab) setActiveTab(activeTab);
+    else {
+      document.getElementById('welcome').style.display = 'flex';
+      document.getElementById('monaco-editor').style.display = 'none';
+      document.getElementById('status-file').textContent = 'No file open';
+      document.getElementById('save-btn').style.display = 'none';
+    }
+  }
+  renderTabs();
+}
+
+function renderTabs() {
+  const bar = document.getElementById('tabbar');
+  const noTabs = document.getElementById('no-tabs');
+  if (!openTabs.length) { noTabs.style.display = 'flex'; bar.querySelectorAll('.tab').forEach(e => e.remove()); return; }
+  noTabs.style.display = 'none';
+  bar.querySelectorAll('.tab').forEach(e => e.remove());
+  openTabs.forEach(t => {
+    const div = document.createElement('div');
+    div.className = `tab${t === activeTab ? ' active' : ''}${t.modified ? ' modified' : ''}`;
+    div.innerHTML = `<span>${t.path.split('/').pop()}</span><button class="tab-close" onclick="closeTab('${t.path}', event)">×</button>`;
+    div.onclick = () => setActiveTab(t);
+    bar.appendChild(div);
+  });
+}
+
+function langFromPath(p = '') {
+  const ext = p.split('.').pop()?.toLowerCase();
+  return { py:'python', js:'javascript', ts:'typescript', jsx:'javascript', tsx:'typescript', json:'json', md:'markdown', css:'css', html:'html', sh:'shell', yml:'yaml', yaml:'yaml' }[ext] || 'plaintext';
+}
+
+// ────────────────────────────────────────────────────────────
+// COMMIT
+// ────────────────────────────────────────────────────────────
+function openCommitModal() {
+  if (!activeTab) return;
+  document.getElementById('commit-file-label').textContent = activeTab.path;
+  document.getElementById('commit-msg').value = `Update ${activeTab.path}`;
+  document.getElementById('commit-modal').classList.add('open');
+}
+
+function closeCommitModal() { document.getElementById('commit-modal').classList.remove('open'); }
+
+async function commitFile() {
+  if (!activeTab || !currentRepo) return;
+  const msg = document.getElementById('commit-msg').value.trim() || `Update ${activeTab.path}`;
+  const [owner, repo] = currentRepo.split('/');
+  // Sync latest editor content
+  if (monacoEditor) activeTab.content = monacoEditor.getValue();
+  const encoded = btoa(unescape(encodeURIComponent(activeTab.content)));
+  const body = { message: msg, content: encoded, sha: activeTab.sha, branch: currentBranch };
+  closeCommitModal();
+  const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${activeTab.path}`, {
+    method: 'PUT', headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (r.ok) {
+    const data = await r.json();
+    activeTab.sha = data.content.sha;
+    activeTab.modified = false;
+    renderTabs();
+    document.getElementById('save-btn').style.display = 'none';
+    notify(`Committed: ${activeTab.path}`, 'success');
+  } else {
+    const err = await r.json();
+    notify(`Commit failed: ${err.message}`, 'error');
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// AI ASSISTANT
+// ────────────────────────────────────────────────────────────
+function aiKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAiMessage(); }
+}
+
+async function sendAiMessage() {
+  const input = document.getElementById('ai-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  appendAiMsg('user', text);
+  aiHistory.push({ role: 'user', content: text });
+  document.getElementById('ai-send-btn').disabled = true;
+
+  // Include current file context
+  const ctx = activeTab
+    ? `The user is working on file \`${activeTab.path}\` (${activeTab.lang}) in the ${currentRepo} repository.\n\nCurrent file content:\n\`\`\`${activeTab.lang}\n${activeTab.content.slice(0, 4000)}\n\`\`\``
+    : `The user is using FlashCode, a browser-based IDE connected to GitHub.`;
+
+  try {
+    const r = await fetch(ANTHROPIC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are an expert coding assistant embedded in FlashCode, a browser IDE. ${ctx}\n\nBe concise and helpful. Use markdown code blocks when sharing code.`,
+        messages: aiHistory
+      })
+    });
+    const data = await r.json();
+    const reply = data.content?.[0]?.text || 'Sorry, I could not get a response.';
+    aiHistory.push({ role: 'assistant', content: reply });
+    appendAiMsg('assistant', reply);
+  } catch (e) {
+    appendAiMsg('assistant', 'Error: ' + e.message);
+  }
+  document.getElementById('ai-send-btn').disabled = false;
+}
+
+function appendAiMsg(role, text) {
+  const msgs = document.getElementById('ai-messages');
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role}`;
+  div.innerHTML = `
+    <div class="ai-msg-avatar">${role === 'user' ? 'U' : 'AI'}</div>
+    <div class="ai-msg-body">
+      <div class="ai-msg-role">${role === 'user' ? 'You' : 'Claude'}</div>
+      <div class="ai-msg-text">${formatAiText(text)}</div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = 9999;
+}
+
+function formatAiText(t) {
+  return t
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
+      `<pre style="background:var(--bg3);padding:8px 10px;border-radius:6px;overflow-x:auto;margin:4px 0;font-size:11px;font-family:var(--font-mono)">${code.trim()}</pre>`)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+// ────────────────────────────────────────────────────────────
+// UI HELPERS
+// ────────────────────────────────────────────────────────────
+function switchPanel(name) {
+  document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`panel-tab-${name}`).classList.add('active');
+  document.getElementById(`panel-${name}`).classList.add('active');
+}
+
+function setActivity(name) {
+  document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  if (name === 'ai') switchPanel('ai');
+  else switchPanel('terminal');
+}
+
+function toggleUserMenu() {
+  document.getElementById('user-menu').classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#user-menu') && !e.target.closest('#user-avatar'))
+    document.getElementById('user-menu').classList.remove('open');
+  if (!e.target.closest('#repo-modal') && !e.target.closest('.repo-selector'))
+    document.getElementById('repo-modal').classList.remove('open');
+});
+
+function notify(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `notif-item ${type}`;
+  el.textContent = msg;
+  document.getElementById('notif').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ── Resize handle ──────────────────────────────────────────
+const resizeHandle = document.getElementById('resize-handle');
+let resizing = false, startY = 0, startH = 0;
+resizeHandle.addEventListener('mousedown', e => {
+  resizing = true; startY = e.clientY;
+  startH = document.getElementById('bottom-panel').offsetHeight;
+  document.body.style.cursor = 'row-resize';
+  document.body.style.userSelect = 'none';
+});
+document.addEventListener('mousemove', e => {
+  if (!resizing) return;
+  const delta = startY - e.clientY;
+  const newH = Math.max(80, Math.min(600, startH + delta));
+  document.getElementById('bottom-panel').style.height = newH + 'px';
+  document.documentElement.style.setProperty('--panel-h', newH + 'px');
+});
+document.addEventListener('mouseup', () => {
+  resizing = false;
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+});
+
+// ────────────────────────────────────────────────────────────
+// START
+// ────────────────────────────────────────────────────────────
+init();
+</script>
 </body>
 </html>
-

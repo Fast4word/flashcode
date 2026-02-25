@@ -1,541 +1,333 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>FlashCode IDE</title>
-
-<!-- Monaco Editor -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.min.css" />
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.min.css"/>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#0d0d0d;--bg1:#141414;--bg2:#1a1a1a;--bg3:#222;--bg4:#2a2a2a;
+  --border:#2e2e2e;--text:#d4d4d4;--text2:#888;--text3:#555;
+  --accent:#3b82f6;--accent2:#1d4ed8;--green:#22c55e;--red:#ef4444;
+  --yellow:#eab308;--purple:#a855f7;--orange:#f97316;
+  --mono:'Fira Code','Cascadia Code',Consolas,monospace;
+  --ui:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --sw:44px;--sbw:240px;--ph:220px;--tbh:40px;--tbbh:36px;--sbh:24px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);font-family:var(--ui);font-size:13px}
 
-  :root {
-    --bg0: #0d0d0d;
-    --bg1: #141414;
-    --bg2: #1a1a1a;
-    --bg3: #222222;
-    --bg4: #2a2a2a;
-    --border: #2e2e2e;
-    --text: #d4d4d4;
-    --text2: #888;
-    --text3: #555;
-    --accent: #3b82f6;
-    --accent2: #1d4ed8;
-    --green: #22c55e;
-    --red: #ef4444;
-    --yellow: #eab308;
-    --purple: #a855f7;
-    --font-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-    --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --sidebar-w: 240px;
-    --panel-h: 220px;
-    --titlebar-h: 40px;
-    --tabbar-h: 36px;
-    --statusbar-h: 24px;
-  }
+/* ── AUTH ── */
+#auth{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:24px}
+.auth-logo{display:flex;align-items:center;gap:12px}
+.auth-logo svg{color:var(--accent)}
+.auth-logo h1{font-size:28px;font-weight:700;letter-spacing:-.5px;color:#fff}
+.auth-logo span{color:var(--accent)}
+.auth-tag{color:var(--text2);font-size:14px}
+.auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:16px;width:340px}
+.auth-card h2{font-size:16px;font-weight:600;color:#fff}
+.auth-card p{color:var(--text2);font-size:13px;line-height:1.5}
+.btn-gh{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#0d0d0d;border:none;border-radius:8px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-gh:hover{background:#e5e5e5}
 
-  html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(--text); font-family: var(--font-ui); font-size: 13px; }
+/* ── IDE SHELL ── */
+#ide{display:none;flex-direction:column;height:100vh}
+#ide.on{display:flex}
 
-  /* ── Auth Screen ── */
-  #auth-screen {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    height: 100vh; gap: 24px;
-  }
-  .auth-logo { display: flex; align-items: center; gap: 12px; }
-  .auth-logo svg { color: var(--accent); }
-  .auth-logo h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
-  .auth-logo span { color: var(--accent); }
-  .auth-tagline { color: var(--text2); font-size: 14px; }
-  .auth-card {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
-    padding: 32px; display: flex; flex-direction: column; gap: 16px; width: 340px;
-  }
-  .auth-card h2 { font-size: 16px; font-weight: 600; color: #fff; }
-  .auth-card p { color: var(--text2); font-size: 13px; line-height: 1.5; }
-  .btn-github {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    background: #fff; color: #0d0d0d; border: none; border-radius: 8px;
-    padding: 11px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-github:hover { background: #e5e5e5; }
+/* titlebar */
+#tb{height:var(--tbh);background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:10px;flex-shrink:0;user-select:none}
+.tb-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.tb-logo span{color:var(--accent)}
+.tb-sep{width:1px;height:18px;background:var(--border)}
+.repo-sel{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text);min-width:180px}
+.repo-sel:hover{border-color:var(--accent)}
+#repo-lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+.br-badge{background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:11px;color:var(--accent);font-family:var(--mono);display:none}
+.tb-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn-icon{background:none;border:none;color:var(--text2);cursor:pointer;padding:5px;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.btn-icon:hover{background:var(--bg4);color:var(--text)}
+.btn-run{display:flex;align-items:center;gap:6px;background:var(--green);color:#000;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn-run:hover{opacity:.85}
+.btn-run:disabled{opacity:.4;cursor:not-allowed}
+.btn-commit{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;display:none}
+.btn-commit:hover{opacity:.85}
+.avatar{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);cursor:pointer;object-fit:cover}
+.umenu{position:absolute;top:calc(var(--tbh) + 4px);right:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;min-width:160px;z-index:100;display:none}
+.umenu.on{display:block}
+.umenu-item{padding:8px 12px;border-radius:5px;cursor:pointer;color:var(--text2);font-size:12px;transition:background .1s}
+.umenu-item:hover{background:var(--bg4);color:var(--text)}
+.umenu-item.danger:hover{background:#3f1212;color:var(--red)}
 
-  /* ── IDE Shell ── */
-  #ide { display: none; flex-direction: column; height: 100vh; }
-  #ide.visible { display: flex; }
+/* main */
+#main{display:flex;flex:1;overflow:hidden}
 
-  /* Titlebar */
-  #titlebar {
-    height: var(--titlebar-h); background: var(--bg1); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 12px; gap: 12px; flex-shrink: 0;
-    user-select: none;
-  }
-  .titlebar-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
-  .titlebar-logo span { color: var(--accent); }
-  .titlebar-sep { width: 1px; height: 18px; background: var(--border); }
-  .repo-selector {
-    display: flex; align-items: center; gap: 6px; background: var(--bg3);
-    border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px;
-    cursor: pointer; font-size: 12px; color: var(--text); min-width: 180px;
-    position: relative;
-  }
-  .repo-selector:hover { border-color: var(--accent); }
-  #repo-label { flex: 1; }
-  .branch-badge {
-    background: var(--bg4); border: 1px solid var(--border); border-radius: 4px;
-    padding: 2px 7px; font-size: 11px; color: var(--accent); font-family: var(--font-mono);
-  }
-  .titlebar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-  .btn-icon {
-    background: none; border: none; color: var(--text2); cursor: pointer;
-    padding: 5px; border-radius: 5px; display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, color 0.15s;
-  }
-  .btn-icon:hover { background: var(--bg4); color: var(--text); }
-  .btn-run {
-    display: flex; align-items: center; gap: 6px; background: var(--green);
-    color: #000; border: none; border-radius: 6px; padding: 5px 12px;
-    font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
-  }
-  .btn-run:hover { opacity: 0.85; }
-  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-save {
-    display: flex; align-items: center; gap: 6px; background: var(--accent);
-    color: #fff; border: none; border-radius: 6px; padding: 5px 12px;
-    font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
-  }
-  .btn-save:hover { opacity: 0.85; }
-  .avatar {
-    width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border);
-    cursor: pointer; object-fit: cover;
-  }
-  .user-menu {
-    position: absolute; top: calc(var(--titlebar-h) + 4px); right: 12px;
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 4px; min-width: 160px; z-index: 100; display: none;
-  }
-  .user-menu.open { display: block; }
-  .user-menu-item {
-    padding: 8px 12px; border-radius: 5px; cursor: pointer; color: var(--text2);
-    font-size: 12px; transition: background 0.1s;
-  }
-  .user-menu-item:hover { background: var(--bg4); color: var(--text); }
-  .user-menu-item.danger:hover { background: #3f1212; color: var(--red); }
+/* activity bar */
+#actbar{width:var(--sw);background:var(--bg0);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px;flex-shrink:0}
+.act-btn{width:34px;height:34px;border-radius:7px;background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.act-btn:hover,.act-btn.on{background:var(--bg3);color:var(--text)}
+.act-btn.on{color:var(--accent)}
 
-  /* Main area */
-  #main { display: flex; flex: 1; overflow: hidden; }
+/* sidebar */
+#sb{width:var(--sbw);background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-hdr{height:36px;display:flex;align-items:center;padding:0 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);border-bottom:1px solid var(--border);flex-shrink:0;justify-content:space-between}
+#ftree{flex:1;overflow-y:auto;padding:4px 0}
+#ftree::-webkit-scrollbar{width:4px}
+#ftree::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.t-dir{display:flex;align-items:center;gap:5px;padding:3px 8px 3px 0;cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;user-select:none}
+.t-dir:hover{background:var(--bg3);color:var(--text)}
+.t-dir svg{flex-shrink:0;transition:transform .15s}
+.t-dir.open svg.chevron{transform:rotate(90deg)}
+.t-file{display:flex;align-items:center;gap:5px;padding:3px 8px 3px 0;cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s,color .1s;white-space:nowrap;overflow:hidden}
+.t-file:hover{background:var(--bg3);color:var(--text)}
+.t-file.active{background:var(--bg4);color:#fff}
+.t-name{overflow:hidden;text-overflow:ellipsis}
+.t-children{display:none}
+.t-children.open{display:block}
+.sb-empty{padding:16px 12px;color:var(--text3);font-size:12px;line-height:1.6}
 
-  /* Sidebar */
-  #sidebar {
-    width: var(--sidebar-w); background: var(--bg1); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
-  }
-  .sidebar-header {
-    height: 36px; display: flex; align-items: center; padding: 0 12px;
-    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--text3); border-bottom: 1px solid var(--border); flex-shrink: 0;
-    justify-content: space-between;
-  }
-  #file-tree { flex: 1; overflow-y: auto; padding: 4px 0; }
-  #file-tree::-webkit-scrollbar { width: 4px; }
-  #file-tree::-webkit-scrollbar-track { background: transparent; }
-  #file-tree::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
-  .tree-item {
-    display: flex; align-items: center; gap: 6px; padding: 3px 12px 3px 0;
-    cursor: pointer; font-size: 12px; color: var(--text2);
-    transition: background 0.1s, color 0.1s; white-space: nowrap; overflow: hidden;
-  }
-  .tree-item:hover { background: var(--bg3); color: var(--text); }
-  .tree-item.active { background: var(--bg4); color: #fff; }
-  .tree-item.dir { font-weight: 500; }
-  .tree-item svg { flex-shrink: 0; }
-  .tree-item-name { overflow: hidden; text-overflow: ellipsis; }
-  .tree-indent { display: inline-block; width: 12px; flex-shrink: 0; }
-  .sidebar-empty { padding: 16px 12px; color: var(--text3); font-size: 12px; line-height: 1.6; }
+/* editor */
+#ea{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#tabbar{height:var(--tbbh);background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:flex-end;overflow-x:auto;flex-shrink:0}
+#tabbar::-webkit-scrollbar{height:0}
+.tab{display:flex;align-items:center;gap:6px;padding:0 14px;height:100%;border-right:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--text2);white-space:nowrap;background:var(--bg1);transition:background .1s,color .1s;flex-shrink:0;position:relative}
+.tab:hover{background:var(--bg2);color:var(--text)}
+.tab.active{background:var(--bg2);color:#fff}
+.tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent)}
+.tab.mod::before{content:'●';color:var(--yellow);margin-right:-4px;font-size:10px}
+.tab-x{width:16px;height:16px;border-radius:3px;border:none;background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;transition:background .1s,color .1s}
+.tab-x:hover{background:var(--bg4);color:var(--text)}
+#no-tabs{display:flex;align-items:center;padding:0 16px;color:var(--text3);font-size:12px}
 
-  /* Activity bar on left of sidebar */
-  #activitybar {
-    width: 44px; background: var(--bg0); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 4px; flex-shrink: 0;
-  }
-  .activity-btn {
-    width: 34px; height: 34px; border-radius: 7px; background: none; border: none;
-    color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, color 0.15s;
-  }
-  .activity-btn:hover, .activity-btn.active { background: var(--bg3); color: var(--text); }
-  .activity-btn.active { color: var(--accent); }
+/* editor+panel container */
+#epc{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#ec{flex:1;overflow:hidden;position:relative}
+#me{width:100%;height:100%}
+#welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--text3)}
+#welcome h2{font-size:20px;color:var(--text2)}
+#welcome p{font-size:13px;line-height:1.6;text-align:center;max-width:360px}
+#welcome kbd{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;color:var(--text2)}
 
-  /* Editor area */
-  #editor-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+/* preview tab */
+#preview-panel{width:100%;height:100%;border:none;background:#fff;display:none}
 
-  /* Tab bar */
-  #tabbar {
-    height: var(--tabbar-h); background: var(--bg1); border-bottom: 1px solid var(--border);
-    display: flex; align-items: flex-end; overflow-x: auto; flex-shrink: 0;
-  }
-  #tabbar::-webkit-scrollbar { height: 0; }
-  .tab {
-    display: flex; align-items: center; gap: 6px;
-    padding: 0 14px; height: 100%; border-right: 1px solid var(--border);
-    font-size: 12px; cursor: pointer; color: var(--text2); white-space: nowrap;
-    background: var(--bg1); transition: background 0.1s, color 0.1s; flex-shrink: 0;
-    position: relative;
-  }
-  .tab:hover { background: var(--bg2); color: var(--text); }
-  .tab.active { background: var(--bg2); color: #fff; }
-  .tab.active::after {
-    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-    height: 2px; background: var(--accent);
-  }
-  .tab.modified::before { content: '●'; color: var(--yellow); margin-right: -4px; font-size: 10px; }
-  .tab-close {
-    width: 16px; height: 16px; border-radius: 3px; border: none; background: none;
-    color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 14px; line-height: 1; transition: background 0.1s, color 0.1s;
-  }
-  .tab-close:hover { background: var(--bg4); color: var(--text); }
-  #no-tabs { display: flex; align-items: center; padding: 0 16px; color: var(--text3); font-size: 12px; }
+/* bottom panel */
+#bp{background:var(--bg1);border-top:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:var(--ph);transition:height .15s}
+#bp.hidden{display:none}
+.p-tabs{display:flex;border-bottom:1px solid var(--border);height:32px;flex-shrink:0;align-items:center}
+.p-tab{display:flex;align-items:center;gap:6px;padding:0 14px;font-size:12px;color:var(--text3);cursor:pointer;border-right:1px solid var(--border);height:100%;transition:background .1s,color .1s}
+.p-tab:hover{background:var(--bg2);color:var(--text2)}
+.p-tab.active{color:var(--text);background:var(--bg2)}
+.p-acts{margin-left:auto;display:flex;align-items:center;padding:0 8px;gap:4px}
+.p-content{flex:1;overflow:hidden;display:none;flex-direction:column}
+.p-content.active{display:flex}
 
-  /* Editor + panel container */
-  #editor-panel-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  #editor-container { flex: 1; overflow: hidden; position: relative; }
-  #monaco-editor { width: 100%; height: 100%; }
-  #welcome {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    height: 100%; gap: 16px; color: var(--text3);
-  }
-  #welcome h2 { font-size: 20px; color: var(--text2); }
-  #welcome p { font-size: 13px; line-height: 1.6; text-align: center; max-width: 360px; }
-  #welcome kbd {
-    background: var(--bg3); border: 1px solid var(--border); border-radius: 4px;
-    padding: 1px 6px; font-family: var(--font-mono); font-size: 11px; color: var(--text2);
-  }
+/* terminal */
+#term{flex:1;overflow-y:auto;padding:10px 14px;font-family:var(--mono);font-size:12px;line-height:1.6;background:var(--bg0)}
+#term::-webkit-scrollbar{width:4px}
+#term::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.tl{white-space:pre-wrap;word-break:break-all}
+.ti{color:var(--text2)}.ts{color:var(--green)}.te{color:var(--red)}.tw{color:var(--yellow)}.tp{color:var(--accent)}.to{color:var(--text)}
+#tinr{display:flex;align-items:center;gap:8px;padding:6px 14px;border-top:1px solid var(--border);background:var(--bg0)}
+#tprompt{color:var(--accent);font-family:var(--mono);font-size:12px}
+#tinput{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:12px}
 
-  /* Bottom panel (terminal + AI) */
-  #bottom-panel {
-    height: var(--panel-h); background: var(--bg1); border-top: 1px solid var(--border);
-    display: flex; flex-direction: column; flex-shrink: 0;
-  }
-  .panel-tabs {
-    display: flex; border-bottom: 1px solid var(--border); height: 32px; flex-shrink: 0;
-  }
-  .panel-tab {
-    display: flex; align-items: center; gap: 6px; padding: 0 14px;
-    font-size: 12px; color: var(--text3); cursor: pointer; border-right: 1px solid var(--border);
-    transition: background 0.1s, color 0.1s;
-  }
-  .panel-tab:hover { background: var(--bg2); color: var(--text2); }
-  .panel-tab.active { color: var(--text); background: var(--bg2); }
-  .panel-actions { margin-left: auto; display: flex; align-items: center; padding: 0 8px; gap: 4px; }
-  .panel-content { flex: 1; overflow: hidden; display: none; }
-  .panel-content.active { display: flex; flex-direction: column; }
+/* AI panel */
+#ai-wrap{flex:1;display:flex;flex-direction:column;background:var(--bg0)}
+#ai-msgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:10px}
+#ai-msgs::-webkit-scrollbar{width:4px}
+#ai-msgs::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.am{display:flex;gap:8px}
+.am-av{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.am.user .am-av{background:var(--accent);color:#fff}
+.am.assistant .am-av{background:var(--purple);color:#fff}
+.am-b{flex:1}
+.am-r{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
+.am-t{font-size:12px;line-height:1.6;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.am-t code{font-family:var(--mono);background:var(--bg3);padding:1px 4px;border-radius:3px;font-size:11px}
+#ai-inp-row{display:flex;gap:8px;padding:8px 14px;border-top:1px solid var(--border);background:var(--bg1)}
+#ai-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--ui);resize:none;height:34px;line-height:1.4}
+#ai-inp:focus{border-color:var(--accent)}
+.btn-send{background:var(--accent);border:none;border-radius:6px;color:#fff;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.btn-send:hover{opacity:.85}
+.btn-send:disabled{opacity:.4;cursor:not-allowed}
 
-  /* Terminal */
-  #terminal {
-    flex: 1; overflow-y: auto; padding: 10px 14px; font-family: var(--font-mono);
-    font-size: 12px; line-height: 1.6; background: var(--bg0);
-  }
-  #terminal::-webkit-scrollbar { width: 4px; }
-  #terminal::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
-  .term-line { white-space: pre-wrap; word-break: break-all; }
-  .term-info { color: var(--text2); }
-  .term-success { color: var(--green); }
-  .term-error { color: var(--red); }
-  .term-warn { color: var(--yellow); }
-  .term-prompt { color: var(--accent); }
-  .term-output { color: var(--text); }
-  #term-input-row { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-top: 1px solid var(--border); background: var(--bg0); }
-  #term-prompt-label { color: var(--accent); font-family: var(--font-mono); font-size: 12px; }
-  #term-input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: var(--font-mono); font-size: 12px; }
+/* modals */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center}
+.modal.on{display:flex}
+.mbox{background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:480px;max-height:70vh;display:flex;flex-direction:column;overflow:hidden}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.mhdr h3{font-size:15px;font-weight:600}
+.mbody{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.mbody p{color:var(--text2);font-size:12px}
+.mftr{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.btn-cancel{background:var(--bg4);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:7px 14px;cursor:pointer;font-size:13px}
+.btn-cancel:hover{color:var(--text)}
+.btn-ok{background:var(--accent);border:none;color:#fff;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:13px;font-weight:600}
+.btn-ok:hover{opacity:.85}
+#repo-search{margin:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;width:calc(100% - 32px)}
+#repo-search:focus{border-color:var(--accent)}
+#repo-list{overflow-y:auto;padding:4px 8px 8px}
+#repo-list::-webkit-scrollbar{width:4px}
+#repo-list::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.ri{display:flex;flex-direction:column;padding:10px 12px;border-radius:7px;cursor:pointer;transition:background .1s}
+.ri:hover{background:var(--bg3)}
+.ri-n{font-size:13px;color:#fff;font-weight:500}
+.ri-m{font-size:11px;color:var(--text3);margin-top:2px}
+textarea.modal-ta{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;font-family:var(--ui);resize:vertical;min-height:80px}
+textarea.modal-ta:focus{border-color:var(--accent)}
 
-  /* AI Panel */
-  #ai-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg0); }
-  #ai-messages { flex: 1; overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 10px; }
-  #ai-messages::-webkit-scrollbar { width: 4px; }
-  #ai-messages::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
-  .ai-msg { display: flex; gap: 8px; }
-  .ai-msg-avatar {
-    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
-  }
-  .ai-msg.user .ai-msg-avatar { background: var(--accent); color: #fff; }
-  .ai-msg.assistant .ai-msg-avatar { background: var(--purple); color: #fff; }
-  .ai-msg-body { flex: 1; }
-  .ai-msg-role { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--text3); margin-bottom: 2px; }
-  .ai-msg-text { font-size: 12px; line-height: 1.6; color: var(--text); white-space: pre-wrap; word-break: break-word; }
-  .ai-msg-text code { font-family: var(--font-mono); background: var(--bg3); padding: 1px 4px; border-radius: 3px; font-size: 11px; }
-  #ai-input-row {
-    display: flex; gap: 8px; padding: 8px 14px; border-top: 1px solid var(--border);
-    background: var(--bg1);
-  }
-  #ai-input {
-    flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
-    padding: 7px 10px; color: var(--text); font-size: 12px; outline: none; font-family: var(--font-ui);
-    resize: none; height: 34px; line-height: 1.4;
-  }
-  #ai-input:focus { border-color: var(--accent); }
-  .btn-send {
-    background: var(--accent); border: none; border-radius: 6px; color: #fff;
-    width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: opacity 0.15s;
-  }
-  .btn-send:hover { opacity: 0.85; }
-  .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+/* statusbar */
+#statusbar{height:var(--sbh);background:var(--accent2);display:flex;align-items:center;padding:0 12px;gap:16px;font-size:11px;color:rgba(255,255,255,.8);flex-shrink:0;user-select:none}
+.si{display:flex;align-items:center;gap:5px}
+.si.r{margin-left:auto}
 
-  /* Repo picker modal */
-  #repo-modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
-    display: none; align-items: center; justify-content: center;
-  }
-  #repo-modal.open { display: flex; }
-  .modal-box {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
-    width: 480px; max-height: 70vh; display: flex; flex-direction: column; overflow: hidden;
-  }
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 20px; border-bottom: 1px solid var(--border);
-  }
-  .modal-header h3 { font-size: 15px; font-weight: 600; }
-  #repo-search {
-    margin: 12px 16px; background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 7px; padding: 8px 12px; color: var(--text); font-size: 13px; outline: none; width: calc(100% - 32px);
-  }
-  #repo-search:focus { border-color: var(--accent); }
-  #repo-list { overflow-y: auto; padding: 4px 8px 8px; }
-  #repo-list::-webkit-scrollbar { width: 4px; }
-  #repo-list::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
-  .repo-item {
-    display: flex; flex-direction: column; padding: 10px 12px; border-radius: 7px;
-    cursor: pointer; transition: background 0.1s;
-  }
-  .repo-item:hover { background: var(--bg3); }
-  .repo-item-name { font-size: 13px; color: #fff; font-weight: 500; }
-  .repo-item-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .repo-item-lang {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; color: var(--text2);
-  }
-  .lang-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+/* resize */
+#rh{height:4px;background:transparent;cursor:row-resize;flex-shrink:0;border-top:1px solid var(--border)}
+#rh:hover{background:var(--accent)}
 
-  /* Statusbar */
-  #statusbar {
-    height: var(--statusbar-h); background: var(--accent2); display: flex;
-    align-items: center; padding: 0 12px; gap: 16px; font-size: 11px; color: rgba(255,255,255,0.8);
-    flex-shrink: 0; user-select: none;
-  }
-  .status-item { display: flex; align-items: center; gap: 5px; }
-  .status-item.right { margin-left: auto; }
-  #pyodide-status { display: flex; align-items: center; gap: 5px; }
+/* notifs */
+#notif{position:fixed;bottom:32px;right:16px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.ni{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:sIn .2s ease;max-width:280px}
+.ni.s{border-color:var(--green)}.ni.e{border-color:var(--red)}.ni.w{border-color:var(--yellow)}
+@keyframes sIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .8s linear infinite;display:inline-block}
 
-  /* Commit modal */
-  #commit-modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
-    display: none; align-items: center; justify-content: center;
-  }
-  #commit-modal.open { display: flex; }
-  #commit-msg {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 7px; padding: 10px 12px; color: var(--text); font-size: 13px;
-    outline: none; font-family: var(--font-ui); resize: vertical; min-height: 80px;
-  }
-  #commit-msg:focus { border-color: var(--accent); }
-  .modal-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
-  .modal-body p { color: var(--text2); font-size: 12px; }
-  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
-  .btn-cancel { background: var(--bg4); border: 1px solid var(--border); color: var(--text2); border-radius: 6px; padding: 7px 14px; cursor: pointer; font-size: 13px; }
-  .btn-cancel:hover { color: var(--text); }
-  .btn-commit { background: var(--accent); border: none; color: #fff; border-radius: 6px; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 600; }
-  .btn-commit:hover { opacity: 0.85; }
-
-  /* Spinner */
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner { animation: spin 0.8s linear infinite; display: inline-block; }
-
-  /* Resize handle */
-  #resize-handle {
-    height: 4px; background: transparent; cursor: row-resize; flex-shrink: 0;
-    border-top: 1px solid var(--border);
-  }
-  #resize-handle:hover { background: var(--accent); }
-
-  /* Notifications */
-  #notif {
-    position: fixed; bottom: 32px; right: 16px; z-index: 300;
-    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
-  }
-  .notif-item {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 10px 14px; font-size: 12px; color: var(--text);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5); animation: slideIn 0.2s ease;
-    max-width: 280px;
-  }
-  .notif-item.success { border-color: var(--green); }
-  .notif-item.error { border-color: var(--red); }
-  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+/* lang badge */
+.lang-badge{font-size:11px;padding:1px 5px;border-radius:3px;font-family:var(--mono)}
 </style>
 </head>
 <body>
 
-<!-- ── Auth Screen ─────────────────────────────────────────── -->
-<div id="auth-screen">
+<!-- AUTH -->
+<div id="auth">
   <div class="auth-logo">
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="16 18 22 12 16 6"></polyline>
-      <polyline points="8 6 2 12 8 18"></polyline>
-    </svg>
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
     <h1>Flash<span>Code</span></h1>
   </div>
-  <p class="auth-tagline">Browser IDE · GitHub · WebAssembly · AI</p>
+  <p class="auth-tag">Browser IDE · GitHub · WebAssembly · AI</p>
   <div class="auth-card">
     <h2>Sign in to continue</h2>
     <p>Connect your GitHub account to browse repos, edit code, and run it instantly in your browser.</p>
-    <button class="btn-github" onclick="signInWithGitHub()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-      </svg>
+    <button class="btn-gh" onclick="signIn()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
       Continue with GitHub
     </button>
   </div>
 </div>
 
-<!-- ── IDE Shell ───────────────────────────────────────────── -->
+<!-- IDE -->
 <div id="ide">
-
   <!-- Titlebar -->
-  <div id="titlebar">
-    <div class="titlebar-logo">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="16 18 22 12 16 6"></polyline>
-        <polyline points="8 6 2 12 8 18"></polyline>
-      </svg>
+  <div id="tb">
+    <div class="tb-logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
       Flash<span>Code</span>
     </div>
-    <div class="titlebar-sep"></div>
-    <div class="repo-selector" onclick="openRepoModal()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
-      </svg>
-      <span id="repo-label">Open a repository…</span>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    <div class="tb-sep"></div>
+    <div class="repo-sel" onclick="openRepoModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      <span id="repo-lbl">Open a repository…</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <span class="branch-badge" id="branch-badge" style="display:none">main</span>
-    <div class="titlebar-actions">
-      <button class="btn-run" id="run-btn" onclick="runCode()" disabled>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+    <span class="br-badge" id="br-badge">main</span>
+    <div class="tb-actions">
+      <button class="btn-run" id="run-btn" onclick="runCode()" disabled title="Run (Ctrl+Enter)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         Run
       </button>
-      <button class="btn-save" id="save-btn" onclick="openCommitModal()" style="display:none">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-          <polyline points="17 21 17 13 7 13 7 21"></polyline>
-          <polyline points="7 3 7 8 15 8"></polyline>
-        </svg>
+      <button class="btn-commit" id="commit-btn" onclick="openCommitModal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="23" y2="12"/></svg>
         Commit
       </button>
-      <img class="avatar" id="user-avatar" src="" alt="user" onclick="toggleUserMenu()" />
+      <button class="btn-icon" onclick="togglePanel()" title="Toggle terminal">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      </button>
+      <img class="avatar" id="u-avatar" src="" alt="" onclick="toggleUMenu()"/>
     </div>
   </div>
-  <div class="user-menu" id="user-menu">
-    <div class="user-menu-item" id="user-name-item"></div>
-    <div class="user-menu-item danger" onclick="signOut()">Sign out</div>
+  <div class="umenu" id="umenu">
+    <div class="umenu-item" id="u-name"></div>
+    <div class="umenu-item danger" onclick="signOut()">Sign out</div>
   </div>
 
   <div id="main">
-    <!-- Activity Bar -->
-    <div id="activitybar">
-      <button class="activity-btn active" title="Explorer" onclick="setActivity('explorer')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-        </svg>
+    <!-- Activity bar -->
+    <div id="actbar">
+      <button class="act-btn on" title="Explorer" onclick="setAct(this,'explorer')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
       </button>
-      <button class="activity-btn" title="AI Assistant" onclick="setActivity('ai')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
+      <button class="act-btn" title="AI Assistant" onclick="setAct(this,'ai')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <button class="act-btn" title="Preview" onclick="setAct(this,'preview')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
       </button>
     </div>
 
     <!-- Sidebar -->
-    <div id="sidebar">
-      <div class="sidebar-header">
-        <span id="sidebar-title">Explorer</span>
-        <button class="btn-icon" onclick="refreshTree()" title="Refresh" style="padding:2px">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-          </svg>
+    <div id="sb">
+      <div class="sb-hdr">
+        <span>Explorer</span>
+        <button class="btn-icon" onclick="refreshTree()" style="padding:2px" title="Refresh">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         </button>
       </div>
-      <div id="file-tree">
-        <div class="sidebar-empty">Open a repository to browse files.</div>
-      </div>
+      <div id="ftree"><div class="sb-empty">Open a repository to browse files.</div></div>
     </div>
 
-    <!-- Editor Area -->
-    <div id="editor-area">
-      <!-- Tab Bar -->
-      <div id="tabbar">
-        <span id="no-tabs" style="color:var(--text3);font-size:12px;padding:0 16px">No files open</span>
-      </div>
-
-      <!-- Editor + Panel -->
-      <div id="editor-panel-container">
-        <div id="editor-container">
+    <!-- Editor area -->
+    <div id="ea">
+      <div id="tabbar"><span id="no-tabs">No files open</span></div>
+      <div id="epc">
+        <div id="ec">
           <div id="welcome">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text3)">
-              <polyline points="16 18 22 12 16 6"></polyline>
-              <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text3)"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             <h2>FlashCode</h2>
-            <p>Open a repository from the top bar, then click a file to start editing.<br/>Press <kbd>▶ Run</kbd> to execute Python in your browser via WebAssembly.</p>
+            <p>Open a repository, click a file to edit.<br/>Press <kbd>▶ Run</kbd> to execute in the browser.</p>
           </div>
-          <div id="monaco-editor" style="display:none;height:100%"></div>
+          <div id="me" style="display:none"></div>
+          <iframe id="preview-panel" sandbox="allow-scripts allow-same-origin" title="Preview"></iframe>
         </div>
-
-        <div id="resize-handle"></div>
-
-        <div id="bottom-panel">
-          <div class="panel-tabs">
-            <div class="panel-tab active" onclick="switchPanel('terminal')" id="panel-tab-terminal">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        <div id="rh"></div>
+        <!-- Bottom panel -->
+        <div id="bp">
+          <div class="p-tabs">
+            <div class="p-tab active" id="pt-terminal" onclick="switchPanel('terminal')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
               Terminal
             </div>
-            <div class="panel-tab" onclick="switchPanel('ai')" id="panel-tab-ai">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <div class="p-tab" id="pt-ai" onclick="switchPanel('ai')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               AI Assistant
             </div>
-            <div class="panel-actions">
-              <button class="btn-icon" onclick="clearTerminal()" title="Clear">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path></svg>
+            <div class="p-acts">
+              <button class="btn-icon" onclick="clearTerm()" title="Clear terminal">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+              </button>
+              <button class="btn-icon" onclick="togglePanel()" title="Close panel">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
           </div>
-          <div class="panel-content active" id="panel-terminal">
-            <div id="terminal"></div>
-            <div id="term-input-row">
-              <span id="term-prompt-label">❯</span>
-              <input id="term-input" placeholder="Python REPL…" onkeydown="termKeyDown(event)" autocomplete="off" spellcheck="false" />
-            </div>
+          <div class="p-content active" id="pc-terminal">
+            <div id="term"></div>
+            <div id="tinr"><span id="tprompt">❯</span><input id="tinput" placeholder="REPL…" onkeydown="tKeyDown(event)" autocomplete="off" spellcheck="false"/></div>
           </div>
-          <div class="panel-content" id="panel-ai">
-            <div id="ai-panel">
-              <div id="ai-messages">
-                <div class="ai-msg assistant">
-                  <div class="ai-msg-avatar">AI</div>
-                  <div class="ai-msg-body">
-                    <div class="ai-msg-role">Claude</div>
-                    <div class="ai-msg-text">Hi! I'm your AI coding assistant. I can help you understand code, fix bugs, explain errors, or generate new code. Open a file and ask me anything!</div>
-                  </div>
+          <div class="p-content" id="pc-ai">
+            <div id="ai-wrap">
+              <div id="ai-msgs">
+                <div class="am assistant">
+                  <div class="am-av">AI</div>
+                  <div class="am-b"><div class="am-r">Claude</div>
+                  <div class="am-t">Hi! I'm your AI assistant. Open a file and ask me anything about your code!</div></div>
                 </div>
               </div>
-              <div id="ai-input-row">
-                <textarea id="ai-input" placeholder="Ask about your code…" onkeydown="aiKeyDown(event)"></textarea>
-                <button class="btn-send" onclick="sendAiMessage()" id="ai-send-btn">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              <div id="ai-inp-row">
+                <textarea id="ai-inp" placeholder="Ask about your code… (Enter to send)" onkeydown="aiKey(event)"></textarea>
+                <button class="btn-send" onclick="sendAI()" id="ai-send">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
               </div>
             </div>
@@ -547,594 +339,530 @@
 
   <!-- Statusbar -->
   <div id="statusbar">
-    <div class="status-item">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-      <span id="status-repo">No repo</span>
+    <div class="si"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg><span id="s-repo">No repo</span></div>
+    <div class="si"><span id="s-file" style="color:var(--text3)">No file</span></div>
+    <div class="si"><span id="s-lang" style="color:var(--text3)"></span></div>
+    <div class="si r" id="s-runtime"><span class="spin">⟳</span> Loading runtime…</div>
+  </div>
+</div>
+
+<!-- REPO MODAL -->
+<div class="modal" id="modal-repo">
+  <div class="mbox">
+    <div class="mhdr"><h3>Open Repository</h3>
+      <button class="btn-icon" onclick="closeModal('repo')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="status-item">
-      <span id="status-file" style="color:var(--text3)">No file open</span>
+    <input id="repo-search" placeholder="Search repositories…" oninput="filterRepos()"/>
+    <div id="repo-list"><div style="padding:16px;color:var(--text3);font-size:12px">Loading…</div></div>
+  </div>
+</div>
+
+<!-- COMMIT MODAL -->
+<div class="modal" id="modal-commit">
+  <div class="mbox">
+    <div class="mhdr"><h3>Commit & Push</h3>
+      <button class="btn-icon" onclick="closeModal('commit')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="status-item right" id="pyodide-status">
-      <span class="spinner">⟳</span> Loading Python runtime…
+    <div class="mbody">
+      <p>File: <strong id="commit-file" style="color:var(--text)"></strong></p>
+      <textarea class="modal-ta" id="commit-msg" placeholder="Commit message…"></textarea>
+    </div>
+    <div class="mftr">
+      <button class="btn-cancel" onclick="closeModal('commit')">Cancel</button>
+      <button class="btn-ok" onclick="doCommit()">Commit & Push</button>
     </div>
   </div>
 </div>
 
-<!-- ── Repo Modal ──────────────────────────────────────────── -->
-<div id="repo-modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>Open Repository</h3>
-      <button class="btn-icon" onclick="closeRepoModal()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>
-    </div>
-    <input id="repo-search" placeholder="Search repositories…" oninput="filterRepos()" />
-    <div id="repo-list"><div style="padding:16px;color:var(--text3);font-size:12px">Loading repositories…</div></div>
-  </div>
-</div>
-
-<!-- ── Commit Modal ───────────────────────────────────────── -->
-<div id="commit-modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>Commit Changes</h3>
-      <button class="btn-icon" onclick="closeCommitModal()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <p>Committing <strong id="commit-file-label" style="color:var(--text)"></strong></p>
-      <textarea id="commit-msg" placeholder="Commit message…"></textarea>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeCommitModal()">Cancel</button>
-      <button class="btn-commit" onclick="commitFile()">Commit & Push</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── Notifications ──────────────────────────────────────── -->
 <div id="notif"></div>
-
-<!-- Monaco loader -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
-
 <script>
-// ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 // CONFIG
-// ────────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://uvslkqxtkortoiacmknw.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_7kz7TnR6P4cwRVlr7C_0bA_iqtTVwiF';
-const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+// ═══════════════════════════════════════════════════════
+const SB_URL  = 'https://uvslkqxtkortoiacmknw.supabase.co';
+const SB_KEY  = 'sb_publishable_7kz7TnR6P4cwRVlr7C_0bA_iqtTVwiF';
+const AI_URL  = `${SB_URL}/functions/v1/ai-proxy`;
 
-// ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 // STATE
-// ────────────────────────────────────────────────────────────
-let session = null;
-let ghToken = null;
-let currentRepo = null;
-let currentBranch = 'main';
-let openTabs = [];       // [{path, content, sha, modified, lang}]
-let activeTab = null;
-let monacoEditor = null;
-let pyodide = null;
-let pyReady = false;
-let allRepos = [];
-let aiHistory = [];
+// ═══════════════════════════════════════════════════════
+let session=null, ghToken=null, curRepo=null, curBranch='main';
+let tabs=[], activeTab=null, editor=null;
+let pyodide=null, pyReady=false;
+let allRepos=[], aiHistory=[];
+let panelVisible=true;
 
-// ────────────────────────────────────────────────────────────
-// INIT
-// ────────────────────────────────────────────────────────────
-async function init() {
-  // Check for hash fragment (Supabase OAuth callback)
-  const hash = window.location.hash;
-  if (hash) {
-    const params = new URLSearchParams(hash.slice(1));
-    const accessToken = params.get('access_token');
-    const providerToken = params.get('provider_token');
-    if (accessToken) {
-      session = { access_token: accessToken };
-      ghToken = providerToken;
-      history.replaceState(null, '', window.location.pathname);
-      await loadUser();
-      return;
-    }
+// ═══════════════════════════════════════════════════════
+// LANG MAP
+// ═══════════════════════════════════════════════════════
+const LANG_MAP={
+  py:'python',js:'javascript',ts:'typescript',jsx:'javascript',tsx:'typescript',
+  json:'json',md:'markdown',css:'css',html:'html',sh:'shell',
+  yml:'yaml',yaml:'yaml',rs:'rust',go:'go',java:'java',
+  c:'c',cpp:'cpp',cs:'csharp',rb:'ruby',php:'php',
+  vue:'html',svelte:'html',kt:'kotlin',swift:'swift',
+  sql:'sql',graphql:'graphql',env:'ini',toml:'ini',
+  xml:'xml',txt:'plaintext'
+};
+const RUNNABLE = new Set(['python','javascript','typescript','html']);
+const ICON_MAP={
+  py:'🐍',js:'⚡',ts:'🔷',jsx:'⚛',tsx:'⚛',json:'{}',md:'📝',
+  css:'🎨',html:'🌐',yml:'⚙',yaml:'⚙',sh:'💻',rs:'🦀',
+  go:'🐹',java:'☕',rb:'💎',php:'🐘',vue:'💚',svelte:'🧡',
+  sql:'🗄',xml:'📋',txt:'📄',toml:'⚙',env:'🔐',
+};
+function langFromPath(p=''){const e=p.split('.').pop()?.toLowerCase();return LANG_MAP[e]||'plaintext';}
+function iconFromPath(p=''){const e=p.split('.').pop()?.toLowerCase();return ICON_MAP[e]||'📄';}
+const LANG_COLORS={python:'#3b82f6',javascript:'#eab308',typescript:'#3b82f6',html:'#f97316',css:'#a855f7',rust:'#f97316',go:'#22c55e',ruby:'#ef4444',java:'#f97316'};
+
+// ═══════════════════════════════════════════════════════
+// INIT / AUTH
+// ═══════════════════════════════════════════════════════
+async function init(){
+  const hash=window.location.hash;
+  if(hash){
+    const p=new URLSearchParams(hash.slice(1));
+    const at=p.get('access_token'), pt=p.get('provider_token');
+    if(at){session={access_token:at};ghToken=pt;history.replaceState(null,'',location.pathname);await loadUser();return;}
   }
-  // Try stored session
-  const stored = sessionStorage.getItem('fc_session');
-  if (stored) {
-    try {
-      const s = JSON.parse(stored);
-      session = s.session;
-      ghToken = s.ghToken;
-      await loadUser();
-      return;
-    } catch {}
-  }
+  const stored=sessionStorage.getItem('fc');
+  if(stored){try{const s=JSON.parse(stored);session=s.s;ghToken=s.g;await loadUser();return;}catch{}}
   showAuth();
 }
-
-async function loadUser() {
-  const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-    headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${session.access_token}` }
-  }).catch(() => null);
-  if (!r || !r.ok) { showAuth(); return; }
-  const user = await r.json();
-  sessionStorage.setItem('fc_session', JSON.stringify({ session, ghToken }));
-  document.getElementById('user-avatar').src = user.user_metadata?.avatar_url || '';
-  document.getElementById('user-name-item').textContent = user.user_metadata?.full_name || user.email;
-  showIDE();
-  initMonaco();
-  loadPyodide();
+async function loadUser(){
+  const r=await fetch(`${SB_URL}/auth/v1/user`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`}}).catch(()=>null);
+  if(!r||!r.ok){showAuth();return;}
+  const u=await r.json();
+  sessionStorage.setItem('fc',JSON.stringify({s:session,g:ghToken}));
+  document.getElementById('u-avatar').src=u.user_metadata?.avatar_url||'';
+  document.getElementById('u-name').textContent=u.user_metadata?.full_name||u.email;
+  showIDE();initMonaco();loadPyodide();
 }
-
-function showAuth() {
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('ide').classList.remove('visible');
+function showAuth(){document.getElementById('auth').style.display='flex';document.getElementById('ide').classList.remove('on');}
+function showIDE(){document.getElementById('auth').style.display='none';document.getElementById('ide').classList.add('on');}
+function signIn(){const r=encodeURIComponent(location.href.split('#')[0]);location.href=`${SB_URL}/auth/v1/authorize?provider=github&redirect_to=${r}&scopes=repo`;}
+async function signOut(){
+  await fetch(`${SB_URL}/auth/v1/logout`,{method:'POST',headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`}}).catch(()=>{});
+  sessionStorage.removeItem('fc');session=null;ghToken=null;toggleUMenu();showAuth();
 }
+function toggleUMenu(){document.getElementById('umenu').classList.toggle('on');}
 
-function showIDE() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('ide').classList.add('visible');
-}
-
-function signInWithGitHub() {
-  const redirect = encodeURIComponent(window.location.href.split('#')[0]);
-  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=github&redirect_to=${redirect}&scopes=repo`;
-}
-
-async function signOut() {
-  await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
-    method: 'POST',
-    headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${session.access_token}` }
-  }).catch(() => {});
-  sessionStorage.removeItem('fc_session');
-  session = null; ghToken = null;
-  toggleUserMenu();
-  showAuth();
-}
-
-// ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 // MONACO
-// ────────────────────────────────────────────────────────────
-function initMonaco() {
-  require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
-  require(['vs/editor/editor.main'], () => {
-    monaco.editor.defineTheme('flashcode', {
-      base: 'vs-dark', inherit: true,
-      rules: [
-        { token: 'comment', foreground: '6a9955' },
-        { token: 'keyword', foreground: '569cd6', fontStyle: 'bold' },
-        { token: 'string', foreground: 'ce9178' },
-        { token: 'number', foreground: 'b5cea8' },
-      ],
-      colors: {
-        'editor.background': '#141414',
-        'editor.lineHighlightBackground': '#1a1a1a',
-        'editorLineNumber.foreground': '#444',
-        'editorLineNumber.activeForeground': '#888',
-        'editor.selectionBackground': '#264f78',
-        'editorIndentGuide.background': '#2a2a2a',
-      }
+// ═══════════════════════════════════════════════════════
+function initMonaco(){
+  require.config({paths:{vs:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'}});
+  require(['vs/editor/editor.main'],()=>{
+    monaco.editor.defineTheme('fc',{
+      base:'vs-dark',inherit:true,
+      rules:[{token:'comment',foreground:'6a9955'},{token:'keyword',foreground:'569cd6',fontStyle:'bold'},{token:'string',foreground:'ce9178'},{token:'number',foreground:'b5cea8'}],
+      colors:{'editor.background':'#141414','editor.lineHighlightBackground':'#1a1a1a','editorLineNumber.foreground':'#444','editorLineNumber.activeForeground':'#888','editor.selectionBackground':'#264f78'}
     });
-    monacoEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
-      theme: 'flashcode',
-      language: 'python',
-      fontSize: 13,
-      fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
-      fontLigatures: true,
-      lineHeight: 20,
-      minimap: { enabled: false },
-      scrollBeyondLastLine: false,
-      renderWhitespace: 'selection',
-      smoothScrolling: true,
-      cursorBlinking: 'smooth',
-      wordWrap: 'on',
-      automaticLayout: true,
+    editor=monaco.editor.create(document.getElementById('me'),{
+      theme:'fc',language:'python',fontSize:13,fontFamily:"'Fira Code','Cascadia Code',Consolas,monospace",
+      fontLigatures:true,lineHeight:20,minimap:{enabled:false},scrollBeyondLastLine:false,
+      smoothScrolling:true,cursorBlinking:'smooth',wordWrap:'on',automaticLayout:true,
     });
-    monacoEditor.onDidChangeModelContent(() => {
-      if (activeTab) {
-        activeTab.content = monacoEditor.getValue();
-        activeTab.modified = true;
-        renderTabs();
-        document.getElementById('save-btn').style.display = 'flex';
-      }
-    });
-    monacoEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, openCommitModal);
+    editor.onDidChangeModelContent(()=>{if(activeTab){activeTab.content=editor.getValue();activeTab.mod=true;renderTabs();showCommitBtn();}});
+    editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyS,openCommitModal);
+    editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.Enter,runCode);
   });
 }
+function setEditorLang(lang){if(editor){const m=editor.getModel();if(m)monaco.editor.setModelLanguage(m,lang);}}
 
-// ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 // PYODIDE
-// ────────────────────────────────────────────────────────────
-async function loadPyodide() {
-  termLine('Loading Python 3 (WebAssembly)…', 'info');
-  try {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
-    document.head.appendChild(script);
-    await new Promise((res, rej) => { script.onload = res; script.onerror = rej; });
-    pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/' });
-    pyReady = true;
-    document.getElementById('pyodide-status').innerHTML = '<span style="color:var(--green)">●</span> Python 3.11 (WASM) ready';
-    termLine('Python 3.11 ready. Type Python or click ▶ Run.', 'success');
-    document.getElementById('run-btn').disabled = false;
-  } catch (e) {
-    document.getElementById('pyodide-status').innerHTML = '<span style="color:var(--red)">●</span> Python unavailable';
-    termLine('Failed to load Python runtime: ' + e.message, 'error');
+// ═══════════════════════════════════════════════════════
+async function loadPyodide(){
+  tLog('Loading Python 3.11 (WebAssembly)…','i');
+  try{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';
+    document.head.appendChild(s);
+    await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;});
+    pyodide=await loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/'});
+    pyReady=true;
+    document.getElementById('s-runtime').innerHTML='<span style="color:var(--green)">●</span> Python 3.11 (WASM)';
+    tLog('Python 3.11 ready. Run Python files or type in the REPL.','s');
+    document.getElementById('run-btn').disabled=false;
+  }catch(e){
+    document.getElementById('s-runtime').innerHTML='<span style="color:var(--red)">●</span> Python unavailable';
+    tLog('Failed to load Python: '+e.message,'e');
   }
 }
 
-// ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 // TERMINAL
-// ────────────────────────────────────────────────────────────
-function termLine(text, cls = 'output') {
-  const div = document.createElement('div');
-  div.className = `term-line term-${cls}`;
-  div.textContent = text;
-  document.getElementById('terminal').appendChild(div);
-  document.getElementById('terminal').scrollTop = 9999;
+// ═══════════════════════════════════════════════════════
+const CLS={i:'ti',s:'ts',e:'te',w:'tw',p:'tp',o:'to'};
+function tLog(txt,cls='o'){
+  const d=document.createElement('div');
+  d.className='tl '+(CLS[cls]||'to');d.textContent=txt;
+  document.getElementById('term').appendChild(d);
+  document.getElementById('term').scrollTop=9999;
 }
-
-function clearTerminal() {
-  document.getElementById('terminal').innerHTML = '';
-}
-
-function termKeyDown(e) {
-  if (e.key === 'Enter') {
-    const val = e.target.value.trim();
-    if (!val) return;
-    termLine('❯ ' + val, 'prompt');
-    e.target.value = '';
-    execPython(val);
+function clearTerm(){document.getElementById('term').innerHTML='';}
+function tKeyDown(e){
+  if(e.key==='Enter'){
+    const v=e.target.value.trim();if(!v)return;
+    tLog('❯ '+v,'p');e.target.value='';
+    execPy(v);
   }
 }
+async function execPy(code){
+  if(!pyReady){tLog('Python not ready.','w');return;}
+  try{
+    pyodide.runPython(`import sys,io\n_o,_e=sys.stdout,sys.stderr\nsys.stdout=io.StringIO()\nsys.stderr=io.StringIO()`);
+    try{pyodide.runPython(code);}
+    catch(err){pyodide.runPython(`sys.stdout=_o;sys.stderr=_e`);tLog(err.message,'e');return;}
+    const out=pyodide.runPython(`_s=sys.stdout.getvalue();sys.stdout=_o;sys.stderr=_e;_s`);
+    if(out)tLog(out.trimEnd(),'o');else tLog('✓','s');
+  }catch(err){tLog(err.message,'e');}
+}
 
-async function execPython(code) {
-  if (!pyReady) { termLine('Python runtime not ready.', 'warn'); return; }
-  try {
-    pyodide.runPython(`
-import sys, io
-_old_out, _old_err = sys.stdout, sys.stderr
-sys.stdout = io.StringIO()
-sys.stderr = io.StringIO()
-`);
-    try {
-      pyodide.runPython(code);
-    } catch (err) {
-      pyodide.runPython(`sys.stdout = _old_out; sys.stderr = _old_err`);
-      termLine(err.message, 'error'); return;
-    }
-    const out = pyodide.runPython(`_s = sys.stdout.getvalue(); sys.stdout = _old_out; sys.stderr = _old_err; _s`);
-    if (out) termLine(out.trimEnd(), 'output');
-    else termLine('✓', 'success');
-  } catch (err) {
-    termLine(err.message, 'error');
+// ═══════════════════════════════════════════════════════
+// RUN CODE — language aware
+// ═══════════════════════════════════════════════════════
+async function runCode(){
+  if(!activeTab){tLog('No file open.','w');return;}
+  const lang=activeTab.lang;
+  const code=editor?editor.getValue():activeTab.content;
+
+  if(lang==='html'){
+    // show in preview panel
+    showPreview(code);
+    notify('Rendered in Preview tab','s');
+    return;
   }
+  if(lang==='python'){
+    switchPanel('terminal');if(panelVisible===false)togglePanel();
+    tLog(`\n▶ Running ${activeTab.path} (Python)…`,'i');
+    await execPy(code);return;
+  }
+  if(lang==='javascript'||lang==='typescript'){
+    switchPanel('terminal');if(panelVisible===false)togglePanel();
+    tLog(`\n▶ Running ${activeTab.path} (JS sandbox)…`,'i');
+    try{
+      const blob=new Blob([code],{type:'text/javascript'});
+      const url=URL.createObjectURL(blob);
+      const logs=[];
+      const w=new Worker(url);
+      w.onmessage=e=>tLog(String(e.data),'o');
+      w.onerror=e=>tLog(e.message,'e');
+      setTimeout(()=>{w.terminate();URL.revokeObjectURL(url);},10000);
+      tLog('Worker started. Use postMessage() to send output.','i');
+    }catch(e){tLog(e.message,'e');}
+    return;
+  }
+  tLog(`Cannot run ${lang} files in the browser.`,'w');
 }
 
-async function runCode() {
-  if (!activeTab) { termLine('No file open.', 'warn'); return; }
-  switchPanel('terminal');
-  termLine(`\n▶ Running ${activeTab.path}…`, 'info');
-  await execPython(activeTab.content);
+function showPreview(html){
+  const iframe=document.getElementById('preview-panel');
+  document.getElementById('me').style.display='none';
+  document.getElementById('welcome').style.display='none';
+  iframe.style.display='block';
+  iframe.srcdoc=html;
+  // switch activity to preview
+  document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.act-btn[title="Preview"]').classList.add('on');
 }
 
-// ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 // GITHUB
-// ────────────────────────────────────────────────────────────
-function ghHeaders() {
-  return { Authorization: `Bearer ${ghToken}`, Accept: 'application/vnd.github+json' };
-}
+// ═══════════════════════════════════════════════════════
+function ghH(){return{Authorization:`Bearer ${ghToken}`,Accept:'application/vnd.github+json'};}
 
-async function openRepoModal() {
-  document.getElementById('repo-modal').classList.add('open');
-  document.getElementById('repo-search').value = '';
-  if (!ghToken) { document.getElementById('repo-list').innerHTML = '<div style="padding:16px;color:var(--red);font-size:12px">No GitHub token. Please sign in again.</div>'; return; }
-  document.getElementById('repo-list').innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">Loading…</div>';
-  const r = await fetch('https://api.github.com/user/repos?per_page=50&sort=updated', { headers: ghHeaders() });
-  allRepos = r.ok ? await r.json() : [];
+async function openRepoModal(){
+  document.getElementById('modal-repo').classList.add('on');
+  document.getElementById('repo-search').value='';
+  if(!ghToken){document.getElementById('repo-list').innerHTML='<div style="padding:16px;color:var(--red);font-size:12px">No GitHub token. Sign in again.</div>';return;}
+  document.getElementById('repo-list').innerHTML='<div style="padding:16px;color:var(--text3);font-size:12px">Loading…</div>';
+  const r=await fetch('https://api.github.com/user/repos?per_page=50&sort=updated',{headers:ghH()});
+  allRepos=r.ok?await r.json():[];
   renderRepoList(allRepos);
 }
-
-function closeRepoModal() { document.getElementById('repo-modal').classList.remove('open'); }
-
-function renderRepoList(repos) {
-  const el = document.getElementById('repo-list');
-  if (!repos.length) { el.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px">No repositories found.</div>'; return; }
-  el.innerHTML = repos.map(r => `
-    <div class="repo-item" onclick="selectRepo('${r.full_name}', '${r.default_branch || 'main'}')">
-      <div class="repo-item-name">${r.name}</div>
-      <div class="repo-item-meta">${r.full_name} · ${r.private ? '🔒 Private' : '🌍 Public'} · ${r.language ? `<span class="repo-item-lang"><span class="lang-dot"></span>${r.language}</span>` : ''}</div>
-    </div>`).join('');
+function closeModal(name){document.getElementById('modal-'+name).classList.remove('on');}
+function renderRepoList(repos){
+  const el=document.getElementById('repo-list');
+  if(!repos.length){el.innerHTML='<div style="padding:16px;color:var(--text3);font-size:12px">No repos found.</div>';return;}
+  el.innerHTML=repos.map(r=>`<div class="ri" onclick="selectRepo('${r.full_name}','${r.default_branch||'main'}')">
+    <div class="ri-n">${r.name}</div>
+    <div class="ri-m">${r.full_name} · ${r.private?'🔒':'🌍'} · ${r.language||''}</div></div>`).join('');
 }
-
-function filterRepos() {
-  const q = document.getElementById('repo-search').value.toLowerCase();
-  renderRepoList(allRepos.filter(r => r.full_name.toLowerCase().includes(q)));
+function filterRepos(){
+  const q=document.getElementById('repo-search').value.toLowerCase();
+  renderRepoList(allRepos.filter(r=>r.full_name.toLowerCase().includes(q)));
 }
-
-async function selectRepo(fullName, branch) {
-  closeRepoModal();
-  currentRepo = fullName;
-  currentBranch = branch || 'main';
-  document.getElementById('repo-label').textContent = fullName;
-  document.getElementById('branch-badge').style.display = 'flex';
-  document.getElementById('branch-badge').textContent = currentBranch;
-  document.getElementById('status-repo').textContent = fullName;
+async function selectRepo(full,branch){
+  closeModal('repo');curRepo=full;curBranch=branch||'main';
+  document.getElementById('repo-lbl').textContent=full;
+  const bb=document.getElementById('br-badge');bb.style.display='flex';bb.textContent=curBranch;
+  document.getElementById('s-repo').textContent=full;
   await refreshTree();
 }
-
-async function refreshTree() {
-  if (!currentRepo) return;
-  const [owner, repo] = currentRepo.split('/');
-  document.getElementById('file-tree').innerHTML = '<div class="sidebar-empty">Loading…</div>';
-  const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${currentBranch}?recursive=1`, { headers: ghHeaders() });
-  if (!r.ok) { document.getElementById('file-tree').innerHTML = '<div class="sidebar-empty" style="color:var(--red)">Failed to load tree.</div>'; return; }
-  const data = await r.json();
-  renderTree(data.tree || []);
+async function refreshTree(){
+  if(!curRepo)return;
+  const[owner,repo]=curRepo.split('/');
+  document.getElementById('ftree').innerHTML='<div class="sb-empty">Loading…</div>';
+  const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${curBranch}?recursive=1`,{headers:ghH()});
+  if(!r.ok){document.getElementById('ftree').innerHTML='<div class="sb-empty" style="color:var(--red)">Failed to load.</div>';return;}
+  const data=await r.json();
+  buildTree(data.tree||[]);
 }
 
-function renderTree(items) {
-  const el = document.getElementById('file-tree');
-  const files = items.filter(i => i.type === 'blob').sort((a, b) => {
-    const da = a.path.split('/').length, db = b.path.split('/').length;
-    if (da !== db) return da - db;
-    return a.path.localeCompare(b.path);
+// ── Collapsible folder tree ──────────────────────────────
+function buildTree(items){
+  // Build nested structure
+  const root={children:{},files:[]};
+  items.filter(i=>i.type==='blob').forEach(f=>{
+    const parts=f.path.split('/');
+    let node=root;
+    for(let i=0;i<parts.length-1;i++){
+      const part=parts[i];
+      if(!node.children[part])node.children[part]={children:{},files:[],path:parts.slice(0,i+1).join('/')};
+      node=node.children[part];
+    }
+    node.files.push({name:parts[parts.length-1],path:f.path});
   });
-  if (!files.length) { el.innerHTML = '<div class="sidebar-empty">No files found.</div>'; return; }
-  const extIcon = p => {
-    const e = p.split('.').pop()?.toLowerCase();
-    const m = { py:'🐍', js:'⚡', ts:'🔷', jsx:'⚛', tsx:'⚛', json:'{}', md:'📝', css:'🎨', html:'🌐', yml:'⚙', yaml:'⚙', sh:'💻', txt:'📄' };
-    return m[e] || '📄';
-  };
-  el.innerHTML = files.map(f => {
-    const depth = f.path.split('/').length - 1;
-    const name = f.path.split('/').pop();
-    const indent = '&nbsp;'.repeat(depth * 3);
-    return `<div class="tree-item" onclick="openFile('${f.path}')" title="${f.path}">
-      <span>${indent}${extIcon(f.path)}</span>
-      <span class="tree-item-name">${name}</span>
-    </div>`;
-  }).join('');
+  const el=document.getElementById('ftree');
+  el.innerHTML='';
+  renderNode(root,el,0);
+}
+function renderNode(node,container,depth){
+  // Dirs first
+  Object.keys(node.children).sort().forEach(name=>{
+    const child=node.children[name];
+    const pad=depth*14+8;
+    const dir=document.createElement('div');
+    dir.className='t-dir';
+    dir.style.paddingLeft=pad+'px';
+    dir.dataset.path=child.path;
+    dir.innerHTML=`<svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg><span>📁</span><span class="t-name">${name}</span>`;
+    const kids=document.createElement('div');
+    kids.className='t-children';
+    dir.onclick=()=>{dir.classList.toggle('open');kids.classList.toggle('open');};
+    container.appendChild(dir);
+    container.appendChild(kids);
+    renderNode(child,kids,depth+1);
+  });
+  // Then files
+  node.files.sort((a,b)=>a.name.localeCompare(b.name)).forEach(f=>{
+    const pad=depth*14+8;
+    const el=document.createElement('div');
+    el.className='t-file';
+    el.style.paddingLeft=pad+'px';
+    el.title=f.path;
+    el.innerHTML=`<span>${iconFromPath(f.path)}</span><span class="t-name">${f.name}</span>`;
+    el.onclick=()=>openFile(f.path);
+    container.appendChild(el);
+  });
 }
 
-async function openFile(path) {
-  // Check if already open
-  let tab = openTabs.find(t => t.path === path);
-  if (!tab) {
-    const [owner, repo] = currentRepo.split('/');
-    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${currentBranch}`, { headers: ghHeaders() });
-    if (!r.ok) { notify('Failed to load file', 'error'); return; }
-    const data = await r.json();
-    const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-    tab = { path, content, sha: data.sha, modified: false, lang: langFromPath(path) };
-    openTabs.push(tab);
+async function openFile(path){
+  let tab=tabs.find(t=>t.path===path);
+  if(!tab){
+    const[owner,repo]=curRepo.split('/');
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${curBranch}`,{headers:ghH()});
+    if(!r.ok){notify('Failed to load file','e');return;}
+    const d=await r.json();
+    const content=decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));
+    tab={path,content,sha:d.sha,mod:false,lang:langFromPath(path)};
+    tabs.push(tab);
   }
   setActiveTab(tab);
 }
-
-function setActiveTab(tab) {
-  activeTab = tab;
-  document.getElementById('welcome').style.display = 'none';
-  document.getElementById('monaco-editor').style.display = 'block';
-  if (monacoEditor) {
-    const model = monaco.editor.createModel(tab.content, tab.lang);
-    monacoEditor.setModel(model);
+function setActiveTab(tab){
+  activeTab=tab;
+  // Hide preview, show editor
+  document.getElementById('preview-panel').style.display='none';
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('me').style.display='block';
+  if(editor){
+    const m=monaco.editor.createModel(tab.content,tab.lang);
+    editor.setModel(m);
   }
-  document.getElementById('status-file').textContent = tab.path;
-  if (document.getElementById('save-btn')) document.getElementById('save-btn').style.display = tab.modified ? 'flex' : 'none';
+  document.getElementById('s-file').textContent=tab.path.split('/').pop();
+  const lc=LANG_COLORS[tab.lang]||'var(--text3)';
+  document.getElementById('s-lang').innerHTML=`<span class="lang-badge" style="background:${lc}22;color:${lc}">${tab.lang}</span>`;
+  // run button only for runnable langs
+  document.getElementById('run-btn').disabled=!RUNNABLE.has(tab.lang)||(!pyReady&&tab.lang==='python');
+  showCommitBtn();
   renderTabs();
-  // Highlight active in tree
-  document.querySelectorAll('.tree-item').forEach(el => {
-    el.classList.toggle('active', el.title === tab.path);
-  });
+  // tree highlight
+  document.querySelectorAll('.t-file').forEach(el=>el.classList.toggle('active',el.title===tab.path));
 }
-
-function closeTab(path, e) {
+function showCommitBtn(){
+  const btn=document.getElementById('commit-btn');
+  btn.style.display=(activeTab&&activeTab.mod)?'flex':'none';
+}
+function closeTab(path,e){
   e?.stopPropagation();
-  const idx = openTabs.findIndex(t => t.path === path);
-  if (idx === -1) return;
-  openTabs.splice(idx, 1);
-  if (activeTab?.path === path) {
-    activeTab = openTabs[Math.min(idx, openTabs.length - 1)] || null;
-    if (activeTab) setActiveTab(activeTab);
-    else {
-      document.getElementById('welcome').style.display = 'flex';
-      document.getElementById('monaco-editor').style.display = 'none';
-      document.getElementById('status-file').textContent = 'No file open';
-      document.getElementById('save-btn').style.display = 'none';
+  const idx=tabs.findIndex(t=>t.path===path);
+  if(idx<0)return;
+  tabs.splice(idx,1);
+  if(activeTab?.path===path){
+    activeTab=tabs[Math.min(idx,tabs.length-1)]||null;
+    if(activeTab)setActiveTab(activeTab);
+    else{
+      document.getElementById('welcome').style.display='flex';
+      document.getElementById('me').style.display='none';
+      document.getElementById('s-file').textContent='No file';
+      document.getElementById('s-lang').textContent='';
+      document.getElementById('commit-btn').style.display='none';
     }
   }
   renderTabs();
 }
-
-function renderTabs() {
-  const bar = document.getElementById('tabbar');
-  const noTabs = document.getElementById('no-tabs');
-  if (!openTabs.length) { noTabs.style.display = 'flex'; bar.querySelectorAll('.tab').forEach(e => e.remove()); return; }
-  noTabs.style.display = 'none';
-  bar.querySelectorAll('.tab').forEach(e => e.remove());
-  openTabs.forEach(t => {
-    const div = document.createElement('div');
-    div.className = `tab${t === activeTab ? ' active' : ''}${t.modified ? ' modified' : ''}`;
-    div.innerHTML = `<span>${t.path.split('/').pop()}</span><button class="tab-close" onclick="closeTab('${t.path}', event)">×</button>`;
-    div.onclick = () => setActiveTab(t);
-    bar.appendChild(div);
+function renderTabs(){
+  const bar=document.getElementById('tabbar');
+  document.getElementById('no-tabs').style.display=tabs.length?'none':'flex';
+  bar.querySelectorAll('.tab').forEach(e=>e.remove());
+  tabs.forEach(t=>{
+    const d=document.createElement('div');
+    d.className=`tab${t===activeTab?' active':''}${t.mod?' mod':''}`;
+    d.innerHTML=`<span>${t.path.split('/').pop()}</span><button class="tab-x" onclick="closeTab('${t.path}',event)">×</button>`;
+    d.onclick=()=>setActiveTab(t);
+    bar.appendChild(d);
   });
 }
 
-function langFromPath(p = '') {
-  const ext = p.split('.').pop()?.toLowerCase();
-  return { py:'python', js:'javascript', ts:'typescript', jsx:'javascript', tsx:'typescript', json:'json', md:'markdown', css:'css', html:'html', sh:'shell', yml:'yaml', yaml:'yaml' }[ext] || 'plaintext';
-}
-
-// ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 // COMMIT
-// ────────────────────────────────────────────────────────────
-function openCommitModal() {
-  if (!activeTab) return;
-  document.getElementById('commit-file-label').textContent = activeTab.path;
-  document.getElementById('commit-msg').value = `Update ${activeTab.path}`;
-  document.getElementById('commit-modal').classList.add('open');
+// ═══════════════════════════════════════════════════════
+function openCommitModal(){
+  if(!activeTab)return;
+  document.getElementById('commit-file').textContent=activeTab.path;
+  document.getElementById('commit-msg').value=`Update ${activeTab.path}`;
+  document.getElementById('modal-commit').classList.add('on');
 }
-
-function closeCommitModal() { document.getElementById('commit-modal').classList.remove('open'); }
-
-async function commitFile() {
-  if (!activeTab || !currentRepo) return;
-  const msg = document.getElementById('commit-msg').value.trim() || `Update ${activeTab.path}`;
-  const [owner, repo] = currentRepo.split('/');
-  // Sync latest editor content
-  if (monacoEditor) activeTab.content = monacoEditor.getValue();
-  const encoded = btoa(unescape(encodeURIComponent(activeTab.content)));
-  const body = { message: msg, content: encoded, sha: activeTab.sha, branch: currentBranch };
-  closeCommitModal();
-  const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${activeTab.path}`, {
-    method: 'PUT', headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+async function doCommit(){
+  if(!activeTab||!curRepo)return;
+  const msg=document.getElementById('commit-msg').value.trim()||`Update ${activeTab.path}`;
+  const[owner,repo]=curRepo.split('/');
+  if(editor)activeTab.content=editor.getValue();
+  const encoded=btoa(unescape(encodeURIComponent(activeTab.content)));
+  closeModal('commit');
+  const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${activeTab.path}`,{
+    method:'PUT',headers:{...ghH(),'Content-Type':'application/json'},
+    body:JSON.stringify({message:msg,content:encoded,sha:activeTab.sha,branch:curBranch})
   });
-  if (r.ok) {
-    const data = await r.json();
-    activeTab.sha = data.content.sha;
-    activeTab.modified = false;
-    renderTabs();
-    document.getElementById('save-btn').style.display = 'none';
-    notify(`Committed: ${activeTab.path}`, 'success');
-  } else {
-    const err = await r.json();
-    notify(`Commit failed: ${err.message}`, 'error');
+  if(r.ok){
+    const d=await r.json();
+    activeTab.sha=d.content.sha;activeTab.mod=false;
+    renderTabs();document.getElementById('commit-btn').style.display='none';
+    notify(`Committed: ${activeTab.path}`,'s');
+  }else{
+    const err=await r.json();notify('Commit failed: '+err.message,'e');
   }
 }
 
-// ────────────────────────────────────────────────────────────
-// AI ASSISTANT
-// ────────────────────────────────────────────────────────────
-function aiKeyDown(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAiMessage(); }
-}
-
-async function sendAiMessage() {
-  const input = document.getElementById('ai-input');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  appendAiMsg('user', text);
-  aiHistory.push({ role: 'user', content: text });
-  document.getElementById('ai-send-btn').disabled = true;
-
-  // Include current file context
-  const ctx = activeTab
-    ? `The user is working on file \`${activeTab.path}\` (${activeTab.lang}) in the ${currentRepo} repository.\n\nCurrent file content:\n\`\`\`${activeTab.lang}\n${activeTab.content.slice(0, 4000)}\n\`\`\``
-    : `The user is using FlashCode, a browser-based IDE connected to GitHub.`;
-
-  try {
-    const r = await fetch(ANTHROPIC_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `You are an expert coding assistant embedded in FlashCode, a browser IDE. ${ctx}\n\nBe concise and helpful. Use markdown code blocks when sharing code.`,
-        messages: aiHistory
+// ═══════════════════════════════════════════════════════
+// AI — via Supabase edge function proxy
+// ═══════════════════════════════════════════════════════
+function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
+async function sendAI(){
+  const inp=document.getElementById('ai-inp');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  appendAM('user',txt);
+  aiHistory.push({role:'user',content:txt});
+  document.getElementById('ai-send').disabled=true;
+  const fileCtx=activeTab
+    ?`File: \`${activeTab.path}\` (${activeTab.lang}) in ${curRepo}.\n\nContent:\n\`\`\`${activeTab.lang}\n${(editor?editor.getValue():activeTab.content).slice(0,3500)}\n\`\`\``
+    :`FlashCode browser IDE, no file open.`;
+  try{
+    const r=await fetch(AI_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`,apikey:SB_KEY},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:`You are an expert coding assistant in FlashCode IDE. ${fileCtx}\nBe concise. Use markdown code blocks.`,
+        messages:aiHistory
       })
     });
-    const data = await r.json();
-    const reply = data.content?.[0]?.text || 'Sorry, I could not get a response.';
-    aiHistory.push({ role: 'assistant', content: reply });
-    appendAiMsg('assistant', reply);
-  } catch (e) {
-    appendAiMsg('assistant', 'Error: ' + e.message);
-  }
-  document.getElementById('ai-send-btn').disabled = false;
+    const data=await r.json();
+    const reply=data.content?.[0]?.text||data.error||'No response.';
+    aiHistory.push({role:'assistant',content:reply});
+    appendAM('assistant',reply);
+  }catch(e){appendAM('assistant','Error: '+e.message);}
+  document.getElementById('ai-send').disabled=false;
+}
+function appendAM(role,text){
+  const msgs=document.getElementById('ai-msgs');
+  const d=document.createElement('div');
+  d.className=`am ${role}`;
+  d.innerHTML=`<div class="am-av">${role==='user'?'U':'AI'}</div>
+    <div class="am-b"><div class="am-r">${role==='user'?'You':'Claude'}</div>
+    <div class="am-t">${fmtAI(text)}</div></div>`;
+  msgs.appendChild(d);msgs.scrollTop=9999;
+}
+function fmtAI(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre style="background:var(--bg3);padding:8px 10px;border-radius:6px;overflow-x:auto;margin:4px 0;font-size:11px;font-family:var(--mono)">${c.trim()}</pre>`)
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n/g,'<br>');
 }
 
-function appendAiMsg(role, text) {
-  const msgs = document.getElementById('ai-messages');
-  const div = document.createElement('div');
-  div.className = `ai-msg ${role}`;
-  div.innerHTML = `
-    <div class="ai-msg-avatar">${role === 'user' ? 'U' : 'AI'}</div>
-    <div class="ai-msg-body">
-      <div class="ai-msg-role">${role === 'user' ? 'You' : 'Claude'}</div>
-      <div class="ai-msg-text">${formatAiText(text)}</div>
-    </div>`;
-  msgs.appendChild(div);
-  msgs.scrollTop = 9999;
-}
-
-function formatAiText(t) {
-  return t
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
-      `<pre style="background:var(--bg3);padding:8px 10px;border-radius:6px;overflow-x:auto;margin:4px 0;font-size:11px;font-family:var(--font-mono)">${code.trim()}</pre>`)
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
-}
-
-// ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 // UI HELPERS
-// ────────────────────────────────────────────────────────────
-function switchPanel(name) {
-  document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel-content').forEach(c => c.classList.remove('active'));
-  document.getElementById(`panel-tab-${name}`).classList.add('active');
-  document.getElementById(`panel-${name}`).classList.add('active');
+// ═══════════════════════════════════════════════════════
+function switchPanel(name){
+  document.querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.p-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('pt-'+name).classList.add('active');
+  document.getElementById('pc-'+name).classList.add('active');
+  if(!panelVisible)togglePanel();
+}
+function togglePanel(){
+  panelVisible=!panelVisible;
+  document.getElementById('bp').classList.toggle('hidden',!panelVisible);
+}
+function setAct(btn,name){
+  document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(name==='ai'){switchPanel('ai');}
+  else if(name==='preview'){
+    if(activeTab&&activeTab.lang==='html'){showPreview(editor?editor.getValue():activeTab.content);}
+    else notify('Open an HTML file to preview it.','w');
+  }
+  else{
+    // back to editor
+    document.getElementById('preview-panel').style.display='none';
+    if(activeTab){document.getElementById('me').style.display='block';}
+    else{document.getElementById('welcome').style.display='flex';}
+  }
 }
 
-function setActivity(name) {
-  document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  if (name === 'ai') switchPanel('ai');
-  else switchPanel('terminal');
-}
-
-function toggleUserMenu() {
-  document.getElementById('user-menu').classList.toggle('open');
-}
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('#user-menu') && !e.target.closest('#user-avatar'))
-    document.getElementById('user-menu').classList.remove('open');
-  if (!e.target.closest('#repo-modal') && !e.target.closest('.repo-selector'))
-    document.getElementById('repo-modal').classList.remove('open');
+// close dropdowns on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#umenu')&&!e.target.closest('#u-avatar'))document.getElementById('umenu').classList.remove('on');
+  if(!e.target.closest('#modal-repo')&&!e.target.closest('.repo-sel'))document.getElementById('modal-repo').classList.remove('on');
 });
 
-function notify(msg, type = 'info') {
-  const el = document.createElement('div');
-  el.className = `notif-item ${type}`;
-  el.textContent = msg;
+function notify(msg,type='i'){
+  const el=document.createElement('div');
+  el.className=`ni ${type}`;el.textContent=msg;
   document.getElementById('notif').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  setTimeout(()=>el.remove(),3500);
 }
 
-// ── Resize handle ──────────────────────────────────────────
-const resizeHandle = document.getElementById('resize-handle');
-let resizing = false, startY = 0, startH = 0;
-resizeHandle.addEventListener('mousedown', e => {
-  resizing = true; startY = e.clientY;
-  startH = document.getElementById('bottom-panel').offsetHeight;
-  document.body.style.cursor = 'row-resize';
-  document.body.style.userSelect = 'none';
+// ── Resize handle ─────────────────────────────────────
+let rz=false,rzY=0,rzH=0;
+document.getElementById('rh').addEventListener('mousedown',e=>{
+  rz=true;rzY=e.clientY;rzH=document.getElementById('bp').offsetHeight;
+  document.body.style.cursor='row-resize';document.body.style.userSelect='none';
 });
-document.addEventListener('mousemove', e => {
-  if (!resizing) return;
-  const delta = startY - e.clientY;
-  const newH = Math.max(80, Math.min(600, startH + delta));
-  document.getElementById('bottom-panel').style.height = newH + 'px';
-  document.documentElement.style.setProperty('--panel-h', newH + 'px');
+document.addEventListener('mousemove',e=>{
+  if(!rz)return;
+  const h=Math.max(80,Math.min(600,rzH+(rzY-e.clientY)));
+  document.getElementById('bp').style.height=h+'px';
+  document.documentElement.style.setProperty('--ph',h+'px');
 });
-document.addEventListener('mouseup', () => {
-  resizing = false;
-  document.body.style.cursor = '';
-  document.body.style.userSelect = '';
-});
+document.addEventListener('mouseup',()=>{rz=false;document.body.style.cursor='';document.body.style.userSelect='';});
 
-// ────────────────────────────────────────────────────────────
-// START
-// ────────────────────────────────────────────────────────────
 init();
 </script>
 </body>

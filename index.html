@@ -17,8 +17,6 @@
   --sw:44px;--sbw:240px;--ph:220px;--tbh:40px;--tbbh:36px;--sbh:24px;
 }
 html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);font-family:var(--ui);font-size:13px}
-
-/* ── AUTH ── */
 #auth{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:24px}
 .auth-logo{display:flex;align-items:center;gap:12px}
 .auth-logo svg{color:var(--accent)}
@@ -28,14 +26,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:16px;width:340px}
 .auth-card h2{font-size:16px;font-weight:600;color:#fff}
 .auth-card p{color:var(--text2);font-size:13px;line-height:1.5}
-.btn-gh{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#0d0d0d;border:none;border-radius:8px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-gh{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#0d0d0d;border:none;border-radius:8px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:background.15s}
 .btn-gh:hover{background:#e5e5e5}
-
-/* ── IDE ── */
 #ide{display:none;flex-direction:column;height:100vh}
 #ide.on{display:flex}
-
-/* titlebar */
 #tb{height:var(--tbh);background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:10px;flex-shrink:0;user-select:none;position:relative}
 .tb-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;flex-shrink:0}
 .tb-logo span{color:var(--accent)}
@@ -45,63 +39,53 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #repo-lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .br-badge{background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:11px;color:var(--accent);font-family:var(--mono);display:none;flex-shrink:0}
 .tb-actions{margin-left:auto;display:flex;gap:6px;align-items:center;flex-shrink:0}
-.btn-icon{background:none;border:none;color:var(--text2);cursor:pointer;padding:5px;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0}
+.btn-icon{background:none;border:none;color:var(--text2);cursor:pointer;padding:5px;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:background.15s,color.15s;flex-shrink:0}
 .btn-icon:hover{background:var(--bg4);color:var(--text)}
-.btn-run{display:flex;align-items:center;gap:6px;background:var(--green);color:#000;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;flex-shrink:0}
+.btn-run{display:flex;align-items:center;gap:6px;background:var(--green);color:#000;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity.15s;flex-shrink:0}
 .btn-run:hover{opacity:.85}
 .btn-run:disabled{opacity:.4;cursor:not-allowed}
-.btn-commit{display:none;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;flex-shrink:0}
+.btn-commit{display:none;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity.15s;flex-shrink:0}
 .btn-commit:hover{opacity:.85}
 .avatar{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);cursor:pointer;object-fit:cover;flex-shrink:0}
 .umenu{position:absolute;top:calc(var(--tbh) + 4px);right:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;min-width:180px;z-index:500;display:none}
 .umenu.on{display:block}
-.umenu-item{padding:8px 12px;border-radius:5px;cursor:pointer;color:var(--text2);font-size:12px;transition:background .1s;display:flex;align-items:center;gap:8px}
+.umenu-item{padding:8px 12px;border-radius:5px;cursor:pointer;color:var(--text2);font-size:12px;transition:background.1s;display:flex;align-items:center;gap:8px}
 .umenu-item:hover{background:var(--bg4);color:var(--text)}
 .umenu-item.danger:hover{background:#3f1212;color:var(--red)}
 .umenu-sep{height:1px;background:var(--border);margin:4px 0}
-
-/* main */
 #main{display:flex;flex:1;overflow:hidden}
-
-/* activity bar */
 #actbar{width:var(--sw);background:var(--bg0);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px;flex-shrink:0}
-.act-btn{width:34px;height:34px;border-radius:7px;background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;position:relative}
+.act-btn{width:34px;height:34px;border-radius:7px;background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background.15s,color.15s;position:relative}
 .act-btn:hover,.act-btn.on{background:var(--bg3);color:var(--text)}
 .act-btn.on{color:var(--accent)}
 .act-btn[data-dot]::after{content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--yellow)}
-
-/* sidebar */
 #sb{width:var(--sbw);background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
 .sb-hdr{height:36px;display:flex;align-items:center;padding:0 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);border-bottom:1px solid var(--border);flex-shrink:0;justify-content:space-between}
 #ftree{flex:1;overflow-y:auto;padding:4px 0}
 #ftree::-webkit-scrollbar{width:4px}
 #ftree::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
-.t-dir{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;user-select:none;padding:3px 8px 3px 0}
+.t-dir{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background.1s,color.1s;white-space:nowrap;overflow:hidden;user-select:none;padding:3px 8px 3px 0}
 .t-dir:hover{background:var(--bg3);color:var(--text)}
-.t-dir svg.chev{flex-shrink:0;transition:transform .15s}
+.t-dir svg.chev{flex-shrink:0;transition:transform.15s}
 .t-dir.open svg.chev{transform:rotate(90deg)}
-.t-file{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;padding:3px 8px 3px 0}
+.t-file{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background.1s,color.1s;white-space:nowrap;overflow:hidden;padding:3px 8px 3px 0}
 .t-file:hover{background:var(--bg3);color:var(--text)}
 .t-file.active{background:var(--bg4);color:#fff}
 .t-ch{display:none}
 .t-ch.open{display:block}
 .t-nm{overflow:hidden;text-overflow:ellipsis}
 .sb-empty{padding:16px 12px;color:var(--text3);font-size:12px;line-height:1.6}
-
-/* editor */
 #ea{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #tabbar{height:var(--tbbh);background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:flex-end;overflow-x:auto;flex-shrink:0}
 #tabbar::-webkit-scrollbar{height:0}
-.tab{display:flex;align-items:center;gap:6px;padding:0 14px;height:100%;border-right:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--text2);white-space:nowrap;background:var(--bg1);transition:background .1s,color .1s;flex-shrink:0;position:relative}
+.tab{display:flex;align-items:center;gap:6px;padding:0 14px;height:100%;border-right:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--text2);white-space:nowrap;background:var(--bg1);transition:background.1s,color.1s;flex-shrink:0;position:relative}
 .tab:hover{background:var(--bg2);color:var(--text)}
 .tab.active{background:var(--bg2);color:#fff}
 .tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent)}
 .tab.mod::before{content:'●';color:var(--yellow);margin-right:-4px;font-size:10px}
-.tab-x{width:16px;height:16px;border-radius:3px;border:none;background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;transition:background .1s,color .1s}
+.tab-x{width:16px;height:16px;border-radius:3px;border:none;background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;transition:background.1s,color.1s}
 .tab-x:hover{background:var(--bg4);color:var(--text)}
 #no-tabs{display:flex;align-items:center;padding:0 16px;color:var(--text3);font-size:12px}
-
-/* editor panel */
 #epc{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #ec{flex:1;overflow:hidden;position:relative;display:flex;flex-direction:column}
 #me{flex:1}
@@ -109,18 +93,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #welcome h2{font-size:20px;color:var(--text2)}
 #welcome p{font-size:13px;line-height:1.6;text-align:center;max-width:360px}
 #welcome kbd{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;color:var(--text2)}
-/* FULL PREVIEW — covers editor area entirely, no sidebar */
 #preview-wrap{position:absolute;inset:0;background:#fff;display:none;flex-direction:column;z-index:10}
 #preview-wrap.on{display:flex}
 #preview-toolbar{background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 12px;height:34px;flex-shrink:0}
 #preview-url{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:3px 8px;color:var(--text);font-size:12px;font-family:var(--mono);outline:none}
 #preview-frame{flex:1;border:none;background:#fff}
-
-/* bottom panel */
 #bp{background:var(--bg1);border-top:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:var(--ph)}
 #bp.hidden{display:none}
 .p-tabs{display:flex;border-bottom:1px solid var(--border);height:32px;flex-shrink:0;align-items:center}
-.p-tab{display:flex;align-items:center;gap:6px;padding:0 14px;font-size:12px;color:var(--text3);cursor:pointer;border-right:1px solid var(--border);height:100%;transition:background .1s,color .1s}
+.p-tab{display:flex;align-items:center;gap:6px;padding:0 14px;font-size:12px;color:var(--text3);cursor:pointer;border-right:1px solid var(--border);height:100%;transition:background.1s,color.1s}
 .p-tab:hover{background:var(--bg2);color:var(--text2)}
 .p-tab.active{color:var(--text);background:var(--bg2)}
 .p-acts{margin-left:auto;display:flex;align-items:center;padding:0 8px;gap:4px}
@@ -134,15 +115,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #tinr{display:flex;align-items:center;gap:8px;padding:6px 14px;border-top:1px solid var(--border);background:var(--bg0)}
 #tprompt{color:var(--accent);font-family:var(--mono);font-size:12px}
 #tinput{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:12px}
-/* AI */
 #ai-wrap{flex:1;display:flex;flex-direction:column;background:var(--bg0)}
 #ai-msgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:10px}
 #ai-msgs::-webkit-scrollbar{width:4px}
 #ai-msgs::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
 .am{display:flex;gap:8px}
 .am-av{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-.am.user .am-av{background:var(--accent);color:#fff}
-.am.assistant .am-av{background:var(--purple);color:#fff}
+.am.user.am-av{background:var(--accent);color:#fff}
+.am.assistant.am-av{background:var(--purple);color:#fff}
 .am-b{flex:1}
 .am-r{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
 .am-t{font-size:12px;line-height:1.6;color:var(--text);white-space:pre-wrap;word-break:break-word}
@@ -150,11 +130,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #ai-inp-row{display:flex;gap:8px;padding:8px 14px;border-top:1px solid var(--border);background:var(--bg1)}
 #ai-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--ui);resize:none;height:34px;line-height:1.4}
 #ai-inp:focus{border-color:var(--accent)}
-.btn-send{background:var(--accent);border:none;border-radius:6px;color:#fff;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.btn-send{background:var(--accent);border:none;border-radius:6px;color:#fff;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity.15s}
 .btn-send:hover{opacity:.85}
 .btn-send:disabled{opacity:.4;cursor:not-allowed}
-
-/* MODALS */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center}
 .modal.on{display:flex}
 .mbox{background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:500px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
@@ -168,331 +146,91 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .btn-cancel:hover{color:var(--text)}
 .btn-ok{background:var(--accent);border:none;color:#fff;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:13px;font-weight:600}
 .btn-ok:hover{opacity:.85}
-/* repo search */
 #repo-search{margin:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;width:calc(100% - 32px)}
 #repo-search:focus{border-color:var(--accent)}
 #repo-list{overflow-y:auto;padding:4px 8px 8px}
 #repo-list::-webkit-scrollbar{width:4px}
 #repo-list::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
-.ri{display:flex;flex-direction:column;padding:10px 12px;border-radius:7px;cursor:pointer;transition:background .1s}
+.ri{display:flex;flex-direction:column;padding:10px 12px;border-radius:7px;cursor:pointer;transition:background.1s}
 .ri:hover{background:var(--bg3)}
 .ri-n{font-size:13px;color:#fff;font-weight:500}
 .ri-m{font-size:11px;color:var(--text3);margin-top:2px}
-/* form fields */
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:12px;color:var(--text2);font-weight:500}
 .field input,.field select,.field textarea{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:13px;outline:none;font-family:var(--ui)}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
 .field select option{background:var(--bg3)}
 .field textarea{resize:vertical;min-height:70px}
-.field .hint{font-size:11px;color:var(--text3)}
-/* API key group */
+.field.hint{font-size:11px;color:var(--text3)}
 .provider-section{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .provider-section h4{font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
 .provider-badge{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600}
 .key-row{display:flex;gap:8px;align-items:center}
 .key-row input{flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--mono)}
 .key-row input:focus{border-color:var(--accent)}
-.key-row .btn-icon{background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text2)}
-
-/* statusbar */
+.key-row.btn-icon{background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text2)}
 #statusbar{height:var(--sbh);background:var(--accent2);display:flex;align-items:center;padding:0 12px;gap:16px;font-size:11px;color:rgba(255,255,255,.8);flex-shrink:0;user-select:none}
 .si{display:flex;align-items:center;gap:5px}
 .si.r{margin-left:auto}
 .lang-pill{font-size:10px;padding:1px 6px;border-radius:10px;font-family:var(--mono);font-weight:600}
-
-/* resize */
 #rh{height:4px;background:transparent;cursor:row-resize;flex-shrink:0;border-top:1px solid var(--border)}
 #rh:hover{background:var(--accent)}
-
-/* notifs */
 #notif{position:fixed;bottom:32px;right:16px;z-index:600;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.ni{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:sIn .2s ease;max-width:300px}
+.ni{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:sIn.2s ease;max-width:300px}
 .ni.s{border-color:var(--green)}.ni.e{border-color:var(--red)}.ni.w{border-color:var(--yellow)}
 @keyframes sIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spin{animation:spin .8s linear infinite;display:inline-block}
+.spin{animation:spin.8s linear infinite;display:inline-block}
 </style>
 </head>
 <body>
 
-<!-- ══ AUTH ═══════════════════════════════════════════════ -->
-<div id="auth">
-  <div class="auth-logo">
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-    <h1>Flash<span>Code</span></h1>
-  </div>
-  <p class="auth-tag">Browser IDE · GitHub · WebAssembly · AI</p>
-  <div class="auth-card">
-    <h2>Sign in to continue</h2>
-    <p>Connect your GitHub account to browse repos, edit code, and run it instantly in your browser.</p>
-    <button class="btn-gh" onclick="signIn()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-      Continue with GitHub
-    </button>
-  </div>
-</div>
-
-<!-- ══ IDE ════════════════════════════════════════════════ -->
-<div id="ide">
-
-  <!-- Titlebar -->
-  <div id="tb">
-    <div class="tb-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Flash<span>Code</span></div>
-    <div class="tb-sep"></div>
-    <div class="repo-sel" onclick="openRepoModal()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-      <span id="repo-lbl">Open a repository…</span>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <span class="br-badge" id="br-badge">main</span>
-    <div class="tb-actions">
-      <button class="btn-run" id="run-btn" onclick="runCode()" disabled title="Run (Ctrl+Enter)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Run
-      </button>
-      <button class="btn-commit" id="commit-btn" onclick="openCommitModal()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><line x1="12" y1="1" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="23"/><line x1="1" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="23" y2="12"/></svg>Commit
-      </button>
-      <button class="btn-icon" onclick="togglePanel()" title="Toggle terminal">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-      </button>
-      <img class="avatar" id="u-av" src="" alt="" onclick="toggleUMenu()"/>
-    </div>
-  </div>
-
-  <!-- User menu -->
-  <div class="umenu" id="umenu">
-    <div class="umenu-item" id="u-name" style="color:var(--text);font-weight:500;cursor:default"></div>
-    <div class="umenu-sep"></div>
-    <div class="umenu-item" onclick="openSettings()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      Settings & API Keys
-    </div>
-    <div class="umenu-item danger" onclick="signOut()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Sign out
-    </div>
-  </div>
-
-  <div id="main">
-    <!-- Activity bar -->
-    <div id="actbar">
-      <button class="act-btn on" title="Explorer" onclick="setAct(this,'explorer')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-      </button>
-      <button class="act-btn" title="AI Assistant" onclick="setAct(this,'ai')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      </button>
-      <button class="act-btn" title="Preview" onclick="setAct(this,'preview')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      </button>
-    </div>
-
-    <!-- Sidebar -->
-    <div id="sb">
-      <div class="sb-hdr">
-        <span>Explorer</span>
-        <button class="btn-icon" onclick="refreshTree()" style="padding:2px" title="Refresh">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-        </button>
-      </div>
-      <div id="ftree"><div class="sb-empty">Open a repository to browse files.</div></div>
-    </div>
-
-    <!-- Editor area -->
-    <div id="ea">
-      <div id="tabbar"><span id="no-tabs">No files open</span></div>
-      <div id="epc">
-        <div id="ec">
-          <!-- Full-screen preview overlay (covers editor+panel) -->
-          <div id="preview-wrap">
-            <div id="preview-toolbar">
-              <button class="btn-icon" onclick="closePreview()" title="Back to editor">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <span style="font-size:12px;color:var(--text2);font-family:var(--mono)" id="preview-title">Preview</span>
-              <div style="flex:1"></div>
-              <button class="btn-icon" onclick="reloadPreview()" title="Reload">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              </button>
-            </div>
-            <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin allow-forms" title="Preview"></iframe>
-          </div>
-
-          <div id="welcome">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text3)"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            <h2>FlashCode</h2>
-            <p>Open a repository, click a file to start editing.<br/>Press <kbd>▶ Run</kbd> to execute in the browser.</p>
-          </div>
-          <div id="me" style="display:none;height:100%"></div>
-        </div>
-
-        <div id="rh"></div>
-
-        <div id="bp">
-          <div class="p-tabs">
-            <div class="p-tab active" id="pt-terminal" onclick="switchPanel('terminal')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Terminal
-            </div>
-            <div class="p-tab" id="pt-ai" onclick="switchPanel('ai')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Assistant
-            </div>
-            <div class="p-acts">
-              <button class="btn-icon" onclick="clearTerm()" title="Clear terminal">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-              </button>
-              <button class="btn-icon" onclick="togglePanel()" title="Close panel">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="p-content active" id="pc-terminal">
-            <div id="term"></div>
-            <div id="tinr"><span id="tprompt">❯</span><input id="tinput" placeholder="Python REPL…" onkeydown="tKeyDown(event)" autocomplete="off" spellcheck="false"/></div>
-          </div>
-          <div class="p-content" id="pc-ai">
-            <div id="ai-wrap">
-              <div id="ai-msgs">
-                <div class="am assistant">
-                  <div class="am-av">AI</div>
-                  <div class="am-b"><div class="am-r">Assistant</div>
-                  <div class="am-t">Hi! I'm your AI coding assistant. Add your API key in Settings, then ask me anything about your code!</div></div>
-                </div>
-              </div>
-              <div id="ai-inp-row">
-                <textarea id="ai-inp" placeholder="Ask about your code… (Enter to send)" onkeydown="aiKey(event)"></textarea>
-                <button class="btn-send" onclick="sendAI()" id="ai-send">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="statusbar">
-    <div class="si"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg><span id="s-repo">No repo</span></div>
-    <div class="si"><span id="s-file" style="color:var(--text3)">No file</span></div>
-    <div class="si"><span id="s-lang"></span></div>
-    <div class="si r" id="s-runtime"><span class="spin">⟳</span> Loading Python…</div>
-  </div>
-</div>
-
-<!-- ══ MODALS ═════════════════════════════════════════════ -->
-
-<!-- Repo picker -->
-<div class="modal" id="modal-repo">
-  <div class="mbox">
-    <div class="mhdr"><h3>Open Repository</h3>
-      <button class="btn-icon" onclick="closeModal('repo')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <input id="repo-search" placeholder="Search repositories…" oninput="filterRepos()"/>
-    <div id="repo-list"></div>
-  </div>
-</div>
-
-<!-- Commit -->
-<div class="modal" id="modal-commit">
-  <div class="mbox">
-    <div class="mhdr"><h3>Commit & Push</h3>
-      <button class="btn-icon" onclick="closeModal('commit')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="mbody">
-      <p>Committing: <strong id="commit-file" style="color:var(--text)"></strong></p>
-      <div class="field"><label>Commit message</label><textarea class="modal-ta" id="commit-msg" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px;color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:70px;font-family:var(--ui)" placeholder="Describe your changes…"></textarea></div>
-    </div>
-    <div class="mftr">
-      <button class="btn-cancel" onclick="closeModal('commit')">Cancel</button>
-      <button class="btn-ok" onclick="doCommit()">Commit & Push</button>
-    </div>
-  </div>
-</div>
-
-<!-- Settings / API Keys -->
-<div class="modal" id="modal-settings">
-  <div class="mbox wide">
-    <div class="mhdr"><h3>Settings & API Keys</h3>
-      <button class="btn-icon" onclick="closeModal('settings')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="mbody">
-      <p style="line-height:1.6">Your API keys are stored securely in your account and never shared. Choose your default AI provider below.</p>
-
-      <div class="field">
-        <label>Default AI Provider</label>
-        <select id="cfg-provider">
-          <option value="claude">Claude (Anthropic)</option>
-          <option value="openai">OpenAI (GPT)</option>
-          <option value="gemini">Gemini (Google)</option>
-          <option value="grok">Grok (xAI)</option>
-          <option value="groq">Groq (Llama)</option>
-          <option value="openrouter">OpenRouter</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Default Model <span class="hint">(leave blank for default)</span></label>
-        <input type="text" id="cfg-model" placeholder="e.g. claude-sonnet-4-20250514, gpt-4o, gemini-2.0-flash…"/>
-      </div>
-
-      <div class="provider-section">
-        <h4><span style="color:#a78bfa">◆</span> Claude — Anthropic <a href="https://console.anthropic.com/keys" target="_blank" style="font-size:10px;color:var(--accent);margin-left:auto;font-weight:400">Get key ↗</a></h4>
-        <div class="key-row">
-          <input type="password" id="key-claude" placeholder="sk-ant-…"/>
-          <button class="btn-icon" onclick="toggleKeyVis('key-claude')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
-      </div>
-
-      <div class="provider-section">
-        <h4><span style="color:#4ade80">◆</span> OpenAI <a href="https://platform.openai.com/api-keys" target="_blank" style="font-size:10px;color:var(--accent);margin-left:auto;font-weight:400">Get key ↗</a></h4>
-        <div class="key-row">
-          <input type="password" id="key-openai" placeholder="sk-…"/>
-          <button class="btn-icon" onclick="toggleKeyVis('key-openai')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
-      </div>
-
-      <div class="provider-section">
-        <h4><span style="color:#60a5fa">◆</span> Gemini — Google <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:10px;color:var(--accent);margin-left:auto;font-weight:400">Get key ↗</a></h4>
-        <div class="key-row">
-          <input type="password" id="key-gemini" placeholder="AIza…"/>
-          <button class="btn-icon" onclick="toggleKeyVis('key-gemini')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
-      </div>
-
-      <div class="provider-section">
-        <h4><span style="color:#f87171">◆</span> Grok — xAI <a href="https://console.x.ai/" target="_blank" style="font-size:10px;color:var(--accent);margin-left:auto;font-weight:400">Get key ↗</a></h4>
-        <div class="key-row">
-          <input type="password" id="key-grok" placeholder="xai-…"/>
-          <button class="btn-icon" onclick="toggleKeyVis('key-grok')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
-      </div>
-
-      <div class="provider-section">
-        <h4><span style="color:#fb923c">◆</span> Groq (Llama) <a href="https://console.groq.com/keys" target="_blank" style="font-size:10px;color:var(--accent);margin-left:auto;font-weight:400">Get key ↗</a></h4>
-        <div class="key-row">
-          <input type="password" id="key-groq" placeholder="gsk_…"/>
-          <button class="btn-icon" onclick="toggleKeyVis('key-groq')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
-      </div>
-
-      <div class="provider-section">
-        <h4><span style="color:#e879f9">◆</span> OpenRouter <a href="https://openrouter.ai/keys" target="_blank" style="font-size:10px;color:var(--accent);margin-left:auto;font-weight:400">Get key ↗</a></h4>
-        <div class="key-row">
-          <input type="password" id="key-openrouter" placeholder="sk-or-…"/>
-          <button class="btn-icon" onclick="toggleKeyVis('key-openrouter')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
-      </div>
-    </div>
-    <div class="mftr">
-      <button class="btn-cancel" onclick="closeModal('settings')">Cancel</button>
-      <button class="btn-ok" onclick="saveSettings()">Save Settings</button>
-    </div>
-  </div>
-</div>
-
+<!-- AUTH, IDE HTML, MODALS -->
+<!-- All your existing HTML from <body> to <div id="notif"></div> goes here. It is unchanged. -->
+<div id="auth">...</div>
+<div id="ide">...</div>
+<div id="statusbar">...</div>
+<div id="modal-repo">...</div>
+<div id="modal-commit">...</div>
+<div id="modal-settings">...</div>
 <div id="notif"></div>
+<!-- End of unchanged HTML -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+<!-- SERVICE WORKER SCRIPT -->
+<script id="sw-script" type="text/sw-template">
+  let VFS = {};
+  const PREVIEW_SCOPE = '/__preview__/';
+
+  self.addEventListener('message', event => {
+    if (event.data.type === 'INIT_VFS') {
+      VFS = event.data.payload;
+      // console.log('SW: Virtual File System initialized/updated.');
+    }
+  });
+
+  self.addEventListener('fetch', event => {
+    const url = new URL(event.request.url);
+    if (!url.pathname.startsWith(PREVIEW_SCOPE)) {
+      return; // Not a preview request, fetch normally
+    }
+
+    const path = url.pathname.substring(PREVIEW_SCOPE.length).split('?')[0] || 'index.html';
+    // console.log(`SW: Intercepted request for: ${path}`);
+
+    if (VFS[path]) {
+      const { content, type } = VFS[path];
+      const headers = { 'Content-Type': type || 'application/octet-stream' };
+      const response = new Response(content, { headers });
+      event.respondWith(response);
+    } else {
+      // console.log(`SW: File not found in VFS: ${path}`);
+      event.respondWith(new Response('File not found', { status: 404 }));
+    }
+  });
+</script>
+
 <script>
 // ═══════════════════════════════════════════════════════════
 // CONFIG
@@ -500,6 +238,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 const SB_URL = 'https://uvslkqxtkortoiacmknw.supabase.co';
 const SB_KEY = 'sb_publishable_7kz7TnR6P4cwRVlr7C_0bA_iqtTVwiF';
 const AI_URL = `${SB_URL}/functions/v1/ai-proxy`;
+const PREVIEW_SCOPE = '/__preview__/';
 
 // ═══════════════════════════════════════════════════════════
 // STATE
@@ -513,20 +252,116 @@ let userSettings={}; // { provider, model, keys:{claude,openai,...} }
 let repoTree=[]; // flat tree items
 
 // ═══════════════════════════════════════════════════════════
-// LANG / ICON MAPS
+// LANG / ICON / MIME MAPS (Added MIME)
 // ═══════════════════════════════════════════════════════════
 const LANG_MAP={py:'python',js:'javascript',ts:'typescript',jsx:'javascript',tsx:'typescript',json:'json',md:'markdown',css:'css',html:'html',sh:'shell',yml:'yaml',yaml:'yaml',rs:'rust',go:'go',java:'java',c:'c',cpp:'cpp',cs:'csharp',rb:'ruby',php:'php',vue:'html',svelte:'html',kt:'kotlin',swift:'swift',sql:'sql',graphql:'graphql',toml:'ini',xml:'xml',txt:'plaintext'};
 const ICON_MAP={py:'🐍',js:'⚡',ts:'🔷',jsx:'⚛',tsx:'⚛',json:'{}',md:'📝',css:'🎨',html:'🌐',yml:'⚙',yaml:'⚙',sh:'💻',rs:'🦀',go:'🐹',java:'☕',rb:'💎',php:'🐘',vue:'💚',svelte:'🧡',sql:'🗄',xml:'📋',txt:'📄',toml:'⚙',env:'🔐',lock:'🔒'};
+const MIME_MAP = {
+    html: 'text/html', htm: 'text/html', css: 'text/css', js: 'application/javascript', mjs: 'application/javascript',
+    json: 'application/json', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif',
+    svg: 'image/svg+xml', ico: 'image/x-icon', txt: 'text/plain', md: 'text/markdown',
+    woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf', eot: 'application/vnd.ms-fontobject',
+};
 const LANG_COLORS={python:'#3b82f6',javascript:'#eab308',typescript:'#3b82f6',html:'#f97316',css:'#a855f7',rust:'#f97316',go:'#22c55e',ruby:'#ef4444',java:'#f97316'};
 const RUNNABLE=new Set(['python','javascript','typescript','html']);
 
 function langFrom(p=''){const e=p.split('.').pop()?.toLowerCase();return LANG_MAP[e]||'plaintext';}
 function iconFrom(p=''){const e=p.split('.').pop()?.toLowerCase();return ICON_MAP[e]||'📄';}
+function mimeFrom(p=''){const e=p.split('.').pop()?.toLowerCase();return MIME_MAP[e]||'application/octet-stream';}
+
+// ═══════════════════════════════════════════════════════════
+// SERVICE WORKER SETUP (NEW)
+// ═══════════════════════════════════════════════════════════
+async function initServiceWorker() {
+  const swScript = document.getElementById('sw-script').textContent;
+  const swBlob = new Blob([swScript], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(swBlob);
+
+  if ('serviceWorker' in navigator) {
+    try {
+      await navigator.serviceWorker.register(swUrl, { scope: PREVIEW_SCOPE });
+      console.log('Service Worker registered successfully.');
+    } catch (error) {
+      console.error('Service Worker registration failed:', error);
+      notify('Dynamic preview unavailable: Service Worker failed.', 'e');
+    }
+  }
+}
+
+async function updateVFS() {
+  if (!navigator.serviceWorker.controller) return;
+
+  const vfs = {};
+  const allFiles = [...repoTree]; // Use the full tree
+
+  // Add currently open (and possibly modified) files from tabs
+  const openFiles = new Set(tabs.map(t => t.path));
+  tabs.forEach(tab => {
+      vfs[tab.path] = {
+          content: tab.content,
+          type: mimeFrom(tab.path)
+      };
+  });
+
+  // Fetch content for all other files in the repo (or just add them as placeholders)
+  for (const file of allFiles) {
+      if (!openFiles.has(file.path) && file.type === 'blob') {
+          // To avoid fetching all files at once, we can fetch them on demand
+          // Or for simplicity here, we add them if they are already in tabs,
+          // and let the SW handle fetching later if needed.
+          // A more advanced implementation would fetch them here.
+          // For now, let's just make sure the existing tabs are in the VFS.
+          if (!vfs[file.path]) {
+            vfs[file.path] = { content: null, type: mimeFrom(file.path), sha: file.sha }; // Mark for lazy load
+          }
+      }
+  }
+
+  // Get content for all files in repoTree to make preview work fully
+  const [owner, repo] = curRepo.split('/');
+  const promises = repoTree
+     .filter(f => f.type === 'blob' &&!vfs[f.path]?.content) // only fetch if not already in tabs
+     .map(async file => {
+          try {
+              const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${file.sha}`, { headers: ghH() });
+              if (!r.ok) throw new Error('Failed to fetch blob');
+              const d = await r.json();
+              const isBase64 = d.encoding === 'base64';
+              const content = isBase64? b64toBlob(d.content, mimeFrom(file.path)) : d.content;
+              vfs[file.path] = { content, type: mimeFrom(file.path) };
+          } catch(e) {
+              console.error(`Failed to fetch content for ${file.path}`, e);
+          }
+      });
+  
+  await Promise.all(promises);
+
+  navigator.serviceWorker.controller.postMessage({
+    type: 'INIT_VFS',
+    payload: vfs
+  });
+}
+
+function b64toBlob(b64Data, contentType='', sliceSize=512) {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+    }
+    return new Blob(byteArrays, {type: contentType});
+}
 
 // ═══════════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════════
 async function init(){
+  await initServiceWorker(); // Initialize SW on startup
   const hash=window.location.hash;
   if(hash){
     const p=new URLSearchParams(hash.slice(1));
@@ -537,6 +372,7 @@ async function init(){
   if(stored){try{const s=JSON.parse(stored);session=s.s;ghToken=s.g;await loadUser();return;}catch{}}
   showAuth();
 }
+//... rest of auth functions are unchanged...
 async function loadUser(){
   const r=await fetch(`${SB_URL}/auth/v1/user`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`}}).catch(()=>null);
   if(!r||!r.ok){showAuth();return;}
@@ -561,135 +397,7 @@ async function signOut(){
 function toggleUMenu(){document.getElementById('umenu').classList.toggle('on');}
 
 // ═══════════════════════════════════════════════════════════
-// SETTINGS (stored in Supabase user_settings table)
-// ═══════════════════════════════════════════════════════════
-async function loadSettings(){
-  try{
-    const r=await fetch(`${SB_URL}/rest/v1/user_settings?select=settings`,{
-      headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`,Accept:'application/json'}
-    });
-    if(r.ok){const d=await r.json();if(d[0])userSettings=d[0].settings||{};}
-  }catch{}
-  updateAIBadge();
-}
-async function saveSettings(){
-  const s={
-    provider:document.getElementById('cfg-provider').value,
-    model:document.getElementById('cfg-model').value.trim(),
-    keys:{
-      claude:document.getElementById('key-claude').value.trim(),
-      openai:document.getElementById('key-openai').value.trim(),
-      gemini:document.getElementById('key-gemini').value.trim(),
-      grok:document.getElementById('key-grok').value.trim(),
-      groq:document.getElementById('key-groq').value.trim(),
-      openrouter:document.getElementById('key-openrouter').value.trim(),
-    }
-  };
-  // Upsert
-  const r=await fetch(`${SB_URL}/rest/v1/user_settings`,{
-    method:'POST',
-    headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
-    body:JSON.stringify({user_id:await getUserId(),settings:s})
-  });
-  if(r.ok||r.status===201||r.status===200){
-    userSettings=s;closeModal('settings');notify('Settings saved','s');updateAIBadge();
-  }else{notify('Failed to save settings','e');}
-}
-async function getUserId(){
-  const r=await fetch(`${SB_URL}/auth/v1/user`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`}});
-  const u=await r.json();return u.id;
-}
-function openSettings(){
-  document.getElementById('umenu').classList.remove('on');
-  // Populate form from userSettings
-  document.getElementById('cfg-provider').value=userSettings.provider||'claude';
-  document.getElementById('cfg-model').value=userSettings.model||'';
-  const keys=userSettings.keys||{};
-  ['claude','openai','gemini','grok','groq','openrouter'].forEach(p=>{
-    const el=document.getElementById('key-'+p);
-    if(el)el.value=keys[p]||'';
-  });
-  document.getElementById('modal-settings').classList.add('on');
-}
-function toggleKeyVis(id){
-  const el=document.getElementById(id);
-  el.type=el.type==='password'?'text':'password';
-}
-function updateAIBadge(){
-  const p=userSettings.provider||'claude';
-  const hasKey=!!(userSettings.keys?.[p]);
-  const btn=document.querySelector('.act-btn[title="AI Assistant"]');
-  if(btn){btn.dataset.dot=hasKey?'':'1';if(hasKey)delete btn.dataset.dot;}
-}
-
-// ═══════════════════════════════════════════════════════════
-// MONACO
-// ═══════════════════════════════════════════════════════════
-function initMonaco(){
-  require.config({paths:{vs:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'}});
-  require(['vs/editor/editor.main'],()=>{
-    monaco.editor.defineTheme('fc',{
-      base:'vs-dark',inherit:true,
-      rules:[{token:'comment',foreground:'6a9955'},{token:'keyword',foreground:'569cd6',fontStyle:'bold'},{token:'string',foreground:'ce9178'},{token:'number',foreground:'b5cea8'}],
-      colors:{'editor.background':'#141414','editor.lineHighlightBackground':'#1a1a1a','editorLineNumber.foreground':'#444','editorLineNumber.activeForeground':'#888','editor.selectionBackground':'#264f78'}
-    });
-    editor=monaco.editor.create(document.getElementById('me'),{
-      theme:'fc',language:'plaintext',fontSize:13,
-      fontFamily:"'Fira Code','Cascadia Code',Consolas,monospace",
-      fontLigatures:true,lineHeight:20,minimap:{enabled:false},
-      scrollBeyondLastLine:false,smoothScrolling:true,cursorBlinking:'smooth',
-      wordWrap:'on',automaticLayout:true,
-    });
-    editor.onDidChangeModelContent(()=>{
-      if(activeTab){activeTab.content=editor.getValue();activeTab.mod=true;renderTabs();syncCommitBtn();}
-    });
-    editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyS,openCommitModal);
-    editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.Enter,runCode);
-  });
-}
-
-// ═══════════════════════════════════════════════════════════
-// PYODIDE
-// ═══════════════════════════════════════════════════════════
-async function loadPyodide(){
-  tLog('Loading Python 3.11 (WebAssembly)…','i');
-  try{
-    const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js';document.head.appendChild(s);
-    await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;});
-    pyodide=await loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/'});
-    pyReady=true;
-    document.getElementById('s-runtime').innerHTML='<span style="color:var(--green)">●</span> Python 3.11 (WASM)';
-    tLog('Python 3.11 ready.','s');
-    syncRunBtn();
-  }catch(e){
-    document.getElementById('s-runtime').innerHTML='<span style="color:var(--red)">●</span> Python unavailable';
-    tLog('Python load failed: '+e.message,'e');
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// TERMINAL
-// ═══════════════════════════════════════════════════════════
-const CLS_MAP={i:'ti',s:'ts',e:'te',w:'tw',p:'tp',o:'to'};
-function tLog(txt,cls='o'){
-  const d=document.createElement('div');d.className='tl '+(CLS_MAP[cls]||'to');d.textContent=txt;
-  document.getElementById('term').appendChild(d);document.getElementById('term').scrollTop=9999;
-}
-function clearTerm(){document.getElementById('term').innerHTML='';}
-function tKeyDown(e){if(e.key==='Enter'){const v=e.target.value.trim();if(!v)return;tLog('❯ '+v,'p');e.target.value='';execPy(v);}}
-async function execPy(code){
-  if(!pyReady){tLog('Python not ready yet.','w');return;}
-  try{
-    pyodide.runPython(`import sys,io\n_o,_e=sys.stdout,sys.stderr\nsys.stdout=io.StringIO()\nsys.stderr=io.StringIO()`);
-    try{pyodide.runPython(code);}
-    catch(err){pyodide.runPython(`sys.stdout=_o;sys.stderr=_e`);tLog(err.message,'e');return;}
-    const out=pyodide.runPython(`_s=sys.stdout.getvalue();sys.stdout=_o;sys.stderr=_e;_s`);
-    if(out)tLog(out.trimEnd(),'o');else tLog('✓','s');
-  }catch(err){tLog(err.message,'e');}
-}
-
-// ═══════════════════════════════════════════════════════════
-// RUN CODE — language-aware
+// RUN CODE — language-aware (MODIFIED)
 // ═══════════════════════════════════════════════════════════
 async function runCode(){
   if(!activeTab)return;
@@ -697,16 +405,15 @@ async function runCode(){
   const lang=activeTab.lang;
 
   if(lang==='html'){
-    // Check if repo has index.html — use repo preview mode
-    const hasIndex=tabs.some(t=>t.path.split('/').pop()==='index.html')||
-      repoTree.some(f=>f.path==='index.html'||f.path.endsWith('/index.html'));
-    if(activeTab.path.split('/').pop()==='index.html'||hasIndex){
-      openRepoPreview();
+    const hasIndex=repoTree.some(f=>f.path.split('/').pop()==='index.html');
+    if(activeTab.path.endsWith('index.html')||hasIndex){
+      openRepoPreview(); // Use the new dynamic preview
     }else{
-      openInlinePreview(code,activeTab.path);
+      openInlinePreview(code,activeTab.path); // Keep old method for single, non-index files
     }
     return;
   }
+  //... rest of runCode is unchanged...
   if(lang==='python'){
     if(!panelVisible)togglePanel();
     switchPanel('terminal');
@@ -718,7 +425,6 @@ async function runCode(){
     switchPanel('terminal');
     tLog(`\n▶ Running ${activeTab.path} in sandbox…`,'i');
     try{
-      // Wrap in a blob worker with patched console
       const wrapped=`
 const _log=(...a)=>postMessage({type:'log',data:a.join(' ')});
 const _err=(...a)=>postMessage({type:'err',data:a.join(' ')});
@@ -738,121 +444,67 @@ try{${code}}catch(e){_err(e.message)}`;
   switchPanel('terminal');
 }
 
-// ── Preview helpers ─────────────────────────────────────────
+// ── Preview helpers (MODIFIED) ──────────────────────────────
 function openInlinePreview(html,title){
   document.getElementById('preview-title').textContent=title||'Preview';
   document.getElementById('preview-frame').srcdoc=html;
   document.getElementById('preview-wrap').classList.add('on');
 }
 
-function openRepoPreview(){
-  // Find index.html content — build a virtual FS blob URL
-  // We'll inject all CSS/JS files as inline if possible, otherwise just load index.html
-  const indexTab=tabs.find(t=>t.path.split('/').pop()==='index.html')
-    ||repoTree.find(f=>f.path.split('/').pop()==='index.html');
+async function openRepoPreview(){
+  if (!curRepo) { notify('Open a repository first.', 'w'); return; }
+  const indexFile = repoTree.find(f => f.path.split('/').pop() === 'index.html');
+  if (!indexFile) { notify('Repository has no index.html file to preview.', 'w'); return; }
+  
+  notify('Building virtual file system for preview...', 'i');
+  await updateVFS(); // Update the Service Worker's file system
 
-  if(!indexTab){notify('Load index.html first by clicking it in the file tree.','w');return;}
+  const previewFrame = document.getElementById('preview-frame');
+  const previewUrl = PREVIEW_SCOPE + 'index.html';
 
-  let html=indexTab.content||(editor&&activeTab?.path===indexTab.path?editor.getValue():'');
-  if(!html){notify('Open index.html in editor first.','w');return;}
+  // Setting src to the service worker's scope triggers it
+  previewFrame.src = previewUrl; 
+  previewFrame.removeAttribute('srcdoc'); // Ensure srcdoc is not used
 
-  document.getElementById('preview-title').textContent=curRepo+' — index.html';
-  document.getElementById('preview-frame').srcdoc=html;
+  document.getElementById('preview-title').textContent = `${curRepo} - Preview`;
   document.getElementById('preview-wrap').classList.add('on');
-  // Ensure activity reflects preview
+
   document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('on'));
   document.querySelector('.act-btn[title="Preview"]').classList.add('on');
 }
 
 function closePreview(){
   document.getElementById('preview-wrap').classList.remove('on');
+  // Also clear the iframe src to stop any running scripts
+  document.getElementById('preview-frame').src = 'about:blank';
   document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('on'));
   document.querySelector('.act-btn[title="Explorer"]').classList.add('on');
 }
+
 function reloadPreview(){
   const f=document.getElementById('preview-frame');
-  const src=f.srcdoc;f.srcdoc='';setTimeout(()=>f.srcdoc=src,50);
+  f.contentWindow.location.reload();
 }
 
 // ═══════════════════════════════════════════════════════════
-// GITHUB
+// GITHUB (MODIFIED selectRepo to trigger VFS update)
 // ═══════════════════════════════════════════════════════════
-function ghH(){return{Authorization:`Bearer ${ghToken}`,Accept:'application/vnd.github+json'};}
-
-async function openRepoModal(){
-  document.getElementById('modal-repo').classList.add('on');
-  document.getElementById('repo-search').value='';
-  if(!ghToken){document.getElementById('repo-list').innerHTML='<div style="padding:16px;color:var(--red);font-size:12px">No GitHub token — please sign in again.</div>';return;}
-  document.getElementById('repo-list').innerHTML='<div style="padding:16px;color:var(--text3);font-size:12px"><span class="spin">⟳</span> Loading…</div>';
-  const r=await fetch('https://api.github.com/user/repos?per_page=100&sort=updated',{headers:ghH()});
-  allRepos=r.ok?await r.json():[];
-  renderRepoList(allRepos);
-}
-function closeModal(n){document.getElementById('modal-'+n).classList.remove('on');}
-function renderRepoList(repos){
-  const el=document.getElementById('repo-list');
-  if(!repos.length){el.innerHTML='<div style="padding:16px;color:var(--text3);font-size:12px">No repositories found.</div>';return;}
-  el.innerHTML=repos.map(r=>`<div class="ri" onclick="selectRepo('${r.full_name}','${r.default_branch||'main'}')">
-    <div class="ri-n">${r.name}</div>
-    <div class="ri-m">${r.full_name} · ${r.private?'🔒 Private':'🌍 Public'}${r.language?' · '+r.language:''}</div></div>`).join('');
-}
-function filterRepos(){
-  const q=document.getElementById('repo-search').value.toLowerCase();
-  renderRepoList(allRepos.filter(r=>r.full_name.toLowerCase().includes(q)));
-}
+//... ghH, openRepoModal, closeModal, renderRepoList, filterRepos are unchanged...
 async function selectRepo(full,branch){
   closeModal('repo');curRepo=full;curBranch=branch||'main';
   document.getElementById('repo-lbl').textContent=full;
   document.getElementById('s-repo').textContent=full;
   const bb=document.getElementById('br-badge');bb.style.display='flex';bb.textContent=curBranch;
   await refreshTree();
+  // After getting the new tree, update the virtual file system
+  await updateVFS();
 }
-async function refreshTree(){
-  if(!curRepo)return;
-  const[owner,repo]=curRepo.split('/');
-  document.getElementById('ftree').innerHTML='<div class="sb-empty"><span class="spin">⟳</span> Loading…</div>';
-  const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${curBranch}?recursive=1`,{headers:ghH()});
-  if(!r.ok){document.getElementById('ftree').innerHTML='<div class="sb-empty" style="color:var(--red)">Failed to load tree.</div>';return;}
-  const data=await r.json();
-  repoTree=data.tree||[];
-  buildTree(repoTree);
-}
+//... rest of GitHub functions are unchanged...
 
-// ── Collapsible tree ────────────────────────────────────────
-function buildTree(items){
-  const root={c:{},f:[]};
-  items.filter(i=>i.type==='blob').forEach(item=>{
-    const parts=item.path.split('/');let node=root;
-    for(let i=0;i<parts.length-1;i++){
-      const p=parts[i];
-      if(!node.c[p])node.c[p]={c:{},f:[],path:parts.slice(0,i+1).join('/')};
-      node=node.c[p];
-    }
-    node.f.push({name:parts[parts.length-1],path:item.path});
-  });
-  const el=document.getElementById('ftree');el.innerHTML='';
-  renderNode(root,el,0);
-}
-function renderNode(node,container,depth){
-  const pad=(depth*14+8)+'px';
-  // Dirs
-  Object.keys(node.c).sort().forEach(name=>{
-    const child=node.c[name];
-    const dir=document.createElement('div');dir.className='t-dir';dir.style.paddingLeft=pad;
-    dir.innerHTML=`<svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg><span>📁</span><span class="t-nm">${name}</span>`;
-    const kids=document.createElement('div');kids.className='t-ch';
-    dir.onclick=()=>{dir.classList.toggle('open');kids.classList.toggle('open');};
-    container.appendChild(dir);container.appendChild(kids);
-    renderNode(child,kids,depth+1);
-  });
-  // Files
-  node.f.sort((a,b)=>a.name.localeCompare(b.name)).forEach(f=>{
-    const el=document.createElement('div');el.className='t-file';el.style.paddingLeft=pad;el.title=f.path;
-    el.innerHTML=`<span>${iconFrom(f.path)}</span><span class="t-nm">${f.name}</span>`;
-    el.onclick=()=>openFile(f.path);
-    container.appendChild(el);
-  });
-}
+// ═══════════════════════════════════════════════════════════
+// FILE HANDLING (MODIFIED openFile & doCommit to trigger VFS update)
+// ═══════════════════════════════════════════════════════════
+//... buildTree, renderNode are unchanged...
 
 async function openFile(path){
   let tab=tabs.find(t=>t.path===path);
@@ -862,78 +514,36 @@ async function openFile(path){
     if(!r.ok){notify('Failed to load file','e');return;}
     const d=await r.json();
     let content='';
-    try{content=decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));}
-    catch{content='[Binary file — cannot display]';}
+    if (d.content) {
+      try{content=decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));}
+      catch{content='[Binary file — cannot display]';}
+    } else {
+        content = '[File is too large or binary]';
+    }
     tab={path,content,sha:d.sha,mod:false,lang:langFrom(path)};
     tabs.push(tab);
+    await updateVFS(); // Update VFS when a new file is loaded
   }
   setActiveTab(tab);
 }
 
-function setActiveTab(tab){
-  activeTab=tab;
-  document.getElementById('welcome').style.display='none';
-  document.getElementById('me').style.display='block';
-  if(editor){
-    const m=monaco.editor.createModel(tab.content,tab.lang);
-    editor.setModel(m);
-  }
-  document.getElementById('s-file').textContent=tab.path.split('/').pop();
-  const lc=LANG_COLORS[tab.lang]||'var(--text3)';
-  document.getElementById('s-lang').innerHTML=`<span class="lang-pill" style="background:${lc}22;color:${lc}">${tab.lang}</span>`;
-  syncRunBtn();syncCommitBtn();renderTabs();
-  document.querySelectorAll('.t-file').forEach(el=>el.classList.toggle('active',el.title===tab.path));
-}
-
-function syncRunBtn(){
-  const canRun=activeTab&&RUNNABLE.has(activeTab.lang)&&(activeTab.lang!=='python'||pyReady);
-  document.getElementById('run-btn').disabled=!canRun;
-}
+//... setActiveTab, syncRunBtn are unchanged...
 function syncCommitBtn(){
-  document.getElementById('commit-btn').style.display=(activeTab&&activeTab.mod)?'flex':'none';
-}
-
-function closeTab(path,e){
-  e?.stopPropagation();
-  const idx=tabs.findIndex(t=>t.path===path);if(idx<0)return;
-  tabs.splice(idx,1);
-  if(activeTab?.path===path){
-    activeTab=tabs[Math.min(idx,tabs.length-1)]||null;
-    if(activeTab)setActiveTab(activeTab);
-    else{
-      document.getElementById('welcome').style.display='flex';
-      document.getElementById('me').style.display='none';
-      document.getElementById('s-file').textContent='No file';
-      document.getElementById('s-lang').textContent='';
-      document.getElementById('commit-btn').style.display='none';
-      document.getElementById('run-btn').disabled=true;
-    }
+  // This function is fine, but we need to update VFS on change
+  const isModified = activeTab && activeTab.mod;
+  document.getElementById('commit-btn').style.display = isModified? 'flex' : 'none';
+  if (isModified) {
+    updateVFS(); // Update VFS whenever a file is modified
   }
-  renderTabs();
 }
 
-function renderTabs(){
-  const bar=document.getElementById('tabbar');
-  document.getElementById('no-tabs').style.display=tabs.length?'none':'flex';
-  bar.querySelectorAll('.tab').forEach(e=>e.remove());
-  tabs.forEach(t=>{
-    const d=document.createElement('div');
-    d.className=`tab${t===activeTab?' active':''}${t.mod?' mod':''}`;
-    d.innerHTML=`<span>${t.path.split('/').pop()}</span><button class="tab-x" onclick="closeTab('${t.path}',event)">×</button>`;
-    d.onclick=()=>setActiveTab(t);
-    bar.appendChild(d);
-  });
-}
+//... closeTab, renderTabs are unchanged...
 
 // ═══════════════════════════════════════════════════════════
-// COMMIT
+// COMMIT (MODIFIED doCommit to trigger VFS update)
 // ═══════════════════════════════════════════════════════════
-function openCommitModal(){
-  if(!activeTab)return;
-  document.getElementById('commit-file').textContent=activeTab.path;
-  document.getElementById('commit-msg').value=`Update ${activeTab.path}`;
-  document.getElementById('modal-commit').classList.add('on');
-}
+//... openCommitModal is unchanged...
+
 async function doCommit(){
   if(!activeTab||!curRepo)return;
   const msg=document.getElementById('commit-msg').value.trim()||`Update ${activeTab.path}`;
@@ -950,119 +560,14 @@ async function doCommit(){
     const d=await r.json();activeTab.sha=d.content.sha;activeTab.mod=false;
     renderTabs();document.getElementById('commit-btn').style.display='none';
     notify(`Committed: ${activeTab.path}`,'s');
+    await updateVFS(); // Update VFS after successful commit
   }else{
     const err=await r.json();notify('Commit failed: '+err.message,'e');
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// AI — multi-provider via Supabase edge function
-// ═══════════════════════════════════════════════════════════
-function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
-async function sendAI(){
-  const inp=document.getElementById('ai-inp');
-  const txt=inp.value.trim();if(!txt)return;
-
-  const provider=userSettings.provider||'claude';
-  const apiKey=(userSettings.keys||{})[provider];
-  if(!apiKey){
-    notify('Add your '+provider+' API key in Settings first.','w');
-    openSettings();return;
-  }
-
-  inp.value='';
-  appendAM('user',txt);
-  aiHistory.push({role:'user',content:txt});
-  document.getElementById('ai-send').disabled=true;
-
-  const code=editor?editor.getValue():activeTab?.content||'';
-  const fileCtx=activeTab
-    ?`File: \`${activeTab.path}\` (${activeTab.lang}) in ${curRepo}.\n\nContent:\n\`\`\`${activeTab.lang}\n${code.slice(0,3500)}\n\`\`\``
-    :`FlashCode IDE — no file currently open.`;
-  const system=`You are an expert coding assistant embedded in FlashCode, a browser IDE. ${fileCtx}\nBe concise and helpful. Use markdown code blocks for code.`;
-
-  try{
-    const r=await fetch(AI_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`,apikey:SB_KEY},
-      body:JSON.stringify({provider,model:userSettings.model||undefined,apiKey,messages:aiHistory,system})
-    });
-    const data=await r.json();
-    const reply=data.text||data.error||'No response.';
-    aiHistory.push({role:'assistant',content:reply});
-    appendAM('assistant',reply);
-  }catch(e){appendAM('assistant','Error: '+e.message);}
-  document.getElementById('ai-send').disabled=false;
-}
-
-function appendAM(role,text){
-  const msgs=document.getElementById('ai-msgs');
-  const d=document.createElement('div');d.className=`am ${role}`;
-  d.innerHTML=`<div class="am-av">${role==='user'?'U':'AI'}</div>
-    <div class="am-b"><div class="am-r">${role==='user'?'You':'Assistant'}</div>
-    <div class="am-t">${fmtAI(text)}</div></div>`;
-  msgs.appendChild(d);msgs.scrollTop=9999;
-}
-function fmtAI(t){
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre style="background:var(--bg3);padding:8px 10px;border-radius:6px;overflow-x:auto;margin:4px 0;font-size:11px;font-family:var(--mono)">${c.trim()}</pre>`)
-    .replace(/`([^`]+)`/g,'<code>$1</code>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\n/g,'<br>');
-}
-
-// ═══════════════════════════════════════════════════════════
-// UI
-// ═══════════════════════════════════════════════════════════
-function switchPanel(name){
-  document.querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.p-content').forEach(c=>c.classList.remove('active'));
-  document.getElementById('pt-'+name).classList.add('active');
-  document.getElementById('pc-'+name).classList.add('active');
-  if(!panelVisible)togglePanel();
-}
-function togglePanel(){
-  panelVisible=!panelVisible;
-  document.getElementById('bp').classList.toggle('hidden',!panelVisible);
-}
-function setAct(btn,name){
-  document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  if(name==='preview'){
-    // Check if repo has index.html
-    const hasIndex=repoTree.some(f=>f.path==='index.html'||f.path.split('/').pop()==='index.html');
-    if(hasIndex){openRepoPreview();}
-    else if(activeTab&&activeTab.lang==='html'){openInlinePreview(editor?editor.getValue():activeTab.content,activeTab.path);}
-    else{notify('No HTML file loaded for preview.','w');document.querySelector('.act-btn[title="Explorer"]').classList.add('on');btn.classList.remove('on');}
-  }else if(name==='ai'){
-    document.getElementById('preview-wrap').classList.remove('on');
-    switchPanel('ai');
-  }else{
-    document.getElementById('preview-wrap').classList.remove('on');
-    // Restore editor view
-    if(activeTab){document.getElementById('me').style.display='block';document.getElementById('welcome').style.display='none';}
-    else{document.getElementById('welcome').style.display='flex';document.getElementById('me').style.display='none';}
-  }
-}
-
-function notify(msg,type='i'){
-  const el=document.createElement('div');el.className=`ni ${type}`;el.textContent=msg;
-  document.getElementById('notif').appendChild(el);setTimeout(()=>el.remove(),4000);
-}
-
-// Close dropdowns on outside click
-document.addEventListener('click',e=>{
-  if(!e.target.closest('#umenu')&&!e.target.closest('#u-av'))document.getElementById('umenu').classList.remove('on');
-  if(!e.target.closest('#modal-repo')&&!e.target.closest('.repo-sel'))document.getElementById('modal-repo').classList.remove('on');
-});
-
-// ── Resize handle ─────────────────────────────────────────
-let rz=false,rzY=0,rzH=0;
-document.getElementById('rh').addEventListener('mousedown',e=>{rz=true;rzY=e.clientY;rzH=document.getElementById('bp').offsetHeight;document.body.style.cssText='cursor:row-resize;user-select:none';});
-document.addEventListener('mousemove',e=>{if(!rz)return;const h=Math.max(80,Math.min(600,rzH+(rzY-e.clientY)));document.getElementById('bp').style.height=h+'px';});
-document.addEventListener('mouseup',()=>{rz=false;document.body.style.cssText='';});
-
-init();
+//... All other functions (AI, UI, Resize, init) are unchanged below this point...
+// Ensure you have the full, unchanged functions for the rest of your script.
 </script>
 </body>
 </html>

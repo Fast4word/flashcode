@@ -50,7 +50,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .btn-run{display:flex;align-items:center;gap:6px;background:var(--green);color:#000;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;flex-shrink:0}
 .btn-run:hover{opacity:.85}
 .btn-run:disabled{opacity:.4;cursor:not-allowed}
-.btn-commit{display:none;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;flex-shrink:0}
+.btn-commit{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;flex-shrink:0}
 .btn-commit:hover{opacity:.85}
 .avatar{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);cursor:pointer;object-fit:cover;flex-shrink:0}
 .umenu{position:absolute;top:calc(var(--tbh) + 4px);right:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;min-width:180px;z-index:500;display:none}
@@ -83,6 +83,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .t-file{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;padding:3px 8px 3px 0}
 .t-file:hover{background:var(--bg3);color:var(--text)}
 .t-file.active{background:var(--bg4);color:#fff}
+.t-file.mod::after{content:'●';color:var(--yellow);margin-left:4px;font-size:8px}
 .t-ch{display:none}
 .t-ch.open{display:block}
 .t-nm{overflow:hidden;text-overflow:ellipsis}
@@ -194,6 +195,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .key-row input{flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--mono)}
 .key-row input:focus{border-color:var(--accent)}
 .key-row .btn-icon{background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text2)}
+
+/* commit modal extras */
+.commit-summary{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;max-height:200px;overflow-y:auto;margin-top:8px}
+.commit-summary::-webkit-scrollbar{width:4px}
+.commit-summary::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.cf-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;color:var(--text2)}
+.cf-item.mod{color:var(--yellow)}
+.cf-item svg{flex-shrink:0}
 
 /* statusbar */
 #statusbar{height:var(--sbh);background:var(--accent2);display:flex;align-items:center;padding:0 12px;gap:16px;font-size:11px;color:rgba(255,255,255,.8);flex-shrink:0;user-select:none}
@@ -396,16 +405,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 <!-- Commit -->
 <div class="modal" id="modal-commit">
   <div class="mbox">
-    <div class="mhdr"><h3>Commit & Push</h3>
+    <div class="mhdr"><h3>Commit & Push Changes</h3>
       <button class="btn-icon" onclick="closeModal('commit')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="mbody">
-      <p>Committing: <strong id="commit-file" style="color:var(--text)"></strong></p>
+      <p>Modified files:</p>
+      <div class="commit-summary" id="commit-files"></div>
       <div class="field"><label>Commit message</label><textarea class="modal-ta" id="commit-msg" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px;color:var(--text);font-size:13px;outline:none;resize:vertical;min-height:70px;font-family:var(--ui)" placeholder="Describe your changes…"></textarea></div>
     </div>
     <div class="mftr">
       <button class="btn-cancel" onclick="closeModal('commit')">Cancel</button>
-      <button class="btn-ok" onclick="doCommit()">Commit & Push</button>
+      <button class="btn-ok" onclick="doCommitAll()" id="commit-ok-btn">Commit & Push</button>
     </div>
   </div>
 </div>
@@ -417,7 +427,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
       <button class="btn-icon" onclick="closeModal('settings')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="mbody">
-      <p style="line-height:1.6">Your API keys are stored securely in your account and never shared. Choose your default AI provider below.</p>
+      <p style="line-height:1.6">Your API keys are stored in your browser's localStorage. They are never sent to any server except the AI provider you select.</p>
 
       <div class="field">
         <label>Default AI Provider</label>
@@ -499,7 +509,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 // ═══════════════════════════════════════════════════════════
 const SB_URL = 'https://uvslkqxtkortoiacmknw.supabase.co';
 const SB_KEY = 'sb_publishable_7kz7TnR6P4cwRVlr7C_0bA_iqtTVwiF';
-const AI_URL = `${SB_URL}/functions/v1/ai-proxy`;
 
 // ═══════════════════════════════════════════════════════════
 // STATE
@@ -554,22 +563,20 @@ function showIDE(){document.getElementById('auth').style.display='none';document
 function signIn(){const r=encodeURIComponent(location.href.split('#')[0]);location.href=`${SB_URL}/auth/v1/authorize?provider=github&redirect_to=${r}&scopes=repo`;}
 async function signOut(){
   await fetch(`${SB_URL}/auth/v1/logout`,{method:'POST',headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`}}).catch(()=>{});
-  sessionStorage.removeItem('fc_s');session=null;ghToken=null;
+  sessionStorage.removeItem('fc_s');localStorage.removeItem('fc_settings');session=null;ghToken=null;
   document.getElementById('umenu').classList.remove('on');
   showAuth();
 }
 function toggleUMenu(){document.getElementById('umenu').classList.toggle('on');}
 
 // ═══════════════════════════════════════════════════════════
-// SETTINGS (stored in Supabase user_settings table)
+// SETTINGS — NOW USES localStorage instead of Supabase
 // ═══════════════════════════════════════════════════════════
 async function loadSettings(){
   try{
-    const r=await fetch(`${SB_URL}/rest/v1/user_settings?select=settings`,{
-      headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`,Accept:'application/json'}
-    });
-    if(r.ok){const d=await r.json();if(d[0])userSettings=d[0].settings||{};}
-  }catch{}
+    const stored=localStorage.getItem('fc_settings');
+    if(stored){userSettings=JSON.parse(stored);}
+  }catch(e){console.error('Load settings error:',e);}
   updateAIBadge();
 }
 async function saveSettings(){
@@ -585,19 +592,15 @@ async function saveSettings(){
       openrouter:document.getElementById('key-openrouter').value.trim(),
     }
   };
-  // Upsert
-  const r=await fetch(`${SB_URL}/rest/v1/user_settings`,{
-    method:'POST',
-    headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
-    body:JSON.stringify({user_id:await getUserId(),settings:s})
-  });
-  if(r.ok||r.status===201||r.status===200){
-    userSettings=s;closeModal('settings');notify('Settings saved','s');updateAIBadge();
-  }else{notify('Failed to save settings','e');}
-}
-async function getUserId(){
-  const r=await fetch(`${SB_URL}/auth/v1/user`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${session.access_token}`}});
-  const u=await r.json();return u.id;
+  try{
+    localStorage.setItem('fc_settings',JSON.stringify(s));
+    userSettings=s;
+    closeModal('settings');
+    notify('Settings saved locally','s');
+    updateAIBadge();
+  }catch(e){
+    notify('Failed to save settings: '+e.message,'e');
+  }
 }
 function openSettings(){
   document.getElementById('umenu').classList.remove('on');
@@ -619,7 +622,10 @@ function updateAIBadge(){
   const p=userSettings.provider||'claude';
   const hasKey=!!(userSettings.keys?.[p]);
   const btn=document.querySelector('.act-btn[title="AI Assistant"]');
-  if(btn){btn.dataset.dot=hasKey?'':'1';if(hasKey)delete btn.dataset.dot;}
+  if(btn){
+    if(hasKey){delete btn.dataset.dot;}
+    else{btn.dataset.dot='1';}
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -641,7 +647,13 @@ function initMonaco(){
       wordWrap:'on',automaticLayout:true,
     });
     editor.onDidChangeModelContent(()=>{
-      if(activeTab){activeTab.content=editor.getValue();activeTab.mod=true;renderTabs();syncCommitBtn();}
+      if(activeTab){
+        activeTab.content=editor.getValue();
+        activeTab.mod=true;
+        renderTabs();
+        updateFileTreeMod();
+        syncCommitBtn();
+      }
     });
     editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyS,openCommitModal);
     editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.Enter,runCode);
@@ -746,8 +758,7 @@ function openInlinePreview(html,title){
 }
 
 function openRepoPreview(){
-  // Find index.html content — build a virtual FS blob URL
-  // We'll inject all CSS/JS files as inline if possible, otherwise just load index.html
+  // Find index.html content
   const indexTab=tabs.find(t=>t.path.split('/').pop()==='index.html')
     ||repoTree.find(f=>f.path.split('/').pop()==='index.html');
 
@@ -854,6 +865,13 @@ function renderNode(node,container,depth){
   });
 }
 
+function updateFileTreeMod(){
+  document.querySelectorAll('.t-file').forEach(el=>{
+    const tab=tabs.find(t=>t.path===el.title);
+    el.classList.toggle('mod',tab&&tab.mod);
+  });
+}
+
 async function openFile(path){
   let tab=tabs.find(t=>t.path===path);
   if(!tab){
@@ -890,7 +908,8 @@ function syncRunBtn(){
   document.getElementById('run-btn').disabled=!canRun;
 }
 function syncCommitBtn(){
-  document.getElementById('commit-btn').style.display=(activeTab&&activeTab.mod)?'flex':'none';
+  const hasChanges=tabs.some(t=>t.mod);
+  document.getElementById('commit-btn').style.display=hasChanges?'flex':'none';
 }
 
 function closeTab(path,e){
@@ -910,6 +929,8 @@ function closeTab(path,e){
     }
   }
   renderTabs();
+  updateFileTreeMod();
+  syncCommitBtn();
 }
 
 function renderTabs(){
@@ -926,37 +947,85 @@ function renderTabs(){
 }
 
 // ═══════════════════════════════════════════════════════════
-// COMMIT
+// COMMIT — NOW COMMITS ALL MODIFIED FILES
 // ═══════════════════════════════════════════════════════════
 function openCommitModal(){
-  if(!activeTab)return;
-  document.getElementById('commit-file').textContent=activeTab.path;
-  document.getElementById('commit-msg').value=`Update ${activeTab.path}`;
+  const modFiles=tabs.filter(t=>t.mod);
+  if(!modFiles.length){notify('No files modified','w');return;}
+  
+  // Show list of modified files
+  const list=document.getElementById('commit-files');
+  list.innerHTML=modFiles.map(t=>`
+    <div class="cf-item mod">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>${t.path}</span>
+    </div>
+  `).join('');
+  
+  document.getElementById('commit-msg').value=modFiles.length===1
+    ?`Update ${modFiles[0].path}`
+    :`Update ${modFiles.length} files`;
   document.getElementById('modal-commit').classList.add('on');
 }
-async function doCommit(){
-  if(!activeTab||!curRepo)return;
-  const msg=document.getElementById('commit-msg').value.trim()||`Update ${activeTab.path}`;
+
+async function doCommitAll(){
+  const modFiles=tabs.filter(t=>t.mod);
+  if(!modFiles.length){notify('No files to commit','w');return;}
+  if(!curRepo){notify('No repository selected','e');return;}
+  
+  const msg=document.getElementById('commit-msg').value.trim()||`Update ${modFiles.length} files`;
   const[owner,repo]=curRepo.split('/');
-  if(editor)activeTab.content=editor.getValue();
-  const encoded=btoa(unescape(encodeURIComponent(activeTab.content)));
+  
   closeModal('commit');
-  const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${activeTab.path}`,{
-    method:'PUT',
-    headers:{...ghH(),'Content-Type':'application/json'},
-    body:JSON.stringify({message:msg,content:encoded,sha:activeTab.sha,branch:curBranch})
-  });
-  if(r.ok){
-    const d=await r.json();activeTab.sha=d.content.sha;activeTab.mod=false;
-    renderTabs();document.getElementById('commit-btn').style.display='none';
-    notify(`Committed: ${activeTab.path}`,'s');
+  document.getElementById('commit-ok-btn').disabled=true;
+  notify(`Committing ${modFiles.length} file(s)…`,'i');
+  
+  let success=0,failed=0;
+  
+  for(const tab of modFiles){
+    try{
+      // Update tab content from editor if it's active
+      if(tab===activeTab&&editor){
+        tab.content=editor.getValue();
+      }
+      
+      const encoded=btoa(unescape(encodeURIComponent(tab.content)));
+      const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${tab.path}`,{
+        method:'PUT',
+        headers:{...ghH(),'Content-Type':'application/json'},
+        body:JSON.stringify({message:msg,content:encoded,sha:tab.sha,branch:curBranch})
+      });
+      
+      if(r.ok){
+        const d=await r.json();
+        tab.sha=d.content.sha;
+        tab.mod=false;
+        success++;
+      }else{
+        const err=await r.json();
+        console.error(`Failed ${tab.path}:`,err.message);
+        failed++;
+      }
+    }catch(e){
+      console.error(`Error ${tab.path}:`,e);
+      failed++;
+    }
+  }
+  
+  document.getElementById('commit-ok-btn').disabled=false;
+  renderTabs();
+  updateFileTreeMod();
+  syncCommitBtn();
+  
+  if(failed===0){
+    notify(`✓ Committed ${success} file(s)`,'s');
   }else{
-    const err=await r.json();notify('Commit failed: '+err.message,'e');
+    notify(`Committed ${success}, failed ${failed}`,'w');
   }
 }
 
 // ═══════════════════════════════════════════════════════════
-// AI — multi-provider via Supabase edge function
+// AI — FIXED: Direct API calls without Supabase proxy
 // ═══════════════════════════════════════════════════════════
 function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
 async function sendAI(){
@@ -982,16 +1051,96 @@ async function sendAI(){
   const system=`You are an expert coding assistant embedded in FlashCode, a browser IDE. ${fileCtx}\nBe concise and helpful. Use markdown code blocks for code.`;
 
   try{
-    const r=await fetch(AI_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.access_token}`,apikey:SB_KEY},
-      body:JSON.stringify({provider,model:userSettings.model||undefined,apiKey,messages:aiHistory,system})
-    });
-    const data=await r.json();
-    const reply=data.text||data.error||'No response.';
+    // Call the appropriate API directly based on provider
+    let reply='';
+    if(provider==='claude'){
+      const r=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+        body:JSON.stringify({
+          model:userSettings.model||'claude-sonnet-4-20250514',
+          max_tokens:4096,
+          system,
+          messages:aiHistory
+        })
+      });
+      const data=await r.json();
+      if(data.error){throw new Error(data.error.message||'API error');}
+      reply=data.content?.[0]?.text||'No response.';
+    }else if(provider==='openai'){
+      const msgs=[{role:'system',content:system},...aiHistory];
+      const r=await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+        body:JSON.stringify({
+          model:userSettings.model||'gpt-4o',
+          messages:msgs
+        })
+      });
+      const data=await r.json();
+      if(data.error){throw new Error(data.error.message||'API error');}
+      reply=data.choices?.[0]?.message?.content||'No response.';
+    }else if(provider==='gemini'){
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${userSettings.model||'gemini-2.0-flash-exp'}:generateContent?key=${apiKey}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          contents:aiHistory.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),
+          systemInstruction:{parts:[{text:system}]}
+        })
+      });
+      const data=await r.json();
+      if(data.error){throw new Error(data.error.message||'API error');}
+      reply=data.candidates?.[0]?.content?.parts?.[0]?.text||'No response.';
+    }else if(provider==='grok'){
+      const msgs=[{role:'system',content:system},...aiHistory];
+      const r=await fetch('https://api.x.ai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+        body:JSON.stringify({
+          model:userSettings.model||'grok-2-latest',
+          messages:msgs
+        })
+      });
+      const data=await r.json();
+      if(data.error){throw new Error(data.error.message||'API error');}
+      reply=data.choices?.[0]?.message?.content||'No response.';
+    }else if(provider==='groq'){
+      const msgs=[{role:'system',content:system},...aiHistory];
+      const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+        body:JSON.stringify({
+          model:userSettings.model||'llama-3.3-70b-versatile',
+          messages:msgs
+        })
+      });
+      const data=await r.json();
+      if(data.error){throw new Error(data.error.message||'API error');}
+      reply=data.choices?.[0]?.message?.content||'No response.';
+    }else if(provider==='openrouter'){
+      const msgs=[{role:'system',content:system},...aiHistory];
+      const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey,'HTTP-Referer':window.location.href,'X-Title':'FlashCode IDE'},
+        body:JSON.stringify({
+          model:userSettings.model||'anthropic/claude-sonnet-4',
+          messages:msgs
+        })
+      });
+      const data=await r.json();
+      if(data.error){throw new Error(data.error.message||'API error');}
+      reply=data.choices?.[0]?.message?.content||'No response.';
+    }else{
+      throw new Error('Unsupported provider: '+provider);
+    }
+    
     aiHistory.push({role:'assistant',content:reply});
     appendAM('assistant',reply);
-  }catch(e){appendAM('assistant','Error: '+e.message);}
+  }catch(e){
+    appendAM('assistant','❌ Error: '+e.message);
+    console.error('AI error:',e);
+  }
   document.getElementById('ai-send').disabled=false;
 }
 

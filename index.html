@@ -136,7 +136,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #tprompt{color:var(--accent);font-family:var(--mono);font-size:12px}
 #tinput{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:12px}
 /* AI */
-#ai-wrap{flex:1;display:flex;flex-direction:column;background:var(--bg0)}
+#ai-wrap{flex:1;display:flex;flex-direction:column;background:var(--bg0);overflow:hidden}
 #ai-msgs{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:10px}
 #ai-msgs::-webkit-scrollbar{width:4px}
 #ai-msgs::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
@@ -144,11 +144,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .am-av{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
 .am.user .am-av{background:var(--accent);color:#fff}
 .am.assistant .am-av{background:var(--purple);color:#fff}
-.am-b{flex:1}
+.am-b{flex:1;min-width:0}
 .am-r{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
 .am-t{font-size:12px;line-height:1.6;color:var(--text);white-space:pre-wrap;word-break:break-word}
 .am-t code{font-family:var(--mono);background:var(--bg3);padding:1px 4px;border-radius:3px;font-size:11px}
-#ai-inp-row{display:flex;gap:8px;padding:8px 14px;border-top:1px solid var(--border);background:var(--bg1)}
+.am-t pre{overflow-x:auto}
+#ai-inp-row{display:flex;gap:8px;padding:8px 14px;border-top:1px solid var(--border);background:var(--bg1);flex-shrink:0}
 #ai-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--ui);resize:none;height:34px;line-height:1.4}
 #ai-inp:focus{border-color:var(--accent)}
 .btn-send{background:var(--accent);border:none;border-radius:6px;color:#fff;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
@@ -365,7 +366,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
                 <div class="am assistant">
                   <div class="am-av">AI</div>
                   <div class="am-b"><div class="am-r">Assistant</div>
-                  <div class="am-t">Hi! I'm your AI coding assistant. Add your API key in Settings, then ask me anything about your code!</div></div>
+                  <div class="am-t">Hi! I'm your AI coding assistant. I can see your entire repository structure and file contents. Add your API key in Settings, then ask me anything!</div></div>
                 </div>
               </div>
               <div id="ai-inp-row">
@@ -520,6 +521,7 @@ let allRepos=[], aiHistory=[];
 let panelVisible=true;
 let userSettings={}; // { provider, model, keys:{claude,openai,...} }
 let repoTree=[]; // flat tree items
+let vfs={}; // Virtual File System: { 'path/to/file.py': 'content' }
 
 // ═══════════════════════════════════════════════════════════
 // LANG / ICON MAPS
@@ -531,6 +533,56 @@ const RUNNABLE=new Set(['python','javascript','typescript','html']);
 
 function langFrom(p=''){const e=p.split('.').pop()?.toLowerCase();return LANG_MAP[e]||'plaintext';}
 function iconFrom(p=''){const e=p.split('.').pop()?.toLowerCase();return ICON_MAP[e]||'📄';}
+
+// ═══════════════════════════════════════════════════════════
+// VFS — Virtual File System for code execution
+// ═══════════════════════════════════════════════════════════
+function syncVFS(){
+  // Sync all loaded tabs into VFS
+  vfs={};
+  tabs.forEach(t=>{
+    // Update from editor if it's the active tab
+    if(t===activeTab&&editor){
+      t.content=editor.getValue();
+    }
+    vfs[t.path]=t.content;
+  });
+}
+
+async function loadAllFilesIntoVFS(){
+  // Load ALL repository files into VFS for proper imports/requires
+  if(!curRepo||!repoTree.length)return;
+  
+  tLog('Loading repository into virtual file system…','i');
+  const[owner,repo]=curRepo.split('/');
+  let loaded=0;
+  
+  for(const item of repoTree){
+    if(item.type!=='blob')continue;
+    
+    // Skip if already in tabs
+    if(tabs.some(t=>t.path===item.path))continue;
+    
+    // Only load text files (skip binaries)
+    const ext=item.path.split('.').pop()?.toLowerCase();
+    if(['png','jpg','jpeg','gif','svg','ico','woff','woff2','ttf','eot','zip','tar','gz','pdf'].includes(ext))continue;
+    
+    try{
+      const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${item.path}?ref=${curBranch}`,{headers:ghH()});
+      if(!r.ok)continue;
+      const d=await r.json();
+      try{
+        const content=decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));
+        vfs[item.path]=content;
+        loaded++;
+      }catch{}
+    }catch{}
+  }
+  
+  // Sync current tabs
+  syncVFS();
+  tLog(`Loaded ${loaded} files + ${tabs.length} open files into VFS.`,'s');
+}
 
 // ═══════════════════════════════════════════════════════════
 // AUTH
@@ -570,7 +622,7 @@ async function signOut(){
 function toggleUMenu(){document.getElementById('umenu').classList.toggle('on');}
 
 // ═══════════════════════════════════════════════════════════
-// SETTINGS — NOW USES localStorage instead of Supabase
+// SETTINGS — localStorage
 // ═══════════════════════════════════════════════════════════
 async function loadSettings(){
   try{
@@ -604,7 +656,6 @@ async function saveSettings(){
 }
 function openSettings(){
   document.getElementById('umenu').classList.remove('on');
-  // Populate form from userSettings
   document.getElementById('cfg-provider').value=userSettings.provider||'claude';
   document.getElementById('cfg-model').value=userSettings.model||'';
   const keys=userSettings.keys||{};
@@ -653,6 +704,7 @@ function initMonaco(){
         renderTabs();
         updateFileTreeMod();
         syncCommitBtn();
+        syncVFS();
       }
     });
     editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyS,openCommitModal);
@@ -701,15 +753,17 @@ async function execPy(code){
 }
 
 // ═══════════════════════════════════════════════════════════
-// RUN CODE — language-aware
+// RUN CODE — with VFS support
 // ═══════════════════════════════════════════════════════════
 async function runCode(){
   if(!activeTab)return;
   const code=editor?editor.getValue():activeTab.content;
   const lang=activeTab.lang;
 
+  // Sync VFS before running
+  syncVFS();
+
   if(lang==='html'){
-    // Check if repo has index.html — use repo preview mode
     const hasIndex=tabs.some(t=>t.path.split('/').pop()==='index.html')||
       repoTree.some(f=>f.path==='index.html'||f.path.endsWith('/index.html'));
     if(activeTab.path.split('/').pop()==='index.html'||hasIndex){
@@ -719,22 +773,54 @@ async function runCode(){
     }
     return;
   }
+  
   if(lang==='python'){
     if(!panelVisible)togglePanel();
     switchPanel('terminal');
     tLog(`\n▶ Running ${activeTab.path}…`,'i');
-    await execPy(code);return;
+    
+    // Mount VFS into Pyodide
+    try{
+      // Create a virtual filesystem in Pyodide
+      for(const[path,content]of Object.entries(vfs)){
+        const dir=path.split('/').slice(0,-1).join('/');
+        if(dir){
+          pyodide.runPython(`
+import os
+os.makedirs('${dir}', exist_ok=True)
+`);
+        }
+        // Write file
+        pyodide.FS.writeFile(path,content);
+      }
+      tLog(`Mounted ${Object.keys(vfs).length} files into VFS.`,'i');
+    }catch(e){
+      tLog('VFS mount warning: '+e.message,'w');
+    }
+    
+    await execPy(code);
+    return;
   }
+  
   if(lang==='javascript'||lang==='typescript'){
     if(!panelVisible)togglePanel();
     switchPanel('terminal');
-    tLog(`\n▶ Running ${activeTab.path} in sandbox…`,'i');
+    tLog(`\n▶ Running ${activeTab.path}…`,'i');
+    
+    // Create a simple require() system for JavaScript
+    const vfsContext=Object.entries(vfs).map(([p,c])=>`['${p}']:${JSON.stringify(c)}`).join(',');
+    
     try{
-      // Wrap in a blob worker with patched console
       const wrapped=`
+const _vfs={${vfsContext}};
 const _log=(...a)=>postMessage({type:'log',data:a.join(' ')});
 const _err=(...a)=>postMessage({type:'err',data:a.join(' ')});
 const console={log:_log,error:_err,warn:_log,info:_log,debug:_log};
+const require=(path)=>{
+  if(_vfs[path])return eval(_vfs[path]);
+  if(_vfs[path+'.js'])return eval(_vfs[path+'.js']);
+  throw new Error('Cannot find module: '+path);
+};
 try{${code}}catch(e){_err(e.message)}`;
       const blob=new Blob([wrapped],{type:'text/javascript'});
       const url=URL.createObjectURL(blob);
@@ -745,6 +831,7 @@ try{${code}}catch(e){_err(e.message)}`;
     }catch(e){tLog(e.message,'e');}
     return;
   }
+  
   tLog(`Cannot run ${lang} files in the browser.`,'w');
   if(!panelVisible)togglePanel();
   switchPanel('terminal');
@@ -758,7 +845,6 @@ function openInlinePreview(html,title){
 }
 
 function openRepoPreview(){
-  // Find index.html content
   const indexTab=tabs.find(t=>t.path.split('/').pop()==='index.html')
     ||repoTree.find(f=>f.path.split('/').pop()==='index.html');
 
@@ -770,7 +856,6 @@ function openRepoPreview(){
   document.getElementById('preview-title').textContent=curRepo+' — index.html';
   document.getElementById('preview-frame').srcdoc=html;
   document.getElementById('preview-wrap').classList.add('on');
-  // Ensure activity reflects preview
   document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('on'));
   document.querySelector('.act-btn[title="Preview"]').classList.add('on');
 }
@@ -817,6 +902,8 @@ async function selectRepo(full,branch){
   document.getElementById('s-repo').textContent=full;
   const bb=document.getElementById('br-badge');bb.style.display='flex';bb.textContent=curBranch;
   await refreshTree();
+  // Load entire repo into VFS
+  await loadAllFilesIntoVFS();
 }
 async function refreshTree(){
   if(!curRepo)return;
@@ -884,6 +971,7 @@ async function openFile(path){
     catch{content='[Binary file — cannot display]';}
     tab={path,content,sha:d.sha,mod:false,lang:langFrom(path)};
     tabs.push(tab);
+    syncVFS();
   }
   setActiveTab(tab);
 }
@@ -931,6 +1019,7 @@ function closeTab(path,e){
   renderTabs();
   updateFileTreeMod();
   syncCommitBtn();
+  syncVFS();
 }
 
 function renderTabs(){
@@ -947,13 +1036,12 @@ function renderTabs(){
 }
 
 // ═══════════════════════════════════════════════════════════
-// COMMIT — NOW COMMITS ALL MODIFIED FILES
+// COMMIT
 // ═══════════════════════════════════════════════════════════
 function openCommitModal(){
   const modFiles=tabs.filter(t=>t.mod);
   if(!modFiles.length){notify('No files modified','w');return;}
   
-  // Show list of modified files
   const list=document.getElementById('commit-files');
   list.innerHTML=modFiles.map(t=>`
     <div class="cf-item mod">
@@ -984,7 +1072,6 @@ async function doCommitAll(){
   
   for(const tab of modFiles){
     try{
-      // Update tab content from editor if it's active
       if(tab===activeTab&&editor){
         tab.content=editor.getValue();
       }
@@ -1016,6 +1103,7 @@ async function doCommitAll(){
   renderTabs();
   updateFileTreeMod();
   syncCommitBtn();
+  syncVFS();
   
   if(failed===0){
     notify(`✓ Committed ${success} file(s)`,'s');
@@ -1025,8 +1113,36 @@ async function doCommitAll(){
 }
 
 // ═══════════════════════════════════════════════════════════
-// AI — FIXED: Direct API calls without Supabase proxy
+// AI — with FULL REPO CONTEXT
 // ═══════════════════════════════════════════════════════════
+function buildRepoContext(){
+  // Build comprehensive repository context for AI
+  let context=`Repository: ${curRepo}\nBranch: ${curBranch}\n\n`;
+  
+  // File structure
+  context+=`FILE STRUCTURE:\n`;
+  const tree=repoTree.filter(i=>i.type==='blob').map(i=>i.path).sort();
+  context+=tree.map(p=>`  ${p}`).join('\n');
+  context+=`\n\nTOTAL FILES: ${tree.length}\n\n`;
+  
+  // Currently open files with full content
+  if(tabs.length){
+    context+=`OPEN FILES (${tabs.length}):\n\n`;
+    tabs.forEach(t=>{
+      const content=t===activeTab&&editor?editor.getValue():t.content;
+      context+=`━━━ ${t.path} ${t.mod?'(MODIFIED)':''} ━━━\n`;
+      context+=`${content}\n\n`;
+    });
+  }
+  
+  // Active file highlight
+  if(activeTab){
+    context+=`CURRENTLY ACTIVE FILE: ${activeTab.path}\n`;
+  }
+  
+  return context;
+}
+
 function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
 async function sendAI(){
   const inp=document.getElementById('ai-inp');
@@ -1044,14 +1160,15 @@ async function sendAI(){
   aiHistory.push({role:'user',content:txt});
   document.getElementById('ai-send').disabled=true;
 
-  const code=editor?editor.getValue():activeTab?.content||'';
-  const fileCtx=activeTab
-    ?`File: \`${activeTab.path}\` (${activeTab.lang}) in ${curRepo}.\n\nContent:\n\`\`\`${activeTab.lang}\n${code.slice(0,3500)}\n\`\`\``
-    :`FlashCode IDE — no file currently open.`;
-  const system=`You are an expert coding assistant embedded in FlashCode, a browser IDE. ${fileCtx}\nBe concise and helpful. Use markdown code blocks for code.`;
+  // Build comprehensive repo context
+  const repoContext=curRepo?buildRepoContext():'No repository currently open.';
+  const system=`You are an expert coding assistant embedded in FlashCode IDE.
+
+${repoContext}
+
+Be concise and helpful. Use markdown code blocks for code. When suggesting changes, reference specific files and line numbers when relevant.`;
 
   try{
-    // Call the appropriate API directly based on provider
     let reply='';
     if(provider==='claude'){
       const r=await fetch('https://api.anthropic.com/v1/messages',{
@@ -1178,7 +1295,6 @@ function setAct(btn,name){
   document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   if(name==='preview'){
-    // Check if repo has index.html
     const hasIndex=repoTree.some(f=>f.path==='index.html'||f.path.split('/').pop()==='index.html');
     if(hasIndex){openRepoPreview();}
     else if(activeTab&&activeTab.lang==='html'){openInlinePreview(editor?editor.getValue():activeTab.content,activeTab.path);}
@@ -1188,7 +1304,6 @@ function setAct(btn,name){
     switchPanel('ai');
   }else{
     document.getElementById('preview-wrap').classList.remove('on');
-    // Restore editor view
     if(activeTab){document.getElementById('me').style.display='block';document.getElementById('welcome').style.display='none';}
     else{document.getElementById('welcome').style.display='flex';document.getElementById('me').style.display='none';}
   }
@@ -1199,7 +1314,6 @@ function notify(msg,type='i'){
   document.getElementById('notif').appendChild(el);setTimeout(()=>el.remove(),4000);
 }
 
-// Close dropdowns on outside click
 document.addEventListener('click',e=>{
   if(!e.target.closest('#umenu')&&!e.target.closest('#u-av'))document.getElementById('umenu').classList.remove('on');
   if(!e.target.closest('#modal-repo')&&!e.target.closest('.repo-sel'))document.getElementById('modal-repo').classList.remove('on');

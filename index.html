@@ -28,7 +28,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:32px;display:flex;flex-direction:column;gap:16px;width:340px}
 .auth-card h2{font-size:16px;font-weight:600;color:#fff}
 .auth-card p{color:var(--text2);font-size:13px;line-height:1.5}
-.btn-gh{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#0d0d0d;border:none;border-radius:8px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-gh{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#0d0d0d;border:none;border-radius:8px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:background.15s}
 .btn-gh:hover{background:#e5e5e5}
 
 /* ── IDE ── */
@@ -45,17 +45,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #repo-lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .br-badge{background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:11px;color:var(--accent);font-family:var(--mono);display:none;flex-shrink:0}
 .tb-actions{margin-left:auto;display:flex;gap:6px;align-items:center;flex-shrink:0}
-.btn-icon{background:none;border:none;color:var(--text2);cursor:pointer;padding:5px;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0}
+.btn-icon{background:none;border:none;color:var(--text2);cursor:pointer;padding:5px;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:background.15s,color.15s;flex-shrink:0}
 .btn-icon:hover{background:var(--bg4);color:var(--text)}
-.btn-run{display:flex;align-items:center;gap:6px;background:var(--green);color:#000;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;flex-shrink:0}
+.btn-run{display:flex;align-items:center;gap:6px;background:var(--green);color:#000;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity.15s;flex-shrink:0}
 .btn-run:hover{opacity:.85}
 .btn-run:disabled{opacity:.4;cursor:not-allowed}
-.btn-commit{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;flex-shrink:0}
+.btn-commit{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity.15s;flex-shrink:0}
 .btn-commit:hover{opacity:.85}
 .avatar{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);cursor:pointer;object-fit:cover;flex-shrink:0}
 .umenu{position:absolute;top:calc(var(--tbh) + 4px);right:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;min-width:180px;z-index:500;display:none}
 .umenu.on{display:block}
-.umenu-item{padding:8px 12px;border-radius:5px;cursor:pointer;color:var(--text2);font-size:12px;transition:background .1s;display:flex;align-items:center;gap:8px}
+.umenu-item{padding:8px 12px;border-radius:5px;cursor:pointer;color:var(--text2);font-size:12px;transition:background.1s;display:flex;align-items:center;gap:8px}
 .umenu-item:hover{background:var(--bg4);color:var(--text)}
 .umenu-item.danger:hover{background:#3f1212;color:var(--red)}
 .umenu-sep{height:1px;background:var(--border);margin:4px 0}
@@ -65,7 +65,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 
 /* activity bar */
 #actbar{width:var(--sw);background:var(--bg0);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px;flex-shrink:0}
-.act-btn{width:34px;height:34px;border-radius:7px;background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;position:relative}
+.act-btn{width:34px;height:34px;border-radius:7px;background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background.15s,color.15s;position:relative}
 .act-btn:hover,.act-btn.on{background:var(--bg3);color:var(--text)}
 .act-btn.on{color:var(--accent)}
 .act-btn[data-dot]::after{content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--yellow)}
@@ -76,11 +76,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #ftree{flex:1;overflow-y:auto;padding:4px 0}
 #ftree::-webkit-scrollbar{width:4px}
 #ftree::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
-.t-dir{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;user-select:none;padding:3px 8px 3px 0}
+.t-dir{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background.1s,color.1s;white-space:nowrap;overflow:hidden;user-select:none;padding:3px 8px 3px 0}
 .t-dir:hover{background:var(--bg3);color:var(--text)}
-.t-dir svg.chev{flex-shrink:0;transition:transform .15s}
+.t-dir svg.chev{flex-shrink:0;transition:transform.15s}
 .t-dir.open svg.chev{transform:rotate(90deg)}
-.t-file{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;padding:3px 8px 3px 0}
+.t-file{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2);transition:background.1s,color.1s;white-space:nowrap;overflow:hidden;padding:3px 8px 3px 0}
 .t-file:hover{background:var(--bg3);color:var(--text)}
 .t-file.active{background:var(--bg4);color:#fff}
 .t-file.mod::after{content:'●';color:var(--yellow);margin-left:4px;font-size:8px}
@@ -93,12 +93,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #ea{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #tabbar{height:var(--tbbh);background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:flex-end;overflow-x:auto;flex-shrink:0}
 #tabbar::-webkit-scrollbar{height:0}
-.tab{display:flex;align-items:center;gap:6px;padding:0 14px;height:100%;border-right:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--text2);white-space:nowrap;background:var(--bg1);transition:background .1s,color .1s;flex-shrink:0;position:relative}
+.tab{display:flex;align-items:center;gap:6px;padding:0 14px;height:100%;border-right:1px solid var(--border);font-size:12px;cursor:pointer;color:var(--text2);white-space:nowrap;background:var(--bg1);transition:background.1s,color.1s;flex-shrink:0;position:relative}
 .tab:hover{background:var(--bg2);color:var(--text)}
 .tab.active{background:var(--bg2);color:#fff}
 .tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent)}
 .tab.mod::before{content:'●';color:var(--yellow);margin-right:-4px;font-size:10px}
-.tab-x{width:16px;height:16px;border-radius:3px;border:none;background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;transition:background .1s,color .1s}
+.tab-x{width:16px;height:16px;border-radius:3px;border:none;background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;transition:background.1s,color.1s}
 .tab-x:hover{background:var(--bg4);color:var(--text)}
 #no-tabs{display:flex;align-items:center;padding:0 16px;color:var(--text3);font-size:12px}
 
@@ -121,7 +121,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #bp{background:var(--bg1);border-top:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:var(--ph)}
 #bp.hidden{display:none}
 .p-tabs{display:flex;border-bottom:1px solid var(--border);height:32px;flex-shrink:0;align-items:center}
-.p-tab{display:flex;align-items:center;gap:6px;padding:0 14px;font-size:12px;color:var(--text3);cursor:pointer;border-right:1px solid var(--border);height:100%;transition:background .1s,color .1s}
+.p-tab{display:flex;align-items:center;gap:6px;padding:0 14px;font-size:12px;color:var(--text3);cursor:pointer;border-right:1px solid var(--border);height:100%;transition:background.1s,color.1s}
 .p-tab:hover{background:var(--bg2);color:var(--text2)}
 .p-tab.active{color:var(--text);background:var(--bg2)}
 .p-acts{margin-left:auto;display:flex;align-items:center;padding:0 8px;gap:4px}
@@ -142,8 +142,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #ai-msgs::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
 .am{display:flex;gap:8px}
 .am-av{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-.am.user .am-av{background:var(--accent);color:#fff}
-.am.assistant .am-av{background:var(--purple);color:#fff}
+.am.user.am-av{background:var(--accent);color:#fff}
+.am.assistant.am-av{background:var(--purple);color:#fff}
 .am-b{flex:1;min-width:0}
 .am-r{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--text3);margin-bottom:2px}
 .am-t{font-size:12px;line-height:1.6;color:var(--text);white-space:pre-wrap;word-break:break-word}
@@ -152,7 +152,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #ai-inp-row{display:flex;gap:8px;padding:8px 14px;border-top:1px solid var(--border);background:var(--bg1);flex-shrink:0}
 #ai-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--ui);resize:none;height:34px;line-height:1.4}
 #ai-inp:focus{border-color:var(--accent)}
-.btn-send{background:var(--accent);border:none;border-radius:6px;color:#fff;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.btn-send{background:var(--accent);border:none;border-radius:6px;color:#fff;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity.15s}
 .btn-send:hover{opacity:.85}
 .btn-send:disabled{opacity:.4;cursor:not-allowed}
 
@@ -176,7 +176,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 #repo-list{overflow-y:auto;padding:4px 8px 8px}
 #repo-list::-webkit-scrollbar{width:4px}
 #repo-list::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
-.ri{display:flex;flex-direction:column;padding:10px 12px;border-radius:7px;cursor:pointer;transition:background .1s}
+.ri{display:flex;flex-direction:column;padding:10px 12px;border-radius:7px;cursor:pointer;transition:background.1s}
 .ri:hover{background:var(--bg3)}
 .ri-n{font-size:13px;color:#fff;font-weight:500}
 .ri-m{font-size:11px;color:var(--text3);margin-top:2px}
@@ -187,7 +187,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
 .field select option{background:var(--bg3)}
 .field textarea{resize:vertical;min-height:70px}
-.field .hint{font-size:11px;color:var(--text3)}
+.field.hint{font-size:11px;color:var(--text3)}
 /* API key group */
 .provider-section{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .provider-section h4{font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
@@ -195,7 +195,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 .key-row{display:flex;gap:8px;align-items:center}
 .key-row input{flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--mono)}
 .key-row input:focus{border-color:var(--accent)}
-.key-row .btn-icon{background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text2)}
+.key-row.btn-icon{background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text2)}
 
 /* commit modal extras */
 .commit-summary{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;max-height:200px;overflow-y:auto;margin-top:8px}
@@ -217,11 +217,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
 
 /* notifs */
 #notif{position:fixed;bottom:32px;right:16px;z-index:600;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.ni{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:sIn .2s ease;max-width:300px}
+.ni{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.5);animation:sIn.2s ease;max-width:300px}
 .ni.s{border-color:var(--green)}.ni.e{border-color:var(--red)}.ni.w{border-color:var(--yellow)}
 @keyframes sIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spin{animation:spin .8s linear infinite;display:inline-block}
+.spin{animation:spin.8s linear infinite;display:inline-block}
 </style>
 </head>
 <body>
@@ -237,7 +237,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
     <h2>Sign in to continue</h2>
     <p>Connect your GitHub account to browse repos, edit code, and run it instantly in your browser.</p>
     <button class="btn-gh" onclick="signIn()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3.405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0.315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
       Continue with GitHub
     </button>
   </div>
@@ -251,7 +251,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
     <div class="tb-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Flash<span>Code</span></div>
     <div class="tb-sep"></div>
     <div class="repo-sel" onclick="openRepoModal()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 0 0 0 9 18.13V22"/></svg>
       <span id="repo-lbl">Open a repository…</span>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
@@ -275,7 +275,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
     <div class="umenu-item" id="u-name" style="color:var(--text);font-weight:500;cursor:default"></div>
     <div class="umenu-sep"></div>
     <div class="umenu-item" onclick="openSettings()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0.33 1.82l.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 0 0 0 9 19.4a1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 0 0 0 4.68 15a1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 0 0 0 9 4.68a1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 0 0 0 1 1.51 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 0 0 0 19.4 9a1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 0 0 0-1.51 1z"/></svg>
       Settings & API Keys
     </div>
     <div class="umenu-item danger" onclick="signOut()">
@@ -368,7 +368,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
                   <div class="am-b"><div class="am-r">Assistant</div>
                   <div class="am-t">Hi! I'm your AI coding assistant. I can see your entire repository structure and file contents. Add your API key in Settings, then ask me anything!</div></div>
                 </div>
-              </div>
               <div id="ai-inp-row">
                 <textarea id="ai-inp" placeholder="Ask about your code… (Enter to send)" onkeydown="aiKey(event)"></textarea>
                 <button class="btn-send" onclick="sendAI()" id="ai-send">
@@ -383,7 +382,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
   </div>
 
   <div id="statusbar">
-    <div class="si"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg><span id="s-repo">No repo</span></div>
+    <div class="si"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 0 0 0 5 4.77a5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 0 0 0 9 18.13V22"/></svg><span id="s-repo">No repo</span></div>
     <div class="si"><span id="s-file" style="color:var(--text3)">No file</span></div>
     <div class="si"><span id="s-lang"></span></div>
     <div class="si r" id="s-runtime"><span class="spin">⟳</span> Loading Python…</div>
@@ -475,7 +474,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
         <h4><span style="color:#f87171">◆</span> Grok — xAI <a href="https://console.x.ai/" target="_blank" style="font-size:10px;color:var(--accent);margin-left:auto;font-weight:400">Get key ↗</a></h4>
         <div class="key-row">
           <input type="password" id="key-grok" placeholder="xai-…"/>
-          <button class="btn-icon" onclick="toggleKeyVis('key-grok')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="btn-icon" onclick="toggleKeyVis('key-grok')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
       </div>
 
@@ -483,7 +482,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--text);fo
         <h4><span style="color:#fb923c">◆</span> Groq (Llama) <a href="https://console.groq.com/keys" target="_blank" style="font-size:10px;color:var(--accent);margin-left:auto;font-weight:400">Get key ↗</a></h4>
         <div class="key-row">
           <input type="password" id="key-groq" placeholder="gsk_…"/>
-          <button class="btn-icon" onclick="toggleKeyVis('key-groq')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="btn-icon" onclick="toggleKeyVis('key-groq')" title="Show/hide"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
       </div>
 
@@ -552,57 +551,57 @@ function syncVFS(){
 async function loadAllFilesIntoVFS(){
   // Load ALL repository files into VFS for proper imports/requires
   if(!curRepo||!repoTree.length)return;
-  
+
   tLog('Loading repository into virtual file system…','i');
   const[owner,repo]=curRepo.split('/');
   let loaded=0;
   let images=0;
-  
+
   for(const item of repoTree){
     if(item.type!=='blob')continue;
-    
+
     // Skip if already in tabs
     if(tabs.some(t=>t.path===item.path))continue;
-    
+
     const ext=item.path.split('.').pop()?.toLowerCase();
-    
+
     // Handle image files - load as base64 data URIs
     if(['png','jpg','jpeg','gif','svg','ico','webp','bmp'].includes(ext)){
       try{
-        const r=await fetch(\`https://api.github.com/repos/\${owner}/\${repo}/contents/\${item.path}?ref=\${curBranch}\`,{headers:ghH()});
+        const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${item.path}?ref=${curBranch}`,{headers:ghH()});
         if(!r.ok)continue;
         const d=await r.json();
-        
+
         // GitHub already gives us base64, just add data URI prefix
         const mimeTypes={
           png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',
           svg:'image/svg+xml',ico:'image/x-icon',webp:'image/webp',bmp:'image/bmp'
         };
         const mimeType=mimeTypes[ext]||'image/png';
-        vfs[item.path]=\`data:\${mimeType};base64,\${d.content.replace(/\\n/g,'')}\`;
+        vfs[item.path]=`data:${mimeType};base64,${d.content.replace(/\n/g,'')}`;
         images++;
       }catch{}
       continue;
     }
-    
+
     // Skip other binary files
     if(['woff','woff2','ttf','eot','zip','tar','gz','pdf'].includes(ext))continue;
-    
+
     try{
-      const r=await fetch(\`https://api.github.com/repos/\${owner}/\${repo}/contents/\${item.path}?ref=\${curBranch}\`,{headers:ghH()});
+      const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${item.path}?ref=${curBranch}`,{headers:ghH()});
       if(!r.ok)continue;
       const d=await r.json();
       try{
-        const content=decodeURIComponent(escape(atob(d.content.replace(/\\n/g,''))));
+        const content=decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));
         vfs[item.path]=content;
         loaded++;
       }catch{}
     }catch{}
   }
-  
+
   // Sync current tabs
   syncVFS();
-  tLog(\`Loaded \${loaded} text files + \${images} images + \${tabs.length} open files into VFS.\`,'s');
+  tLog(`Loaded ${loaded} text files + ${images} images + ${tabs.length} open files into VFS.`,'s');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -794,12 +793,12 @@ async function runCode(){
     }
     return;
   }
-  
+
   if(lang==='python'){
     if(!panelVisible)togglePanel();
     switchPanel('terminal');
     tLog(`\n▶ Running ${activeTab.path}…`,'i');
-    
+
     // Mount VFS into Pyodide
     try{
       // Create a virtual filesystem in Pyodide
@@ -818,19 +817,19 @@ os.makedirs('${dir}', exist_ok=True)
     }catch(e){
       tLog('VFS mount warning: '+e.message,'w');
     }
-    
+
     await execPy(code);
     return;
   }
-  
+
   if(lang==='javascript'||lang==='typescript'){
     if(!panelVisible)togglePanel();
     switchPanel('terminal');
     tLog(`\n▶ Running ${activeTab.path}…`,'i');
-    
+
     // Create a simple require() system for JavaScript
     const vfsContext=Object.entries(vfs).map(([p,c])=>`['${p}']:${JSON.stringify(c)}`).join(',');
-    
+
     try{
       const wrapped=`
 const _vfs={${vfsContext}};
@@ -852,7 +851,7 @@ try{${code}}catch(e){_err(e.message)}`;
     }catch(e){tLog(e.message,'e');}
     return;
   }
-  
+
   tLog(`Cannot run ${lang} files in the browser.`,'w');
   if(!panelVisible)togglePanel();
   switchPanel('terminal');
@@ -876,7 +875,7 @@ function openRepoPreview(){
 
   // Sync VFS to get latest content
   syncVFS();
-  
+
   // Inject all files from VFS into HTML
   html=injectVFSIntoHTML(html);
 
@@ -889,36 +888,36 @@ function openRepoPreview(){
 
 function injectVFSIntoHTML(html){
   // Create a comprehensive VFS module system that intercepts ALL file requests
-  
+
   // Build VFS object for injection
   const vfsData={};
   for(const[path,content]of Object.entries(vfs)){
     vfsData[path]=content;
-    // Also register with leading ./
+    // Also register with leading./
     vfsData['./'+path]=content;
-    // And without leading ./
+    // And without leading./
     vfsData[path.replace(/^\.\//,'')]=content;
   }
-  
+
   // Inject VFS loader script at the very beginning of <head>
   const vfsLoaderScript=`
 <script>
 // Virtual File System - intercepts all file requests
 (function(){
   const VFS = ${JSON.stringify(vfsData)};
-  
+
   // Store original methods
   const originalFetch = window.fetch;
   const originalXHROpen = XMLHttpRequest.prototype.open;
   const originalXHRSend = XMLHttpRequest.prototype.send;
-  
+
   // Helper to resolve paths
   function resolvePath(url) {
     // Skip absolute URLs
     if(url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) {
       return null;
     }
-    
+
     // Try multiple path variations
     const paths = [url, './' + url, url.replace(/^\\.\\//, '')];
     for(const p of paths) {
@@ -926,14 +925,14 @@ function injectVFSIntoHTML(html){
     }
     return null;
   }
-  
+
   // Intercept fetch() for ES modules and other resources
   window.fetch = function(url, options) {
     const path = resolvePath(url);
     if(path) {
       const content = VFS[path];
       const ext = path.split('.').pop().toLowerCase();
-      
+
       // Determine MIME type
       let mimeType = 'text/plain';
       if(['js','mjs'].includes(ext)) mimeType = 'application/javascript';
@@ -941,7 +940,7 @@ function injectVFSIntoHTML(html){
       else if(ext === 'css') mimeType = 'text/css';
       else if(ext === 'html') mimeType = 'text/html';
       else if(['jsx','tsx','ts'].includes(ext)) mimeType = 'application/javascript';
-      
+
       return Promise.resolve(new Response(content, {
         status: 200,
         headers: { 'Content-Type': mimeType }
@@ -949,25 +948,25 @@ function injectVFSIntoHTML(html){
     }
     return originalFetch.apply(this, arguments);
   };
-  
+
   // Intercept XMLHttpRequest for traditional AJAX
-  XMLHttpRequest.prototype.open = function(method, url, ...args) {
+  XMLHttpRequest.prototype.open = function(method, url,...args) {
     this._vfsUrl = url;
-    return originalXHROpen.apply(this, [method, url, ...args]);
+    return originalXHROpen.apply(this, [method, url,...args]);
   };
-  
+
   XMLHttpRequest.prototype.send = function(body) {
     const path = resolvePath(this._vfsUrl);
     if(path) {
       const content = VFS[path];
-      
+
       // Simulate async response
       setTimeout(() => {
         Object.defineProperty(this, 'responseText', { value: content, writable: false });
         Object.defineProperty(this, 'response', { value: content, writable: false });
         Object.defineProperty(this, 'status', { value: 200, writable: false });
         Object.defineProperty(this, 'readyState', { value: 4, writable: false });
-        
+
         if(this.onreadystatechange) this.onreadystatechange();
         if(this.onload) this.onload();
       }, 0);
@@ -975,33 +974,33 @@ function injectVFSIntoHTML(html){
     }
     return originalXHRSend.apply(this, arguments);
   };
-  
+
   // Create a global require() function for CommonJS-style imports
   window.require = function(modulePath) {
-    const path = resolvePath(modulePath) || 
-                 resolvePath(modulePath + '.js') || 
+    const path = resolvePath(modulePath) ||
+                 resolvePath(modulePath + '.js') ||
                  resolvePath(modulePath + '.jsx') ||
                  resolvePath(modulePath + '.ts') ||
                  resolvePath(modulePath + '.tsx');
-    
+
     if(path) {
       const content = VFS[path];
       const exports = {};
       const module = { exports };
-      
+
       // Wrap in function to create scope
       const fn = new Function('exports', 'module', 'require', content);
       fn(exports, module, window.require);
-      
+
       return module.exports;
     }
-    
+
     throw new Error('Module not found: ' + modulePath);
   };
-  
+
   console.log('VFS loaded with', Object.keys(VFS).length, 'files');
 })();
-</script>`;
+<\/script>`;
 
   // Insert VFS loader at the start of <head> or before first script
   if(html.includes('<head>')){
@@ -1011,71 +1010,71 @@ function injectVFSIntoHTML(html){
   }else{
     html=vfsLoaderScript+html;
   }
-  
+
   // Replace inline <script src="..."> tags with inline scripts
   html=html.replace(/<script([^>]*)\ssrc=["']([^"']+)["']([^>]*)><\/script>/gi,(match,before,src,after)=>{
     // Skip external URLs and data URIs
     if(src.startsWith('http://')||src.startsWith('https://')||src.startsWith('//')||src.startsWith('data:')){
       return match;
     }
-    
+
     // Look for file in VFS
     const content=vfs[src]||vfs['./'+src]||vfs[src.replace(/^\.\//,'')];
     if(content){
       // Check if it's a module script
       const isModule=before.includes('type="module"')||after.includes('type="module"');
-      return \`<script\${before}\${after}>\n\${content}\n</script>\`;
+      return `<script${before}${after}>\n${content}\n<\/script>`;
     }
-    
+
     return match;
   });
-  
+
   // Replace <link rel="stylesheet" href="..."> with inline styles
   html=html.replace(/<link([^>]*)\shref=["']([^"']+)["']([^>]*)>/gi,(match,before,href,after)=>{
     if(!match.includes('stylesheet')){
       return match;
     }
-    
+
     if(href.startsWith('http://')||href.startsWith('https://')||href.startsWith('//')||href.startsWith('data:')){
       return match;
     }
-    
+
     const content=vfs[href]||vfs['./'+href]||vfs[href.replace(/^\.\//,'')];
     if(content){
-      return \`<style>\n\${content}\n</style>\`;
+      return `<style>\n${content}\n</style>`;
     }
-    
+
     return match;
   });
-  
+
   // Replace <img src="..."> with data URIs from VFS
   html=html.replace(/<img([^>]*)\ssrc=["']([^"']+)["']([^>]*)>/gi,(match,before,src,after)=>{
     if(src.startsWith('http://')||src.startsWith('https://')||src.startsWith('//')||src.startsWith('data:')){
       return match;
     }
-    
+
     const dataUri=vfs[src]||vfs['./'+src]||vfs[src.replace(/^\.\//,'')];
     if(dataUri&&dataUri.startsWith('data:')){
-      return \`<img\${before} src="\${dataUri}"\${after}>\`;
+      return `<img${before} src="${dataUri}"${after}>`;
     }
-    
+
     return match;
   });
-  
+
   // Replace url() in inline CSS with data URIs
   html=html.replace(/url\(["']?([^"')]+)["']?\)/gi,(match,url)=>{
     if(url.startsWith('http://')||url.startsWith('https://')||url.startsWith('//')||url.startsWith('data:')){
       return match;
     }
-    
+
     const dataUri=vfs[url]||vfs['./'+url]||vfs[url.replace(/^\.\//,'')];
     if(dataUri&&dataUri.startsWith('data:')){
-      return \`url("\${dataUri}")\`;
+      return `url("${dataUri}")`;
     }
-    
+
     return match;
   });
-  
+
   return html;
 }
 
@@ -1260,7 +1259,7 @@ function renderTabs(){
 function openCommitModal(){
   const modFiles=tabs.filter(t=>t.mod);
   if(!modFiles.length){notify('No files modified','w');return;}
-  
+
   const list=document.getElementById('commit-files');
   list.innerHTML=modFiles.map(t=>`
     <div class="cf-item mod">
@@ -1268,9 +1267,9 @@ function openCommitModal(){
       <span>${t.path}</span>
     </div>
   `).join('');
-  
+
   document.getElementById('commit-msg').value=modFiles.length===1
-    ?`Update ${modFiles[0].path}`
+   ?`Update ${modFiles[0].path}`
     :`Update ${modFiles.length} files`;
   document.getElementById('modal-commit').classList.add('on');
 }
@@ -1279,29 +1278,29 @@ async function doCommitAll(){
   const modFiles=tabs.filter(t=>t.mod);
   if(!modFiles.length){notify('No files to commit','w');return;}
   if(!curRepo){notify('No repository selected','e');return;}
-  
+
   const msg=document.getElementById('commit-msg').value.trim()||`Update ${modFiles.length} files`;
   const[owner,repo]=curRepo.split('/');
-  
+
   closeModal('commit');
   document.getElementById('commit-ok-btn').disabled=true;
   notify(`Committing ${modFiles.length} file(s)…`,'i');
-  
+
   let success=0,failed=0;
-  
+
   for(const tab of modFiles){
     try{
       if(tab===activeTab&&editor){
         tab.content=editor.getValue();
       }
-      
+
       const encoded=btoa(unescape(encodeURIComponent(tab.content)));
       const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${tab.path}`,{
         method:'PUT',
         headers:{...ghH(),'Content-Type':'application/json'},
         body:JSON.stringify({message:msg,content:encoded,sha:tab.sha,branch:curBranch})
       });
-      
+
       if(r.ok){
         const d=await r.json();
         tab.sha=d.content.sha;
@@ -1317,13 +1316,13 @@ async function doCommitAll(){
       failed++;
     }
   }
-  
+
   document.getElementById('commit-ok-btn').disabled=false;
   renderTabs();
   updateFileTreeMod();
   syncCommitBtn();
   syncVFS();
-  
+
   if(failed===0){
     notify(`✓ Committed ${success} file(s)`,'s');
   }else{
@@ -1337,13 +1336,13 @@ async function doCommitAll(){
 function buildRepoContext(){
   // Build comprehensive repository context for AI
   let context=`Repository: ${curRepo}\nBranch: ${curBranch}\n\n`;
-  
+
   // File structure
   context+=`FILE STRUCTURE:\n`;
   const tree=repoTree.filter(i=>i.type==='blob').map(i=>i.path).sort();
-  context+=tree.map(p=>`  ${p}`).join('\n');
+  context+=tree.map(p=>` ${p}`).join('\n');
   context+=`\n\nTOTAL FILES: ${tree.length}\n\n`;
-  
+
   // Currently open files with full content
   if(tabs.length){
     context+=`OPEN FILES (${tabs.length}):\n\n`;
@@ -1353,12 +1352,12 @@ function buildRepoContext(){
       context+=`${content}\n\n`;
     });
   }
-  
+
   // Active file highlight
   if(activeTab){
     context+=`CURRENTLY ACTIVE FILE: ${activeTab.path}\n`;
   }
-  
+
   return context;
 }
 
@@ -1470,7 +1469,7 @@ Be concise and helpful. Use markdown code blocks for code. When suggesting chang
     }else{
       throw new Error('Unsupported provider: '+provider);
     }
-    
+
     aiHistory.push({role:'assistant',content:reply});
     appendAM('assistant',reply);
   }catch(e){
@@ -1490,10 +1489,10 @@ function appendAM(role,text){
 }
 function fmtAI(t){
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre style="background:var(--bg3);padding:8px 10px;border-radius:6px;overflow-x:auto;margin:4px 0;font-size:11px;font-family:var(--mono)">${c.trim()}</pre>`)
-    .replace(/`([^`]+)`/g,'<code>$1</code>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\n/g,'<br>');
+   .replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre style="background:var(--bg3);padding:8px 10px;border-radius:6px;overflow-x:auto;margin:4px 0;font-size:11px;font-family:var(--mono)">${c.trim()}</pre>`)
+   .replace(/`([^`]+)`/g,'<code>$1</code>')
+   .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+   .replace(/\n/g,'<br>');
 }
 
 // ═══════════════════════════════════════════════════════════
